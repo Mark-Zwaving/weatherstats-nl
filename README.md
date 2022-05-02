@@ -3,13 +3,8 @@
 Commandline python3 program to calculate weather statistics with data from the knmi.  
 
 ## Download/clone weatherstats-nl
-*Download from:*  
-https://github.com/Mark-Zwaving/weatherstats-nl  
-
-*With git clone*
-```
-git clone https://github.com/Mark-Zwaving/weatherstats-nl
-```
+*Download from:* https://github.com/Mark-Zwaving/weatherstats-nl  
+*With git clone* ```git clone https://github.com/Mark-Zwaving/weatherstats-nl```
 
 ## Python3
 Program makes use of of python3 *version >= 3.7.3*  
