@@ -30,7 +30,9 @@ make altinstall
 Ctypes error :(  
 ModuleNotFoundError: No module named '\_ctypes'  
 For linux debian install:  
->>> sudo apt-get install libffi-dev  
+```
+sudo apt-get install libffi-dev  
+```  
 Recompile and instal python3.7 again  
   
 ### Install necessary python3 libraries  
@@ -47,13 +49,23 @@ python3 -m pip install -r requirements.txt
 **Install all libraries in a virtual environment (recommended)** 
   
 *Install virtual environment*  
-```python3 -m pip install virtualenv``` 
+```
+python3 -m pip install virtualenv
+``` 
 *Create virtual envronment with python3.7*  
-```virtualenv venv-py37 --python=/path/to/python3.7```  
+```
+virtualenv venv-py37 --python=/path/to/python3.7
+```  
 *Activate venv* 
-```source venv-py37/bin/activate```  
+```
+source venv-py37/bin/activate
+```  
 *Install libraries*  
-```python3 -m pip install -r requirements.txt```
+```
+python3 -m pip install -r requirements.txt
+```
 
 ### Start program weatherstats-nl
-```python3 wstats-nl.py```
+```
+python3 wstats-nl.py
+```
