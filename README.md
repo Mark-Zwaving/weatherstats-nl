@@ -1,9 +1,18 @@
 # WeatherstatsNL
 
-Commandline python3 program to calculate weather statistics with data from the knmi  
+Commandline python3 program to calculate weather statistics with data from the knmi.  
+
+## Download/clone weatherstats-nl
+*Download from:*
+https://github.com/Mark-Zwaving/weatherstats-nl  
+
+*With git clone*
+```
+git clone https://github.com/Mark-Zwaving/weatherstats-nl
+```
 
 ## Python3
-Programm makes use of of python3 version >= 3.7.3  
+Program makes use of of python3 *version >= 3.7.3*  
 Install it from: https://www.python.org/ftp/python/  
 
 ### Install for windows
@@ -29,25 +38,22 @@ For WeatherStatsNL and the builtin library common, some python3 libraries needs 
   
 Which libraries?  
 See file requirements.txt  
-  
-Install tutorial: 
+
+**Install all libraries for weatherstats-nl**  
 ```
-# Install all libraries for weatherstats-nl  
-python3 -m pip install -r requirements.txt  
-  
-# Install with a virtual environment (recommended):  
-  
-# Install virtual environment  
-python3 -m pip install virtualenv  
-# Create virtual envronment with python3.7  
-virtualenv --python=/path/to/python3.7  
-# Activate venv  
-source venv/bin/activate  
-# Install libraries  
 python3 -m pip install -r requirements.txt  
 ```
 
-### Start weatherstats-nl
-```
-python3 wstats-nl.py  
-```
+**Install all libraries in a virtual environment (recommended)** 
+  
+*Install virtual environment*  
+```python3 -m pip install virtualenv``` 
+*Create virtual envronment with python3.7*  
+```virtualenv venv-py37 --python=/path/to/python3.7```  
+*Activate venv* 
+```source venv-py37/bin/activate```  
+*Install libraries*  
+```python3 -m pip install -r requirements.txt```
+
+### Start program weatherstats-nl
+```python3 wstats-nl.py```
