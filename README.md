@@ -52,7 +52,7 @@ python3 -m pip install -r requirements.txt
 ```
 python3 -m pip install virtualenv
 ``` 
-*In the map: weatherstats-nl*
+*In the map: weatherstats-nl*  
 *Create an virtual environment named 'venv-py37' with the use of python3.7*  
 ```
 virtualenv venv-py37 --python=/path/to/python3.7
