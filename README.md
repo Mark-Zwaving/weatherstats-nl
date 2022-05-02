@@ -61,7 +61,7 @@ virtualenv venv-py37 --python=/path/to/python3.7
 ```
 source venv-py37/bin/activate
 ```  
-*Install all the needed python3 libraries from requirements.txt*  
+*Install all the needed python3 libraries from the file requirements.txt*  
 ```
 python3 -m pip install -r requirements.txt
 ```  
