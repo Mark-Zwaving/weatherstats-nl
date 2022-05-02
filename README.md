@@ -10,14 +10,13 @@ Install it from: https://www.python.org/ftp/python/
 Pick a correct version: https://www.python.org/downloads/windows/  
 
 ### Install from source (linux)
-Download one of the correct versions:  
 ```
->>> wget https://www.python.org/ftp/python/3.7.13/Python-3.7.13.tgz  
->>> tar xzvf https://www.python.org/ftp/python/3.7.13/Python-3.7.13.tgz  
->>> cd Python-3.7.13  
->>> ./configure --prefix="/usr/local" --with-openssl="/usr" --enable-shared --enable-optimizations  
->>> make  
->>> make altinstall  
+wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+tar xzvf Python-3.7.9.tgz
+cd Python-3.7.9  
+./configure --prefix="/usr/local" --with-openssl="/usr" --enable-shared --enable-optimizations  
+make  
+make altinstall  
 ```
 Ctypes error :(  
 ModuleNotFoundError: No module named '\_ctypes'  
@@ -26,11 +25,29 @@ For linux debian install:
 Recompile and instal python3.7 again  
   
 ### Install necessary python3 libraries  
-For WeatherStatsNL and the builtin library common some python3 libraries needs to be installed    
+For WeatherStatsNL and the builtin library common, some python3 libraries needs to be installed    
   
 Which libraries?  
 See file requirements.txt  
   
-Install command: 
->>> python3 -m pip install -r requirements.txt  
+Install tutorial: 
+```
+# Install all libraries for weatherstats-nl  
+python3 -m pip install -r requirements.txt  
+  
+# Install with a virtual environment (recommended):  
+  
+# Install virtual environment  
+python3 -m pip install virtualenv  
+# Create virtual envronment with python3.7  
+virtualenv --python=/path/to/python3.7  
+# Activate venv  
+source venv/bin/activate  
+# Install libraries  
+python3 -m pip install -r requirements.txt  
+```
 
+### Start weatherstats-nl
+```
+python3 wstats-nl.py  
+```
