@@ -382,13 +382,13 @@ def check_menu_options():
     '''If no internet, skip download part'''
     ok_web, ok_data, loc_menu = False, False, lst_menu
     # Check internet
-    if fio.has_internet(verbose=False):
+    if fio.has_internet(verbose=cfg.verbose):
         ok_web = True
     else:
-        loc_menu = loc_menu[2:] # Update menu. Skip download options menu
+        loc_menu = loc_menu[1:] # Update menu. Skip download options menu
 
-    if fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=False):
-        loc_menu = loc_menu[:-3] # Update menu. Skip data handling options menu
+    if fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
+        loc_menu = loc_menu[:-4] # Update menu. Skip data handling options menu
     else:
         ok_data = True
 
@@ -400,16 +400,18 @@ def main_menu():
     while True:  # Main menu
         ok_web, ok_data, loc_menu = check_menu_options()
         num = 1
-        t = text.head('MAIN MENU') + '\n'
 
         tmenu = ''
-        for el in loc_menu:
-            title, options = el[0], el[1]
-            tmenu += f'\n{space}{title}\n'
-            for option in options:
-                title, fn = option[0], option[1]
-                tmenu += f'{space*2}{num}) {title}\n'
-                num += 1
+        if loc_menu:
+            for el in loc_menu:
+                title, options = el[0], el[1]
+                tmenu += f'\n{space}{title}\n'
+                for option in options:
+                    title, fn = option[0], option[1]
+                    tmenu += f'{space*2}{num}) {title}\n'
+                    num += 1
+
+        t = text.head('MAIN MENU') + '\n'
         t += f'{tmenu}\n' if tmenu else ''
 
         if ok_data == False and ok_web == False:
