@@ -33,10 +33,10 @@ For linux debian install:
 ```
 sudo apt-get install libffi-dev  
 ```  
-*Recompile and instal python3.7 again*  
+*Recompile and install python3.7 again*  
   
 ### Install necessary python3 libraries  
-For WeatherStatsNL and the builtin library common, some python3 libraries needs to be installed    
+For WeatherStatsNL and the library common some python3 libraries needs to be installed    
   
 Which libraries?  
 See file requirements.txt  
@@ -48,11 +48,12 @@ python3 -m pip install -r requirements.txt
 
 **Install all libraries in an virtual environment (recommended)** 
   
-*Install an virtual environment*  
+*Install the python library for to make an virtual environment*  
 ```
 python3 -m pip install virtualenv
 ``` 
-*Create an virtual envronment with python3.7*  
+*In the map: weatherstats-nl*
+*Create an virtual environment named 'venv-py37' with the use of python3.7*  
 ```
 virtualenv venv-py37 --python=/path/to/python3.7
 ```  
