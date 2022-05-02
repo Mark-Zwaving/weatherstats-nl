@@ -368,7 +368,7 @@ def has_internet(verbose=cfg.verbose):
     cnsl.log(f'Url {cfg.check_internet_url}', verbose)
     with threading.Lock():
         try:
-            sock = socket.create_connection(("1.1.1.1", 53))
+            sock = socket.create_connection((cfg.check_internet_url, 53))
             if sock: sock.close()
         except Exception as e:
             cnsl.log(f'Check failed\n{e}', verbose)

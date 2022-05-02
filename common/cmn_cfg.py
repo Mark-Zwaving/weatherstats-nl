@@ -39,7 +39,7 @@ download_interval_time = 0.3 # Seconds.
 download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage for checking if there is a internet connection
-check_internet_url = 'https://www.google.com/'
+check_internet_url = '1.1.1.1'
 
 ################################################################################
 # Vars below do not change
