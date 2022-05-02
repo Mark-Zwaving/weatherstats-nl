@@ -46,17 +46,17 @@ See file requirements.txt
 python3 -m pip install -r requirements.txt  
 ```
 
-**Install all libraries in a virtual environment (recommended)** 
+**Install all libraries in an virtual environment (recommended)** 
   
-*Install a virtual environment*  
+*Install an virtual environment*  
 ```
 python3 -m pip install virtualenv
 ``` 
-*Create a virtual envronment with python3.7*  
+*Create an virtual envronment with python3.7*  
 ```
 virtualenv venv-py37 --python=/path/to/python3.7
 ```  
-*Activate a virtual environment* 
+*Activate the virtual environment* 
 ```
 source venv-py37/bin/activate
 ```  
