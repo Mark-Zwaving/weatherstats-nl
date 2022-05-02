@@ -1,0 +1,145 @@
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	color: #333333;
+	background-color: #fffafa;
+	font: normal normal normal 0.8rem/0.9rem Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+}
+
+table {
+	margin: 0 auto;
+	margin-top: 0.2rem;
+	border-spacing: 2px;
+	border-collapse: separate;
+	color: #505050;
+	background-color: #ffffff;
+	border-radius: 2%;
+}
+
+th {
+	padding: 2px;
+	text-transform: uppercase;
+	/* font-variant: uppercase; */
+	text-align: center;
+}
+
+td {
+	padding: 1px 3px;
+	/* white-space: nowrap; */
+	/* font-weight: bold; */
+	text-align: center;
+}
+
+tr:hover {
+	color: green;
+	background:beige;
+	/* font-weight:bold */
+}
+
+td:hover {
+	color: #191970;
+	cursor: pointer;
+}
+
+thead tr:first-child th {
+	color: #eeeeee;
+	background: #848484;
+	/* text-transform: uppercase; */
+	font-variant: small-caps;
+}
+
+thead tr:nth-child(2) {
+	background: beige;
+	/* font-weight:bold */
+	color: green;
+}
+
+thead tr:nth-child(2) th:hover {
+	/* font-weight:bold */
+	color: #000066;
+}
+
+td:nth-child(1), td:nth-child(2) {
+	font-style: italic
+}
+
+td:nth-child(n+3) {
+	text-align: center;
+}
+
+tr:nth-child(odd) {
+	background: #eeeeee;
+}
+
+tr:nth-child(even) {
+	background: #dddddd;
+}
+
+.popup {
+	color: #636363;
+	position: absolute;
+	display: inline-block;
+	background: whitesmoke;
+	transition: opacity 1000ms;
+	visibility: hidden;
+	opacity: 0;
+	box-shadow: 0px 0px 2px 2px rgb(200, 200, 200);
+	border-spacing: 2px;
+	border-collapse: separate;
+	border-radius: 2%;
+}
+
+.popup th {
+	padding: 1px 3px 0px 3px;
+}
+.popup tr:hover {
+	color: green;
+	background:beige;
+	/* font-weight:bold */
+}
+.popup td {
+	font-style: normal;
+	font-weight: normal;
+	text-align: center;
+	padding: 1px 2px 1px 2px;
+}
+
+td:hover .popup {
+	visibility: visible;
+	opacity: 1;
+}
+
+tfoot tr td {
+	font-size: 0.7rem;
+	color: green;
+	background: beige;
+	text-transform: lowercase;
+	font-style: italic;
+}
+
+tfoot tr td:hover {
+	font-weight: normal;
+	text-decoration: none;
+	cursor: cursor;
+}
+
+sub {
+	font-size: 0.6rem;
+}
+
+.dat {
+    color: #777777;
+    font-size: 0.7rem;
+}
+
+.txt {
+	font-style: italic;
+}
+
+.overline {
+	text-decoration: overline;
+}

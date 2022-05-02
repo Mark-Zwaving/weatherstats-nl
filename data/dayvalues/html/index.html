@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Dayvalues with menu </title>
+        <meta charset="UTF-8">
+        <meta name="author" content="WeatherstatsNL - Mark Zwaving">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <meta name="description" content="wrapperpage with dayvalues for menu">
+        <link rel="stylesheet" type="text/css" href="./../../thirdparty/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="./../../thirdparty/css/font-awesome-5.min.css">
+        <link rel="stylesheet" type="text/css" href="./css/dayvalues.css">
+        <link rel="stylesheet" type="text/css" href="./css/default.css">
+    </head>
+    <body>
+        <article class="container-xl max-width-index mx-auto">
+            <header id="dayvalues_menu">
+              <nav class="navbar navbar-expand-md navbar-light bg-light p-1">
+
+                <div class="col text-center">
+                  <button class="btn btn-info btn-sm m-1" id="year-before">
+                    <i class="fa fa-fast-backward" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-info btn-sm m-1" id="month-before">
+                    <i class="fa fa-step-backward" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-info btn-sm m-1" id="day-before">
+                    <i class="fa fa-caret-left" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-info btn-sm m-1" id="day-next">
+                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-info btn-sm m-1" id="month-next">
+                    <i class="fa fa-step-forward" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-info btn-sm m-1" id="year-next">
+                    <i class="fa fa-fast-forward" aria-hidden="true"></i>
+                  </button>
+                </div>
+    
+                <div class="col text-center">
+                  <form class="form-inline">
+                    
+                    <div class="col text-center">
+                      <div class="form-group m-1"> 
+                        <select id="options_form_id" class="form-control custom-select">
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col text-center">
+                      <div class="form-group m-1">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroupPrepend3">
+                              <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </span>
+                          </div>
+                          <input type="date" id="date_form_id" class="form-control form-control-sm"
+                                min="1906-01-01" max=""
+                                value="2000-01-01" aria-describedby="inputGroupPrepend3" required>
+                        </div>
+                      </div>
+                    </div>
+                  
+                  </form>
+                </div>
+    
+              </nav>
+            </header>
+
+            <iframe id="dayvalues_page" name="dayvalues_page"
+                    src="dummy.html" scrolling="0" frameborder="0" border="0"></iframe>
+                
+        </article>
+
+        <script src="./../../thirdparty/js/jquery-3.2.1.slim.min.js"></script>
+        <script src="./../../thirdparty/js/popper.min.js"></script>
+        <script src="./../../thirdparty/js/bootstrap.js"></script>
+        <script src="./../../thirdparty/js/font-awesome-5.min.js"></script>
+        <script src="./js/dayvalues.js"></script>
+
+        <script>
+
+          // Uncomment the stations you want to show in the optionlist on this page
+          lst_stations = [
+              // new Station('391', 'Arcen', '19900704'),
+              // new Station('249', 'Berkhout', '19510101'),
+              // new Station('348', 'Cabauw Mast', '19510101'),
+              new Station('260', 'De Bilt', '19010101'),
+              new Station('235', 'De Kooy', '19060101'),
+              // new Station('275', 'Deelen', '19010101'),
+              new Station('280', 'Eelde', '19060301'),
+              // new Station('370', 'Eindhoven', '19010101'),
+              // new Station('377', 'Ell', '19010101'),
+              // new Station('350', 'Gilze-Rijen', '19010101'),
+              // new Station('278', 'Heino', '19010101'),
+              // new Station('356', 'Herwijnen', '19010101'),
+              // new Station('330', 'Hoek van Holland', '19010101'),
+              // new Station('279', 'Hoogeveen', '19010101'),
+              // new Station('251', 'Hoorn Terschelling', '19010101'),
+              // new Station('283', 'Hupsel', '19010101'),
+              // new Station('277', 'Lauwersoog', '19010101'),
+              // new Station('270', 'Leeuwarden', '19010101'),
+              // new Station('269', 'Lelystad', '19010101'),
+              new Station('380', 'Maastricht', '19060101'),
+              // new Station('273', 'Marknesse', '19010101'),
+              // new Station('286', 'Nieuw Beerta', '19900219'),
+              // new Station('344', 'Rotterdam', '19010101'),
+              // new Station('240', 'Schiphol', '19010101'),
+              // new Station('267', 'Stavoren', '19010101'),
+              // new Station('290', 'Twenthe', '19010101'),
+              // new Station('242', 'Vlieland', '19010101'),
+              new Station('310', 'Vlissingen', '19060101')
+              // new Station('375', 'Volkel', '19010101'),
+              // new Station('215', 'Voorschoten', '19010101'),
+              // new Station('319', 'Westdorpe', '19010101'),
+              // new Station('257', 'Wijk aan Zee', '19010101'),
+              // new Station('323', 'Wilhelminadorp', '19010101')
+          ]
+  
+          wmo_act = '280' // Default Eelde ! ;)
+
+        </script>
+    </body>
+</html>
