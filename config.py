@@ -26,7 +26,7 @@ __status__ = 'Development'
 import common.control.fio as fio
 ################################################################################
 
-verbose = True # Print more(all) to screen
+verbose = False # Print more(all) to screen
 error = True   # Print exceptions and errors to screen
 info = True    # Show examples and help info in menu by default
 
@@ -37,7 +37,6 @@ save_forecasts = True
 # Default output type file. Options: html, text and cmd
 # cmd is output to screen only. Text en html writes texts/html files
 default_output = 'html'
-check_internet_url = 'www.google.com'  # Url to check for an internet connection
 # The <default> years/period for the calculations of climate averages
 climate_period = '1991-2020'
 # Set the time zone
