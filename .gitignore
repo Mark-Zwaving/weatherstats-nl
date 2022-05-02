@@ -1,15 +1,12 @@
 *.pyc
-*.txt
-*.zip
-*.ipynb
 
-bck
 data/forecasts
 data/dayvalues/html/235
 data/dayvalues/html/260
 data/dayvalues/html/280
 data/dayvalues/html/310
 data/dayvalues/html/380
+data/dayvalues/zip
+data/dayvalues/txt
 data/graphs
 data/statistics/2022
-
