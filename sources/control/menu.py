@@ -331,97 +331,97 @@ def graph_period():
 ##########################################################################################
 # MAIN MENU 
 
-# Menu list
-lst_menu = [
+# Menu options
+lst_download = [ 'DOWNLOAD', [ 
+    [ 'Download all dayvalues knmi stations', process_knmi_dayvalues_all ],
+    [ 'Download dayvalues selected knmi stations', process_knmi_dayvalues_select]
+] ]
 
-    [ 'DOWNLOAD', [ 
-        [ 'Download all dayvalues knmi stations', process_knmi_dayvalues_all ],
-        [ 'Download dayvalues selected knmi stations', process_knmi_dayvalues_select]
-    ] ],
+lst_statistics = [ 'STATISTICS TABLES', [  
+    [ 'DIY cells statistics', table_stats_diy ],
+    [ 'Winter statistics', table_stats_winter ],
+    [ 'Summer statistics', table_stats_summer ],
+    [ 'Winter & summer statistics', table_stats_winter_summer ],
+    [ 'My default statistics (see config.py)', table_stats_default ],
+    [ 'My default extremes (see config.py)', table_stats_extremes ],
+    [ 'My default counts (see config.py)', table_stats_counts ],
+    [ 'Day, month & period statistics in a period', table_stats_period_in_period ],
+    [ 'Compare (day, month, year and season)', table_stats_compare ],
+] ]
 
-    [ 'STATISTICS TABLES', [  
-        [ 'DIY cells statistics', table_stats_diy ],
-        [ 'Winter statistics', table_stats_winter ],
-        [ 'Summer statistics', table_stats_summer ],
-        [ 'Winter & summer statistics', table_stats_winter_summer ],
-        [ 'My default statistics (see config.py)', table_stats_default ],
-        [ 'My default extremes (see config.py)', table_stats_extremes ],
-        [ 'My default counts (see config.py)', table_stats_counts ],
-        [ 'Day, month & period statistics in a period', table_stats_period_in_period ],
-        [ 'Compare (day, month, year and season)', table_stats_compare ],
-    ] ],
+lst_days = [ 'DAYS', [ 
+    [ 'Make or see dayvalues', make_dayvalues ],
+    [ 'Search 4 days', search_for_days ]
+] ]
 
-    [ 'DAYS', [ 
-        [ 'Make or see dayvalues', make_dayvalues ],
-        [ 'Search 4 days', search_for_days ]
-    ] ],
+lst_graphs = [ 'GRAPHS', [ 
+    [ 'DIY period', graph_period ]
+] ]
 
-    [ 'GRAPHS', [ 
-        [ 'DIY period', graph_period ]
-    ] ],
+lst_weather = [ 'WEATHER (dutch)', [ 
+    [ 'Forecast buienradar', process_weather_buienradar_forecast ],
+    [ 'Stations NL buienradar', process_weather_buienradar_current ],
+    [ 'Forecast knmi', process_weather_knmi_forecast ],
+    [ 'Forecast model knmi', process_weather_knmi_model ],
+    [ 'Forecast guidance knmi', process_weather_knmi_guidance ],
+    [ 'Stations NL knmi', process_weather_knmi_current ]
+] ]
 
-    [ 'WEATHER (dutch)', [ 
-        [ 'Forecast buienradar', process_weather_buienradar_forecast ],
-        [ 'Stations NL buienradar', process_weather_buienradar_current ],
-        [ 'Forecast knmi', process_weather_knmi_forecast ],
-        [ 'Forecast model knmi', process_weather_knmi_model ],
-        [ 'Forecast guidance knmi', process_weather_knmi_guidance ],
-        [ 'Stations NL knmi', process_weather_knmi_current ]
-    ] ]
+# Menu list all
+# lst_menu = [ lst_download, lst_statistics, lst_days, lst_graphs, lst_weather ]
 
-    # [ 'QUICK IO <TODO>',
-    #     [ [ 'Quick statistics', cquick_stats_io ],
-    #       [ 'Quick graphs', cquick_graphs_io ],
-    #     ]
-    # ],
-
-]
+# [ 'QUICK IO <TODO>',
+#     [ [ 'Quick statistics', cquick_stats_io ],
+#       [ 'Quick graphs', cquick_graphs_io ],
+#     ]
+# ],
 
 
 def check_menu_options():
     '''If no internet, skip download part'''
-    ok_web, ok_data, loc_menu = False, False, lst_menu
+    web, data, loc_menu = False, False, []
+    # Check for data in map
+    if not fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
+        data = True
+        # Add data menu options to menu 
+        loc_menu.append(lst_statistics)
+        loc_menu.append(lst_days)
+        loc_menu.append(lst_graphs)
+
     # Check internet
     if fio.has_internet(verbose=cfg.verbose):
-        ok_web = True
-    else:
-        loc_menu = loc_menu[1:] # Update menu. Skip download options menu
+        web = True
+        # Add downloadable options
+        loc_menu.insert(0, lst_download) # Add first position
+        loc_menu.append(lst_weather)
 
-    if fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
-        loc_menu = loc_menu[:-4] # Update menu. Skip data handling options menu
-    else:
-        ok_data = True
-
-    return ok_web, ok_data, loc_menu
+    return web, data, loc_menu
 
 
 def main_menu():
     space = '    '
     while True:  # Main menu
-        ok_web, ok_data, loc_menu = check_menu_options()
-        num = 1
-
-        tmenu = ''
-        if loc_menu:
-            for el in loc_menu:
-                title, options = el[0], el[1]
-                tmenu += f'\n{space}{title}\n'
-                for option in options:
-                    title, fn = option[0], option[1]
-                    tmenu += f'{space*2}{num}) {title}\n'
-                    num += 1
+        web, data, loc_menu = check_menu_options()
+        num, tmenu = 1, ''
+        for el in loc_menu:
+            title, options = el[0], el[1]
+            tmenu += f'\n{space}{title}\n'
+            for option in options:
+                title = option[0]
+                tmenu += f'{space*2}{num}) {title}\n'
+                num += 1
 
         t = text.head('MAIN MENU') + '\n'
         t += f'{tmenu}\n' if tmenu else ''
 
-        if ok_data == False and ok_web == False:
+        if not data and not web:
             t += text.menu_no_internet_no_data + '\n'
             t += text.foot("\tPress a key to reload the menu or press 'q' to quit...")
 
         else:
-            if ok_web == False:
+            if not web:
                 t += '\tNo internet connection. Get an working internet connection for more menu options.\n'
-            elif ok_data == False:
+            elif not data:
                 t += '\tNo data found. Download the weather data (option 1 & 2) for more menu options.\n'
 
             t += f'\tChoose one of the following options: 1...{num-1}\n'
