@@ -26,7 +26,8 @@ import common.view.console as cnsl
 # Main programm
 if __name__== '__main__':
     cnsl.log('\nWelcome to WeatherStatsNL', True)
-    if len(stations.stations) == 0:
+    
+    if len(stations.lst) == 0:
         menu.error_no_stations_found()
     else:
         menu.main_menu()
