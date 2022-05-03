@@ -97,7 +97,7 @@ def mk_stations(inp_places):
         # Station name can be a wmo number or a name
         wmo_place = wmo_place.replace(' ','')
         if stations.name_wmo_in_lst(wmo_place):
-            station = stations.from_wmo_name_to_station(wmo_place)
+            station = stations.wmo_name_to_station(wmo_place)
             if station != False:
                 cnsl.log(f'Found -> {wmo_place}') # Verbose output
                 result.append(station) # Add station to result lst
