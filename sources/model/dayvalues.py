@@ -48,7 +48,7 @@ def calculate(options):
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
 
         if options['download']:
-            daydata.process_data( stations.from_wmo_to_station(station.wmo) )
+            daydata.process_data( stations.wmo_to_station(station.wmo) )
 
         ok, np_data_2d = daydata.read(station) # Read data stations
         days = stats.Days(station, np_data_2d, options['period']) # Get Days object with correct days
@@ -68,9 +68,10 @@ def calculate(options):
             path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}.{ options["file-type"] }')
 
             # (Over)write or skip
+            # dayvalues/html/260/1911/01/dayvalues-260-1911-01-25.html
             if options['write'] == 'rewrite': # Always verwrite
-                t  = f'Make {options["file-type"]} dayvalues for {station.place}\n'
-                t += f'File: {path}'
+                t  = f'[{ymd.now()}] Make {options["file-type"]} dayvalues for {station.place} '
+                t += f'...{path[-57:]}'
                 cnsl.log( t, cfg.verbose )
             elif fio.check(path, verbose=False):  # Check if there is a file
                 continue # If already there skip 
@@ -120,7 +121,7 @@ def calculate(options):
                 ok = fio.mk_dir(ym_dir, verbose=False)
 
             if ok: # Month map exists
-                cnsl.log(f'Map to make {ym_dir} is done!', cfg.verbose)
+                cnsl.log(f'Map to make {ym_dir} is done!', False)
             else:
                 cnsl.log(f'Error make map {ym_dir}', cfg.error)
 
@@ -142,10 +143,8 @@ def calculate(options):
             page.footer = foot
             ok = page.save()
 
-            if ok:
-                cnsl.log(f'Make {path} success!', cfg.verbose)
-            else:
-                cnsl.log(f'Failed to make {path} !', cfg.error)
+            if not ok:
+                cnsl.log('Failed!', cfg.error)
 
     return ndx_html            # Make link html only. NOPE
             
