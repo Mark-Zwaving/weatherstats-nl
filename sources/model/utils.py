@@ -21,6 +21,7 @@ import common.model.ymd as ymd
 import common.control.answer as answer
 import common.control.fio as fio
 import common.view.console as cnsl
+import common.model.util as util
 import sources.control.ask as ask
 
 def again(t):
@@ -159,7 +160,7 @@ def shuffle_list(l, level=1):
         while level > 0:
             i = 0
             while i <= max:
-                rnd = rnd_digit(0, max)  # Get random key
+                rnd = util.rnd_digit(0, max)  # Get random key
 
                 # Swap values elements
                 mem    = l[i]
@@ -173,7 +174,7 @@ def shuffle_list(l, level=1):
 
 def rnd_from_list( l ):
     l = shuffle_list(l)  # Shuffle list
-    rnd = rnd_digit( 0, len(l)-1 ) # Get a random number from list
+    rnd = util.rnd_digit( 0, len(l)-1 ) # Get a random number from list
     return l[rnd]
 
 def s_to_bytes( s, charset, errors ):
