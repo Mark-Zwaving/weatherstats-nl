@@ -163,7 +163,7 @@ def buienradar_weather(verbose=cfg.verbose):
         t = t.replace('&nbsp;', ' ')
         t = txt.sanitize(t)
 
-        tt, sentence, cnt, max_sentence, max_len = '', '', 1, 8, 84  # Count words
+        tt, sentence, cnt, max_sentence, max_len = '', '', 1, 8, 64  # Count words
         for word in t.split(' '):
             sentence += word + ' ' # Make sentences of words
             if word[-1] == '.' and cnt >= max_sentence: # End of paragraph
