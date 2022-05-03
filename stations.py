@@ -46,7 +46,7 @@ class Station:
         self.data_download      = True
 
 # Make list with stations
-stations = []
+lst = []
 # Add KNMI weatherstations
 # Extended example ie Maastricht,
 Maastricht = Station('380', 'Maastricht', 'Limburg', 'Netherlands')  # Create Station
@@ -58,44 +58,44 @@ Maastricht.data_format       = cfg.knmi_data_format
 Maastricht.data_zip_path     = os.path.join( cfg.dir_dayvalues_zip, 'etmgeg_380.zip' )
 Maastricht.data_txt_path     = os.path.join( cfg.dir_dayvalues_txt, 'etmgeg_380.txt' )
 Maastricht.data_dayvalus_url  = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_380.zip'
-stations.append( Maastricht ) # Add to list
+lst.append( Maastricht ) # Add to list
 
 # For the rest the url and the files and the rest are automaticly updated
 # Just put in the right WMO number for the station or make one for yourself
-stations.append(Station('215', 'Voorschoten', 'Zuid-Holland', ''))
-stations.append(Station('235', 'De Kooy', 'Noord-Holland', ''))
-stations.append(Station('240', 'Schiphol', 'Noord-Holland', ''))
-stations.append(Station('249', 'Berkhout', 'Noord-Holland', ''))
-stations.append(Station('251', 'Hoorn Terschelling', 'Friesland', ''))
-stations.append(Station('257', 'Wijk aan Zee', 'Noord-Holland', ''))
-stations.append(Station('260', 'De Bilt', 'Utrecht', ''))
+lst.append(Station('215', 'Voorschoten', 'Zuid-Holland', ''))
+lst.append(Station('235', 'De Kooy', 'Noord-Holland', ''))
+lst.append(Station('240', 'Schiphol', 'Noord-Holland', ''))
+lst.append(Station('249', 'Berkhout', 'Noord-Holland', ''))
+lst.append(Station('251', 'Hoorn Terschelling', 'Friesland', ''))
+lst.append(Station('257', 'Wijk aan Zee', 'Noord-Holland', ''))
+lst.append(Station('260', 'De Bilt', 'Utrecht', ''))
 # list.append(Station('265', 'Soesterberg', 'Utrecht', '')) # Read error
-stations.append(Station('267', 'Stavoren','Friesland', ''))
-stations.append(Station('269', 'Lelystad','Flevoland', ''))
-stations.append(Station('270', 'Leeuwarden','Friesland', ''))
-stations.append(Station('273', 'Marknesse', 'Flevoland', ''))
-stations.append(Station('275', 'Deelen', 'Gelderland', ''))
-stations.append(Station('277', 'Lauwersoog', 'Groningen', ''))
-stations.append(Station('278', 'Heino', 'Overijssel', ''))
-stations.append(Station('279', 'Hoogeveen', 'Drenthe', ''))
-stations.append(Station('280', 'Eelde', 'Drenthe', ''))
-stations.append(Station('283', 'Hupsel', 'Gelderland', ''))
-stations.append(Station('286', 'Nieuw Beerta', 'Groningen', ''))
-stations.append(Station('290', 'Twenthe', 'Overijssel', ''))
-stations.append(Station('310', 'Vlissingen', 'Zeeland', ''))
-stations.append(Station('319', 'Westdorpe', 'Zeeland', ''))
-stations.append(Station('323', 'Wilhelminadorp', 'Zeeland', ''))
-stations.append(Station('330', 'Hoek van Holland', 'Zuid-Holland', ''))
-stations.append(Station('340', 'Woensdrecht', 'Noord-Brabant', ''))
-stations.append(Station('344', 'Rotterdam', 'Zuid-Holland', ''))
-stations.append(Station('348', 'Cabauw Mast', 'Utrecht', ''))
-stations.append(Station('350', 'Gilze-Rijen', 'Noord-Brabant', ''))
-stations.append(Station('356', 'Herwijnen', 'Gelderland', ''))
-stations.append(Station('370', 'Eindhoven', 'Noord-Brabant', ''))
-stations.append(Station('375', 'Volkel', 'Noord-Brabant', ''))
-stations.append(Station('377', 'Ell', 'Limburg', ''))
-stations.append(Station('391', 'Arcen', 'Limburg', ''))
-stations.append(Station('242', 'Vlieland', 'Friesland', ''))
+lst.append(Station('267', 'Stavoren','Friesland', ''))
+lst.append(Station('269', 'Lelystad','Flevoland', ''))
+lst.append(Station('270', 'Leeuwarden','Friesland', ''))
+lst.append(Station('273', 'Marknesse', 'Flevoland', ''))
+lst.append(Station('275', 'Deelen', 'Gelderland', ''))
+lst.append(Station('277', 'Lauwersoog', 'Groningen', ''))
+lst.append(Station('278', 'Heino', 'Overijssel', ''))
+lst.append(Station('279', 'Hoogeveen', 'Drenthe', ''))
+lst.append(Station('280', 'Eelde', 'Drenthe', ''))
+lst.append(Station('283', 'Hupsel', 'Gelderland', ''))
+lst.append(Station('286', 'Nieuw Beerta', 'Groningen', ''))
+lst.append(Station('290', 'Twenthe', 'Overijssel', ''))
+lst.append(Station('310', 'Vlissingen', 'Zeeland', ''))
+lst.append(Station('319', 'Westdorpe', 'Zeeland', ''))
+lst.append(Station('323', 'Wilhelminadorp', 'Zeeland', ''))
+lst.append(Station('330', 'Hoek van Holland', 'Zuid-Holland', ''))
+lst.append(Station('340', 'Woensdrecht', 'Noord-Brabant', ''))
+lst.append(Station('344', 'Rotterdam', 'Zuid-Holland', ''))
+lst.append(Station('348', 'Cabauw Mast', 'Utrecht', ''))
+lst.append(Station('350', 'Gilze-Rijen', 'Noord-Brabant', ''))
+lst.append(Station('356', 'Herwijnen', 'Gelderland', ''))
+lst.append(Station('370', 'Eindhoven', 'Noord-Brabant', ''))
+lst.append(Station('375', 'Volkel', 'Noord-Brabant', ''))
+lst.append(Station('377', 'Ell', 'Limburg', ''))
+lst.append(Station('391', 'Arcen', 'Limburg', ''))
+lst.append(Station('242', 'Vlieland', 'Friesland', ''))
 
 # Below an example how to add your your (own) station
 # Rules for your data file.
@@ -118,16 +118,16 @@ stations.append(Station('242', 'Vlieland', 'Friesland', ''))
 # Borkum.dayvalues_file_zip      =  os.path.join( Borkum.dir_dayvalues, 'tag.zip' )
 # Borkum.dayvalues_file_txt      =  os.path.join( Borkum.dir_dayvalues, 'tag.txt' )
 # Borkum.data_url                =  r'https://my.borkum.de/data/tag.zip'
-# stations.append( Borkum ) # Add to list
+# lst.append( Borkum ) # Add to list
 
 # Sort station list on place name, using numpy
-stations = np.array( sorted( np.array(stations), key=lambda station: station.place ) ).tolist()
+lst = np.array( sorted( np.array(lst), key=lambda station: station.place ) ).tolist()
 
 ################################################################################
 # Functions
 
-lst_wmo  = lambda: [station.wmo  for station in stations]
-lst_name = lambda: [station.name for station in stations]
+lst_wmo  = lambda: [station.wmo  for station in lst]
+lst_name = lambda: [station.name for station in lst]
 
 def lst_wmo_check():
     pass
@@ -138,41 +138,41 @@ def lst_stations_in_map():
     with threading.Lock():
         if os.path.exists(dir):
             lst_files = fio.lst_files_dir(dir, extensions=['txt'], verbose=False)
-            for station in stations:
+            for station in lst:
                 # Extra check if in selected default list too
                 if station.data_txt_path in lst_files:
                         lst.append(station)
     return lst
 
-def from_wmo_to_station(wmo):
+def wmo_to_station(wmo):
     '''Get station object based on wmo'''
-    if wmo_in_lst(wmo):
-        for station in stations:
+    if wmo_in_lst(wmo, lst):
+        for station in lst:
             if station.wmo == wmo:
                 return station
     return False
 
-def from_name_to_station(name):
+def name_to_station(name):
     if name_in_lst(name):
         name = name.lower()
-        for station in stations:
+        for station in lst:
             if station.name.lower() == name:
                 return station
     return False
 
-def from_wmo_name_to_station(wmo_name):
+def wmo_name_to_station(wmo_name):
     if name_in_lst(wmo_name):
         name = wmo_name.lower()
-        for station in stations:
+        for station in lst:
             if station.place.lower() == name:
                 return station
     if wmo_in_lst(wmo_name):
-        for station in stations:
+        for station in lst:
             if station.wmo == wmo_name:
                 return station
     return False
 
-def from_wmo_to_name(wmo, l=False):
+def wmo_to_name(wmo, l=False):
     if wmo_in_lst(wmo):
         if l == False:
             l = lst_stations_in_map()
@@ -181,7 +181,7 @@ def from_wmo_to_name(wmo, l=False):
                 return s.place
     return wmo
 
-def from_wmo_to_province(wmo, l=False):
+def wmo_to_province(wmo, l=False):
     if wmo_in_lst(wmo):
         if l == False:
             l = lst_stations_in_map()
