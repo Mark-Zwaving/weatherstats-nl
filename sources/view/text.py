@@ -235,7 +235,7 @@ lst_season = ['season']
 enter_default = lambda default: f'Press <enter> for default (={default})...'
 enter_back_to = lambda t: f"Press 'q' to go back to the {t} menu... "
 enter_previous_question = lambda s='':f"Press 'p' to go to the previous question..."
-enter_exit = "Press 'x' to exit programm..."
+enter_exit = "Press 'x' to exit the program..."
 type_more_info = lambda i: f"Type '{i}' for more info..."
 
 
