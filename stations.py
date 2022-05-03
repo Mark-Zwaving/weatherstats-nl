@@ -134,15 +134,15 @@ def lst_wmo_check():
 
 def lst_stations_in_map():
     '''Get all the stations available in the data dayvalues text map'''
-    lst, dir = [], cfg.dir_dayvalues_txt
+    lst_result, dir = [], cfg.dir_dayvalues_txt
     with threading.Lock():
         if os.path.exists(dir):
             lst_files = fio.lst_files_dir(dir, extensions=['txt'], verbose=False)
             for station in lst:
                 # Extra check if in selected default list too
                 if station.data_txt_path in lst_files:
-                        lst.append(station)
-    return lst
+                        lst_result.append(station)
+    return lst_result
 
 def wmo_to_station(wmo):
     '''Get station object based on wmo'''
