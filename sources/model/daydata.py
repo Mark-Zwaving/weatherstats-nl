@@ -470,12 +470,12 @@ def process_data( station, verbose=cfg.verbose ):
                 else:
                     cnsl.log(f'Failed to unzip {zip}', cfg.error)
             else:
-                cnsl.log(f'Failed to download {url}', cfg.eror)
+                cnsl.log(f'Failed to download {url}', cfg.error)
 
             if ok:
-                t = f'Process data {station.place} success.'
+                t = f'[{ymd.now()}] Process data {station.place} success.'
             else:
-                t = f'Process data {station.place} failed.'
+                t = f'[{ymd.now()}] Process data {station.place} failed.'
 
             cnsl.log(t, True)
         else:
@@ -495,7 +495,7 @@ def process_lst(lst_stations, verbose=cfg.verbose):
 
 def process_all(verbose=cfg.verbose):
     '''Function processes (downloading en unzipping) files from the selected stations'''
-    process_lst( stations.stations, verbose )
+    process_lst( stations.lst, verbose )
 
 
 def ents( day ):
