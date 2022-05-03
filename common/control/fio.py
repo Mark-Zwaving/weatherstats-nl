@@ -368,18 +368,19 @@ def has_internet(verbose=cfg.verbose):
     cnsl.log(f'Url {cfg.check_internet_url}', verbose)
     with threading.Lock():
         try:
-            sock = socket.create_connection((cfg.check_internet_url, 53))
-            if sock: sock.close()
+            sock = socket.create_connection( (cfg.check_internet_url, 53) )
         except Exception as e:
             cnsl.log(f'Check failed\n{e}', verbose)
         else:
             cnsl.log('Check succes', verbose)
+            sock.close()
             ok = True
     return ok
 
 # Function checks if a url exists
 def url_exists(url, verbose=cfg.verbose):
     '''Function checks if a url exists. Return True or False'''
+    ok = False
     cnsl.log(f'[{ymd.now()}] check url existence', verbose)
     cnsl.log(f'Url {url}', verbose)
     with threading.Lock():
