@@ -30,9 +30,9 @@ import sources.model.utils as utils
 
 # Menu choice 1
 def process_knmi_dayvalues_all(): 
-    cnsl.log(text.head('START DOWNLOAD ALL KNMI DAYVALUES'), True)
+    cnsl.log(text.head('START DOWNLOAD ALL DAYVALUES KNMI'), True)
     daydata.process_all()
-    cnsl.log(text.foot('END DOWNLOAD ALL KNMI DAYVALUES'), True)
+    cnsl.log(text.foot('END DOWNLOAD ALL DAYVALUES KNMI'), True)
     ask.back_to_main_menu()
 
 
@@ -40,7 +40,7 @@ def process_knmi_dayvalues_all():
 def process_knmi_dayvalues_select():
     '''Function asks for one or more wmo numbers to download their data'''
     while True:
-        cnsl.log( text.head('START DOWNLOAD KNMI DAYVALUES'), True)
+        cnsl.log( text.head('START DOWNLOAD DAYVALUES KNMI'), True)
         options = ask.lst(['lst-places'], '', back=True, prev=False, exit=True, spacer=True)
         if options['quit']: 
             break
@@ -50,7 +50,7 @@ def process_knmi_dayvalues_select():
         if answer.quit( utils.again('Do you want to download more stations ? Press a key.') ):
             break
 
-    cnsl.log(text.foot('END DOWNLOAD KNMI DAYVALUES'), True)
+    cnsl.log(text.foot('END DOWNLOAD DAYVALUES KNMI'), True)
 
 
 ##########################################################################################
@@ -211,17 +211,17 @@ def search_for_days():
 # WEATHER FORECAST
 def process_weather_buienradar_forecast():
     '''Function downloads and print a global weather forecast from the website from the knmi'''
-    cnsl.log(text.head('START BUIENRADAR FORECAST'), True)
+    cnsl.log(text.head('START FORECAST BUIENRADAR'), True)
     weather.process('buienradar-weather')
-    cnsl.log(text.foot('END BUIENRADAR FORECAST'), True)
+    cnsl.log(text.foot('END FORECAST BUIENRADAR'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 # CURRENT WEATHER CITIES 
 def process_weather_buienradar_current():
     '''Function downloads and print a actual weather values to the screen'''
-    cnsl.log(text.head('START BUIENRADAR WEATHERSTATIONS'), True)
+    cnsl.log(text.head('START WEATHERSTATIONS BUIENRADAR'), True)
     weather.process('buienradar-stations')
-    cnsl.log(text.foot('END BUIENRADAR WEATHERSTATIONS'), True)
+    cnsl.log(text.foot('END WEATHERSTATIONS BUIENRADAR'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 
@@ -230,31 +230,31 @@ def process_weather_buienradar_current():
 
 def process_weather_knmi_forecast():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
-    cnsl.log(text.head('START KNMI FORECAST'), True)
+    cnsl.log(text.head('START FORECAST KNMI'), True)
     weather.process_knmi(cfg.knmi_forecast_global_url, 'knmi-weather-forecast')
-    cnsl.log(text.foot('END KNMI FORECAST'), True)
+    cnsl.log(text.foot('END FORECAST KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 def process_weather_knmi_model():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
-    cnsl.log(text.head('START KNMI FORECAST MODEL'), True)
+    cnsl.log(text.head('START FORECAST MODEL KNMI'), True)
     weather.process_knmi(cfg.knmi_forecast_model_url, 'knmi-weather-model')
-    cnsl.log(text.foot('END KNMI FORECAST MODEL'), True)
+    cnsl.log(text.foot('END FORECAST MODEL KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 def process_weather_knmi_guidance():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
-    cnsl.log(text.head('START KNMI FORECAST GUIDANCE'), True)
+    cnsl.log(text.head('START FORECAST GUIDANCE KNMI'), True)
     weather.process_knmi(cfg.knmi_forecast_guidance_url, 'knmi-weather-guidance')
-    cnsl.log(text.foot('END KNMI FORECAST GUIDANCE'), True)
+    cnsl.log(text.foot('END FORECAST GUIDANCE KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 def process_weather_knmi_current():
     '''Function downloads and print a actual weather values to the screen'''
-    cnsl.log(text.head('START KNMI WEATHERSTATIONS'), True)
+    cnsl.log(text.head('START WEATHERSTATIONS KNMI'), True)
     weather.process('knmi-stations')
-    cnsl.log(text.foot('END KNMI WEATHERSTATIONS'), True)
-    ask.back_to_main_menu()
+    cnsl.log(text.foot('END WEATHERSTATIONS KNMI'), True)
+    ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 
 ##########################################################################################
@@ -399,7 +399,7 @@ def check_menu_options():
 
 
 def main_menu():
-    space = '    '
+    space = '    '  
     while True:  # Main menu
         web, data, loc_menu = check_menu_options()
         num, tmenu = 1, ''
@@ -416,16 +416,16 @@ def main_menu():
 
         if not data and not web:
             t += text.menu_no_internet_no_data + '\n'
-            t += text.foot("\tPress a key to reload the menu or press 'q' to quit...")
+            t += text.foot("{space}Press a key to reload the menu or press 'q' to quit...")
 
         else:
             if not web:
-                t += '\tNo internet connection. Get an working internet connection for more menu options.\n'
+                t += '{space}No internet connection. Get an working internet connection for more menu options.\n'
             elif not data:
-                t += '\tNo data found. Download the weather data (option 1 & 2) for more menu options.\n'
+                t += '{space}No data found. Download the weather data (option 1 & 2) for more menu options.\n'
 
-            t += f'\tChoose one of the following options: 1...{num-1}\n'
-            t += "\tPress 'x' to quit program...\n\n"
+            t += f'{space}Choose one of the following options: 1...{num-1}\n'
+            t += f"{space}Press 'x' to quit program...\n\n"
             t += text.foot('Your choice ? ')
 
         answ = ask.question(t, back=False, exit=False, spacer=True)  # Make a choice
@@ -442,10 +442,12 @@ def main_menu():
             else:
                 if choice in range( 1, num ):
                     fn_exec(choice, loc_menu)
+                    continue
                 else:
                     t = f'Option "{answ}" out of reach\n'
             
             cnsl.log(t, True)
+
 
 def fn_exec( choice, loc_menu ):
     n = 1
