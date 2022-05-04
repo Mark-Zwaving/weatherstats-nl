@@ -458,7 +458,7 @@ def body(options):
 
                 tt  = f'[{ymd.now()}] Calculate statistics to compare period <{options["period-2"]}> '
                 tt += f'{station.wmo} {station.place}'
-                cnsl.log(tt, cfg.verbose)
+                cnsl.log(tt, True)
 
                 cnt += 1  # Count the days
                 htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the cells with data
@@ -519,19 +519,6 @@ def foot(options):
     return foot_htm, foot_txt
 
 
-# Page html object. Must be global 
-page = html.Template()
-path_up = './../../../' # Relative to css dir
-# Styling
-page.add_css_file(f'{path_up}css/default.css')
-page.add_css_file(f'{path_up}css/table-statistics.css')
-# Scripts
-page.add_js_file(f'{path_up}js/sort-col.js')
-page.add_js_file(f'{path_up}js/default.js')
-page.template = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
-page.verbose = False
-page.strip  = True
-
 def output(htm, txt, options):
     '''Make output to screen or file(s)'''
     ok = True
@@ -541,6 +528,10 @@ def output(htm, txt, options):
         path, dir, _ = utils.mk_path_with_dates(cfg.dir_stats_htm, fname)
         fio.mk_dir(dir, verbose=False)
 
+        page = html.Template()
+        page.template = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
+        page.verbose = False
+        page.strip  = True
         page.path = path
         page.title = options['title']
         page.add_description(f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
