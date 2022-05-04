@@ -31,7 +31,7 @@ cfg.verbose = True
 mmdd = "0101" 
 options = {
     # Title for table Januari 01 
-    'title': f'dayextremes {mmdd}',
+    'title': f'day extremes {mmdd}',
     # List with the stations to add in the table 
     'lst-stations': stations.lst,
     # Global period: * for all
