@@ -151,8 +151,10 @@ the tropical and the ice days:
 inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>_30, cnt_tx_<_0
 Example: winter
 inf_place, inf_period, ave_tg, min_tx, min_tn, ndx_hellmann, ndx_frost-sum, cnt_tx_<_0, cnt_tg_<_0, cnt_tn_<_0
-Exampley: summer
+Example: summer
 inf_place, inf_period, ave_tg, max_tx, max_tn, ndx_heat, sum_sq, sum_rh, cnt_tx_>_25, cnt_tx_>_30, cnt_tn_>_20
+Example short:
+inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>=_20, cnt_tn_<_0
 '''
 
 def menu_info_stations():
