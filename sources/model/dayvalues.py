@@ -18,27 +18,10 @@ import common.control.fio as fio
 import common.view.console as cnsl
 import common.model.ymd as ymd
 
-path_to_data = './../../../../../' #  Used for: bootstrap.css and font-awesome-5.min.css
-path_bootstrap   = path_to_data + '/thirdparty/css/bootstrap.css'
-path_fontawesome = path_to_data + '/thirdparty/css/font-awesome-5.min.css'
-
 # Relative from the made html station dayvalues files 
 # Example: /280/2024/04/dayvalues-280-2024-01-01.html
 path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data html file 
 html_template = fio.mk_path(cfg.dir_dayvalues_htm, 'templates/template-dayvalues.html') # Template file 
-
-# HTML object
-page = html.Template()
-page.add_icon(f'{path_to_dayvalues_html}/img/icon-weatherstats.png') # Add icon png
-page.add_css_file(path_bootstrap) # Add bootstrap
-page.add_css_file(path_fontawesome) # Add fontawesome
-page.add_css_file(f'{path_to_dayvalues_html}/css/dayvalues.css') # Add dayvalues css local
-page.add_css_file(f'{path_to_dayvalues_html}/css/default.css') # Add default css local
-page.add_js_file(f'{path_to_dayvalues_html}/js/dayvalues.js') # Add js menu
-page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
-page.template = html_template
-page.verbose = False
-page.strip  = True
 
 
 def calculate(options):
@@ -68,14 +51,16 @@ def calculate(options):
             ym_dir = fio.mk_path(wmo_dir, f'{y}/{m}') # Make path year/month
             path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}.{ options["file-type"] }')
 
-            # (Over)write or skip
-            # dayvalues/html/260/1911/01/dayvalues-260-1911-01-25.html
-            if options['write'] == 'rewrite': # Always verwrite
-                t  = f'[{ymd.now()}] Make {options["file-type"]} dayvalues for {station.place} '
-                t += f'...{path[-57:]}'
-                cnsl.log( t, cfg.verbose )
-            elif fio.check(path, verbose=False):  # Check if there is a file
-                continue # If already there skip 
+            # Skip ?
+            if options['write'] == 'add':
+                if fio.check(path, verbose=False):  # Check if there is a file
+                    t  = f'[{ymd.now()}] Skipped {options["file-type"]} dayvalues for {station.place} ...{path[-57:]}'
+                    cnsl.log_r(t, True)
+                    continue # If already there skip 
+    
+            t  = f'[{ymd.now()}] Write {options["file-type"]} dayvalues for {station.place} ...{path[-57:]}'
+            
+            cnsl.log_r(t, True)
 
             # Get all data elements from a dayc
             stn, yyyymmdd, ddvec, fhvec, fg, fhx, fhxh, fhn, fhnh, fxx, fxxh, tg, tn,\
@@ -135,7 +120,12 @@ def calculate(options):
             foot  = f'{cfg.knmi_dayvalues_notification}<br>'
             foot += f'Made by WeatherstatsNL on {ymd.txt_datetime_now()}'
 
-            # Init base object
+            # HTML object
+            page = html.Template()
+            page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
+            page.template = html_template
+            page.verbose = False
+            page.strip  = True
             page.path = path
             page.add_description(f'Dayvalues for {station.wmo} {station.place} on {datestring}' )
             page.title  = f'{station.wmo} {station.place} {datestring}'
@@ -145,9 +135,9 @@ def calculate(options):
             ok = page.save()
 
             if not ok:
-                cnsl.log('Failed!', cfg.error)
+                cnsl.log('\nFailed!\n', cfg.error)
+
+        cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', True)
 
     return ndx_html            # Make link html only. NOPE
             
-
-
