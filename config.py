@@ -12,17 +12,7 @@ __maintainer__ = 'Mark Zwaving'
 __status__ = 'Development'
 
 ################################################################################
-# Add common library to system.
-# Download or clone: https://github.com/Mark-Zwaving/common.git
-# Set path to common lib:
-# comp1 = '/mnt/chromeos/removable/USB Drive/mzg_google_drive/Programming/'
-# comp2 = '/media/mark/6366-3938/mzg_google_drive/Programming/'
-# comp3 = '/home/mark/Documenten/Programming/'
-# comp4 = './../' 
-# common_lib = f'{comp4}common' 
-# if common_lib not in sys.path:  
-#     sys.path.append(common_lib)  # Add to program
-# Import a common lib
+# Import the common lib
 import common.control.fio as fio
 ################################################################################
 
