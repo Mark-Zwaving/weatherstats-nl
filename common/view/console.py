@@ -43,8 +43,7 @@ def log_r(
     ):
     '''Function shows output string (s) --- on the same line --- based on the
        variable verbose. Output always to screen, set variable always to True.'''
-    s = str
-    rs = f'\r{s}'
+    s = f'\r{s}'
 
     if debug: 
         input(s)
