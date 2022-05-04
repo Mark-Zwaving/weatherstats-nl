@@ -16,7 +16,8 @@ import common.model.ymd as ymd
 import common.model.validate as validate
 import common.model.util as util
 import threading, urllib, json, os, time, zipfile, webbrowser
-import datetime, requests, socket, shutil, subprocess, sys
+import datetime, requests, shutil, subprocess, sys
+import urllib.request
 
 abspath = lambda path: os.path.abspath(path)
 mk_path = lambda dir, f: abspath(os.path.join(dir, f))
@@ -368,13 +369,20 @@ def has_internet(verbose=cfg.verbose):
     cnsl.log(f'Url {cfg.check_internet_url}', verbose)
     with threading.Lock():
         try:
-            sock = socket.create_connection( (cfg.check_internet_url, 53) )
+            urllib.request.urlopen(cfg.check_internet_url) #Python 3.x
         except Exception as e:
             cnsl.log(f'Check failed\n{e}', verbose)
         else:
             cnsl.log('Check succes', verbose)
-            sock.close()
             ok = True
+        # try:
+        #     sock = socket.create_connection( (cfg.check_internet_url, 80) )
+        # except Exception as e:
+        #     cnsl.log(f'Check failed\n{e}', verbose)
+        # else:
+        #     cnsl.log('Check succes', verbose)
+        #     sock.close()
+        #     ok = True
     return ok
 
 # Function checks if a url exists
