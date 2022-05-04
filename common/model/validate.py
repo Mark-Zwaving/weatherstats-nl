@@ -14,18 +14,18 @@ import common.view.console as cnsl
 from PIL import Image
 
 
-def is_int(s):
+def is_int(s, verbose=False):
     try: i = int(s)
     except ValueError:
-        cnsl.log(f'Var {s} cannot be an integer', cfg.error)
+        cnsl.log(f'Var {s} cannot be an integer', verbose)
         return False  
     return True
 
 
-def is_float(s):
+def is_float(s, verbose=False):
     try: f = float(s)
     except ValueError:
-        cnsl.log(f'Var {s} cannot be a float', cfg.error)
+        cnsl.log(f'Var {s} cannot be a float', verbose)
         return False
     return True
 
