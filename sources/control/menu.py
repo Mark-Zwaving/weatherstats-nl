@@ -416,13 +416,13 @@ def main_menu():
 
         if not data and not web:
             t += text.menu_no_internet_no_data + '\n'
-            t += text.foot("{space}Press a key to reload the menu or press 'q' to quit...")
+            t += text.foot(f"{space}Press a key to reload the menu or press 'q' to quit...")
 
         else:
             if not web:
-                t += '{space}No internet connection. Get an working internet connection for more menu options.\n'
+                t += f'{space}No internet connection. Get an working internet connection for more menu options.\n'
             elif not data:
-                t += '{space}No data found. Download the weather data (option 1 & 2) for more menu options.\n'
+                t += f'{space}No data found. Download the weather data (option 1 & 2) for more menu options.\n'
 
             t += f'{space}Choose one of the following options: 1...{num-1}\n'
             t += f"{space}Press 'x' to quit program...\n\n"
