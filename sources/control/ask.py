@@ -234,6 +234,27 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
             return answ
 
 
+def period_day_to_day( t, default, back, prev, exit, spacer):
+    while True:
+        tt = ''
+        if cfg.info:
+            tt += 'Select a start day(<format:<mmdd>) and a end day (<format:<mmdd>). Separated with an -\n' 
+            tt += 'Input format: mmdd-mmdd\n'
+            tt += 'Example: 0501-0503\n' 
+        tt += t
+
+        answ = question(tt, default, back, prev, exit, spacer)
+
+        if answer.empty(answ):
+            ttt = text.type_in
+        elif answer.quit(answ) or answer.prev(answ):
+            return answ
+        else:
+            return answ
+
+        cnsl.log(ttt, cfg.error)
+
+
 def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
         tt = ''
@@ -361,7 +382,7 @@ def month( t, default='', back=False, prev=False, exit=False, spacer=False):
 
 
 def period_compare(t, default='', back=False, prev=False, exit=False, spacer=False):    
-    lst = ['year', 'month' , 'day', 'season']
+    lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer)
         if answer.quit(option) or answer.prev(option):
@@ -372,17 +393,20 @@ def period_compare(t, default='', back=False, prev=False, exit=False, spacer=Fal
             answ = ('season', season_type(tt, default, back, prev, exit, spacer))
 
         elif option in text.lst_day:
-            tt = 'Which day do want to compare ?'
+            tt = 'Which day do you want to compare ?'
             answ = ('day', day( tt, default, back, prev, exit, spacer))
 
         elif option in text.lst_month:
-            tt = 'Which month do want to compare ?'
+            tt = 'Which month do you want to compare ?'
             answ = ('month', month( tt, default, back, prev, exit, spacer))
 
-        elif option in text.lst_year:
-            tt = 'Which years do want to compare ?'
-            # answ = month( tt, default, back, prev, exit, spacer)
+        elif option == 'years':
+            tt = 'Which years do you want to compare ?'
             answ = ('year', 'year')
+
+        elif option == 'period <mmdd-mmdd>':
+            tt = 'Which period (from day to day) do you want to compare ?'
+            answ = ('period', period_day_to_day( tt, default, back, prev, exit, spacer))
 
         if answer.prev(answ[1]):
             continue # Again
