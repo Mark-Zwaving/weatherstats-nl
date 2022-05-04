@@ -401,6 +401,11 @@ def tr_cells(options, days1, days2='', day='', cnt=-1):
  
     return body_htm, body_txt 
 
+def endline(options, station, per_2):
+    t  = f'\n[{ymd.now()}] End <{options["title"]}> for period <{options["period"]}>'
+    t += f'{per_2} {station.wmo} {station.place}'
+    cnsl.log(t, True)
+
 def body(options):
     '''Makes the body'''
     body_htm, body_txt, cnt = '', '', 0
@@ -408,7 +413,7 @@ def body(options):
 
     # Walkthrough stations and calculate statistics and add to table
     for station in options['lst-stations']:
-        t  = f'[{ymd.now()}] Calculate <{options["title"]}> for period <{options["period"]}>'
+        t  = f'[{ymd.now()}] Start <{options["title"]}> for period <{options["period"]}>'
         t += f'{per_2} {station.wmo} {station.place}'
         cnsl.log(t, True)
 
@@ -437,33 +442,41 @@ def body(options):
                     options['lst-sel-cells'].remove('inf_period')
 
             for yyyy in lst_yyyy[::-1]: # Reverse lst
-                if   typ in text.lst_year:  options['period-2'] = f'{yyyy}**'
-                elif typ in text.lst_month: options['period-2'] = f'{yyyy}{val}**'
-                elif typ in text.lst_day:   options['period-2'] = f'{yyyy}{val}'
+                if   typ in text.lst_year:  
+                    options['period-2'] = f'{yyyy}**'
+                elif typ in text.lst_month: 
+                    options['period-2'] = f'{yyyy}{val}**'
+                elif typ in text.lst_day:   
+                    options['period-2'] = f'{yyyy}{val}'
                 elif typ in text.lst_season:
                     if val == 'winter':
-                        siy = int(yyyy)-1 
-                        if siy < int(lst_yyyy[0]):
-                            continue 
-                        else:
-                            sp = '1201'
-                        ep = '0229' if util.is_leap(yyyy) else '0228'
-                        options['period-2'] = f'{siy}{sp}-{yyyy}{ep}'
-                    elif val == 'spring': options['period-2'] = f'{yyyy}0301-{yyyy}0531'
-                    elif val == 'summer': options['period-2'] = f'{yyyy}0601-{yyyy}0831'
-                    elif val == 'autumn': options['period-2'] = f'{yyyy}0901-{yyyy}1130'
+                        sp, ep = '1201', '0229' if util.is_leap(yyyy) else '0228'
+                        options['period-2'] = f'{int(yyyy)-1}{sp}-{yyyy}{ep}'
+                    elif val == 'spring': 
+                        options['period-2'] = f'{yyyy}0301-{yyyy}0531'
+                    elif val == 'summer': 
+                        options['period-2'] = f'{yyyy}0601-{yyyy}0831'
+                    elif val == 'autumn': 
+                        options['period-2'] = f'{yyyy}0901-{yyyy}1130'
+                elif typ in text.lst_period_1:
+                    mmdd1, mmdd2 = val.split('-')
+                    if int(mmdd1) <= int(mmdd2):
+                        options['period-2'] = f'{yyyy}{mmdd1}-{yyyy}{mmdd2}'
+                    else:
+                        options['period-2'] = f'{int(yyyy)-1}{mmdd1}-{yyyy}{mmdd2}'
 
                 days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
                 if not days2.np_period_2d_has_days(): continue  # Skip whole day/row
 
                 tt  = f'[{ymd.now()}] Calculate statistics to compare period <{options["period-2"]}> '
                 tt += f'{station.wmo} {station.place}'
-                cnsl.log(tt, True)
+                cnsl.log_r(tt, True)
 
                 cnt += 1  # Count the days
                 htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the cells with data
                 body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
 
+            endline(options, station, per_2)
             continue
 
         # Search for days table
@@ -477,6 +490,7 @@ def body(options):
                     cnt += 1  # Count the days
                     htm, txt = tr_cells(options, days1, days2, day=day, cnt=cnt) # Get the cells with data
                     body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
+            endline(options, station, per_2)
             continue
 
         # Period in period
@@ -496,6 +510,7 @@ def body(options):
         cnt += 1  # Count the days
         htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the tr cells with data
         body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
+        endline(options, station, per_2)
 
     return body_htm, body_txt, options, cnt
 
