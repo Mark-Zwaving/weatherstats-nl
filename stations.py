@@ -57,7 +57,7 @@ Maastricht.data_notification = cfg.knmi_dayvalues_notification
 Maastricht.data_format       = cfg.knmi_data_format
 Maastricht.data_zip_path     = os.path.join( cfg.dir_dayvalues_zip, 'etmgeg_380.zip' )
 Maastricht.data_txt_path     = os.path.join( cfg.dir_dayvalues_txt, 'etmgeg_380.txt' )
-Maastricht.data_dayvalus_url  = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_380.zip'
+Maastricht.data_dayvalus_url = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_380.zip'
 lst.append( Maastricht ) # Add to list
 
 # For the rest the url and the files and the rest are automaticly updated

@@ -41,11 +41,11 @@ def process_knmi_dayvalues_select():
     '''Function asks for one or more wmo numbers to download their data'''
     while True:
         cnsl.log( text.head('START DOWNLOAD DAYVALUES KNMI'), True)
-        options = ask.lst(['lst-places'], '', back=True, prev=False, exit=True, spacer=True)
+        options = ask.lst(['lst-stations'], '', back=True, prev=False, exit=True, spacer=True)
         if options['quit']: 
             break
 
-        daydata.process_lst(options['lst-places'])
+        daydata.process_lst(options['lst-stations'])
 
         if answer.quit( utils.again('Do you want to download more stations ? Press a key.') ):
             break
@@ -87,61 +87,61 @@ def table_stats(title, lst_questions, lst_cells=[]):
 # Winter and summer statistics
 def table_stats_winter_summer():
     title = 'winter and summer statistics'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_winter_summer)
 
 
 # Winter statistics
 def table_stats_winter():
     title = 'winter statistics'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_winter)
 
 
 # Summer statistics
 def table_stats_summer(): 
     title = 'summer statistics'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_summer)
 
 
 # Default statistics
 def table_stats_default(): 
     title = 'my default statistics'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_default)
 
 
 # Default extremes
 def table_stats_extremes(): 
     title = 'my default extremes'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_my_extremes)
 
 
 # Default extremes
 def table_stats_counts(): 
     title = 'my default counters'
-    lst_ask = ['lst-places', 'period', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_my_extremes)
 
 
 # Do it yourself
 def table_stats_diy():
     title ='diy statistics'
-    lst_ask = ['lst-places', 'period', 'lst-sel-cells', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
     
 
 def table_stats_period_in_period():
     title = 'period statistics'
-    lst_ask = ['lst-places', 'period',  'period-2', 'lst-sel-cells', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period',  'period-2', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
 
 
 def table_stats_compare():
     title = 'compare statistics'
-    lst_ask = ['lst-places', 'period',  'period-cmp', 'lst-sel-cells', 'file-type', 'file-name']
+    lst_ask = ['lst-stations', 'period',  'period-cmp', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
 
 
@@ -154,7 +154,7 @@ def make_dayvalues():
         title = 'dayvalues' # Unused!
  
         # Ask list with questions
-        lst_ask = ['lst-places', 'period', 'file-type', 'write']
+        lst_ask = ['lst-stations', 'period', 'file-type', 'write']
         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
         if options['quit']:
             break
@@ -184,7 +184,7 @@ def search_for_days():
 
         # Ask list with questions
         title = 'search 4 days'
-        lst_ask = ['lst-places', 'period', 's4d-query', 'file-type', 'file-name']
+        lst_ask = ['lst-stations', 'period', 's4d-query', 'file-type', 'file-name']
         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
         if options['quit']:
             break
@@ -268,7 +268,7 @@ def graph_period():
         # Ask list with questions
         title = 'graph statistics'
         lst_ask = [
-            'lst-places', 'period', 'lst-entities', 'file-name', 'graph-type',
+            'lst-stations', 'period', 'lst-entities', 'file-name', 'graph-type',
             'graph-title', 'graph-y-label', 'graph-default','graph-width',
             'graph-height', 'graph-cummul-val','graph-dpi', 'graph-lst-entities-types'
         ]
@@ -292,7 +292,7 @@ def graph_period():
 #         cnsl.log(text.head('START MAKE DEFAULT GRAPH'), True)
 
 #         title = 'graph statistics'
-#         lst_ask = ['lst-places', 'period']
+#         lst_ask = ['lst-stations', 'period']
 #         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
 #         if options['quit']:
 #             break

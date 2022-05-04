@@ -46,6 +46,7 @@ __status__ = "Development"
 #     'day_fhvec', 'day_fg', 'day_fhx', 'day_fhn', 'day_fxx', 'day_vvx', 'day_vvn', 'day_q'
 # ]
 
+
 def calculate(options, type='normal'):
     '''Function calculates all statistics'''
     cnsl.log(f'[{ymd.now()}] {options["title"]}', True)
@@ -518,30 +519,38 @@ def foot(options):
     return foot_htm, foot_txt
 
 
+# Page html object. Must be global 
+page = html.Template()
+path_up = './../../../' # Relative to css dir
+# Styling
+page.add_css_file(f'{path_up}css/default.css')
+page.add_css_file(f'{path_up}css/table-statistics.css')
+# Scripts
+page.add_js_file(f'{path_up}js/sort-col.js')
+page.add_js_file(f'{path_up}js/default.js')
+page.template = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
+page.verbose = False
+page.strip  = True
+
 def output(htm, txt, options):
     '''Make output to screen or file(s)'''
     ok = True
 
     if options['file-type'] in text.typ_htm:
-        path, dir, _ = utils.mk_path_with_dates( cfg.dir_stats_htm, f'{options["file-name"]}.{options["file-type"]}' )
+        fname = f'{options["file-name"]}.{options["file-type"]}'
+        path, dir, _ = utils.mk_path_with_dates(cfg.dir_stats_htm, fname)
         fio.mk_dir(dir, verbose=False)
-        path_up = './../../../'
 
-        page = html.Template()
-        page.title = options['title']
-        page.main = htm
         page.path = path
-
-        # Styling
-        page.add_css_file(f'{path_up}css/default.css')
-        page.add_css_file(f'{path_up}css/table-statistics.css')
-
-        # Scripts
-        page.add_js_file(f'{path_up}js/sort-col.js')
-        page.add_js_file(f'{path_up}js/default.js')
-
+        page.title = options['title']
+        page.add_description(f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
+        page.main = htm
+        page.js_code = '''
+        // TODO for sort colls
+        '''
         ok = page.save()
-
+        if not ok:
+            cnsl.log('Failed!', cfg.error)
 
     if options['file-type'] in text.typ_txt:
         cnsl.log(txt, True)

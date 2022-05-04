@@ -27,22 +27,23 @@ path_fontawesome = path_to_data + '/thirdparty/css/font-awesome-5.min.css'
 path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data html file 
 html_template = fio.mk_path(cfg.dir_dayvalues_htm, 'templates/template-dayvalues.html') # Template file 
 
+# HTML object
+page = html.Template()
+page.add_icon(f'{path_to_dayvalues_html}/img/icon-weatherstats.png') # Add icon png
+page.add_css_file(path_bootstrap) # Add bootstrap
+page.add_css_file(path_fontawesome) # Add fontawesome
+page.add_css_file(f'{path_to_dayvalues_html}/css/dayvalues.css') # Add dayvalues css local
+page.add_css_file(f'{path_to_dayvalues_html}/css/default.css') # Add default css local
+page.add_js_file(f'{path_to_dayvalues_html}/js/dayvalues.js') # Add js menu
+page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
+page.template = html_template
+page.verbose = False
+page.strip  = True
+
+
 def calculate(options):
     cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
     ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
-
-    # Init base object
-    page = html.Template()
-    page.template = html_template
-    page.add_icon(f'{path_to_dayvalues_html}/img/icon-weatherstats.png') # Add icon png
-    page.add_css_file(path_bootstrap) # Add bootstrap
-    page.add_css_file(path_fontawesome) # Add fontawesome
-    page.add_css_file(f'{path_to_dayvalues_html}/css/dayvalues.css') # Add dayvalues css local
-    page.add_css_file(f'{path_to_dayvalues_html}/css/default.css') # Add default css local
-    page.add_js_file(f'{path_to_dayvalues_html}/js/dayvalues.js') # Add js menu
-    page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
-    page.verbose = False
-    page.strip  = True
 
     for station in options['lst-stations']:
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
@@ -134,9 +135,9 @@ def calculate(options):
             foot  = f'{cfg.knmi_dayvalues_notification}<br>'
             foot += f'Made by WeatherstatsNL on {ymd.txt_datetime_now()}'
 
+            # Init base object
             page.path = path
             page.add_description(f'Dayvalues for {station.wmo} {station.place} on {datestring}' )
-
             page.title  = f'{station.wmo} {station.place} {datestring}'
             page.header = header
             page.main   = htm
