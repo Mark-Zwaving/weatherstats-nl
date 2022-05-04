@@ -519,7 +519,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         prev_act = False if i == 0 else prev # Can go to prev or not
         answ, quest = '', lst_ask[i]
 
-        if quest == 'lst-places': # Ask for one or more stations
+        if quest == 'lst-stations': # Ask for one or more stations
             t = 'Select one (or more) weather station(s) ?'
             stations = lst_places(t, default, back, prev_act, exit, spacer)
             answ = stations
