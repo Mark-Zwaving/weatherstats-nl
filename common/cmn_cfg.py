@@ -38,8 +38,11 @@ txt_line_width = 80
 download_interval_time = 0.3 # Seconds.
 download_max_num = 10000 # Max number downloads, flood protection
 
-# The webpage for checking if there is a internet connection
-check_internet_url = '8.8.8.8'
+# The webpage/ip for checking an internet connection
+check_ip = '1.1.1.1'
+check_port = 53 
+check_timeout = 100 # Milli secs
+
 
 ################################################################################
 # Vars below do not change
