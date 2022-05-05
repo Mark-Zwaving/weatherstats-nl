@@ -8,14 +8,13 @@ __version__    =  '0.1.3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import math, time, re
 import config as cfg
-import numpy as np
-import stations
+import numpy as np, math, time, re
+import sources.view.icon as icon
 import sources.model.daydata as daydata
 import sources.model.utils as utils
+import sources.model.stations as stations
 import common.model.convert as cvt
-import sources.view.icon as icon
 import common.view.txt as txt
 
 ##########################################################################################
@@ -158,7 +157,7 @@ inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>=_20, cnt
 '''
 
 def menu_info_stations():
-    l = [f'{s.wmo} {s.place}' for s in stations.lst_stations_in_map()]
+    l = [f'{s.wmo} {s.place}' for s in stations.lst_stations_map()]
     return  f'''
 STATIONS INFO
 {txt.lst_to_col(l, 'left', 4)}
@@ -180,10 +179,6 @@ typ_htm = ['html', 'htm']
 typ_txt = ['txt','cmd', 'console']
 
 # Quick txt lists
-lst_wmo = lambda: [el.wmo for el in stations.lst]
-lst_name = lambda: [el.place for el in stations.lst]
-lst_wmo_name = lambda: [ f'{el[0]} {el[1]}' for el in zip( lst_wmo(), lst_name() ) ]
-
 lst_gt  = ['gt', '>'] # , 'greater than'
 lst_ge  = ['ge', '>=', '≥', 'gte'] # , 'greater than and equal'
 lst_lt  = ['lt', '<'] # , 'less than'
