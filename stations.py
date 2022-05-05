@@ -12,8 +12,7 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
-import os, numpy as np, threading
-import common.control.fio as fio
+import os, numpy as np
 
 class Station:
     '''Class defines a (knmi) weatherstation'''
@@ -37,7 +36,7 @@ class Station:
             self.data_zip_file      = f'etmgeg_{self.wmo}.zip'
             self.data_txt_file      = f'etmgeg_{self.wmo}.txt'
             self.data_url = cfg.knmi_dayvalues_url.format(self.wmo)
-        elif self.format == 'dwd':
+        elif self.format == 'dwd': # TODO
             pass
 
         self.data_zip_path      = os.path.join(cfg.dir_dayvalues_zip, self.data_zip_file)
@@ -122,134 +121,3 @@ lst.append(Station('242', 'Vlieland', 'Friesland', ''))
 
 # Sort station list on place name, using numpy
 lst = np.array( sorted( np.array(lst), key=lambda station: station.place ) ).tolist()
-
-################################################################################
-# Functions
-
-lst_wmo  = lambda: [station.wmo  for station in lst]
-lst_name = lambda: [station.name for station in lst]
-
-def lst_wmo_check():
-    pass
-
-def lst_stations_in_map():
-    '''Get all the stations available in the data dayvalues text map'''
-    lst_result, dir = [], cfg.dir_dayvalues_txt
-    with threading.Lock():
-        if os.path.exists(dir):
-            lst_files = fio.lst_files_dir(dir, extensions=['txt'], verbose=False)
-            for station in lst:
-                # Extra check if in selected default list too
-                if station.data_txt_path in lst_files:
-                        lst_result.append(station)
-    return lst_result
-
-def wmo_to_station(wmo):
-    '''Get station object based on wmo'''
-    if wmo_in_lst(wmo, lst):
-        for station in lst:
-            if station.wmo == wmo:
-                return station
-    return False
-
-def name_to_station(name):
-    if name_in_lst(name):
-        name = name.lower()
-        for station in lst:
-            if station.name.lower() == name:
-                return station
-    return False
-
-def wmo_name_to_station(wmo_name):
-    if name_in_lst(wmo_name):
-        name = wmo_name.lower()
-        for station in lst:
-            if station.place.lower() == name:
-                return station
-    if wmo_in_lst(wmo_name):
-        for station in lst:
-            if station.wmo == wmo_name:
-                return station
-    return False
-
-def wmo_to_name(wmo, l=False):
-    if wmo_in_lst(wmo):
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.wmo == wmo:
-                return s.place
-    return wmo
-
-def wmo_to_province(wmo, l=False):
-    if wmo_in_lst(wmo):
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.wmo == wmo:
-                return s.province
-    return wmo
-
-def name_in_lst(name, l=False):
-    if name:
-        name = name.lower()
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.place.lower() == name:
-                return True
-    return False
-
-def wmo_in_lst(wmo, l=False):
-    if wmo:
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.wmo == wmo:
-                return True
-    return False
-
-def name_wmo_in_lst(wmo_name, l=False):
-    if wmo_name:
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if wmo_name.lower() in [s.wmo, s.place.lower()]:
-                return True
-    return False
-
-def find_by_name(name, l=False):
-    if name:
-        n = name.lower()
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.place.lower() == n:
-                return s
-    return False
-
-def find_by_wmo( wmo, l=False):
-    if wmo:
-        n = wmo.lower()
-        if l == False:
-            l = lst_stations_in_map()
-        for s in l:
-            if s.wmo.lower() == n:
-                return s
-    return False
-
-def find_by_wmo_or_name(name_or_wmo, l=False):
-    if name_or_wmo:
-        name = find_by_name( name_or_wmo, l )
-        if name != False:
-            return name
-
-        wmo = find_by_wmo( name_or_wmo, l )
-        if wmo != False:
-            return wmo
-
-    return False
-
-def check_if_station_already_in_list( station, l ):
-    return station.wmo in l
-    
