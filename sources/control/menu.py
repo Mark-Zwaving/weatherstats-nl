@@ -23,8 +23,6 @@ import time
 import config as cfg
 import sources.model.utils as utils
 
-# TODO Heatwaves, coldwaves
-
 ##########################################################################################
 # DOWNLOADS
 
@@ -379,40 +377,42 @@ lst_weather = [ 'WEATHER (dutch)', [
 
 def check_menu_options():
     '''If no internet, skip download part'''
-    web, data, loc_menu = False, False, []
+    web, data, lst_menu = False, False, []
+
     # Check for data in map
     if not fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
         data = True
-        # Add data menu options to menu 
-        loc_menu.append(lst_statistics)
-        loc_menu.append(lst_days)
-        loc_menu.append(lst_graphs)
-
     # Check internet
     if fio.has_internet(verbose=cfg.verbose):
         web = True
-        # Add downloadable options
-        loc_menu.insert(0, lst_download) # Add first position
-        loc_menu.append(lst_weather)
+        
+    if data: # Add data menu options to menu 
+        lst_menu.append(lst_statistics)
+        lst_menu.append(lst_days)
+        lst_menu.append(lst_graphs)
 
-    return web, data, loc_menu
+    if web: # Add downloadable options
+        lst_menu.insert(0, lst_download) # Add at first position
+        lst_menu.append(lst_weather) # Add at the end
+
+    return web, data, lst_menu
 
 
 def main_menu():
     space = '    '  
     while True:  # Main menu
-        web, data, loc_menu = check_menu_options()
-        num, tmenu = 1, ''
-        for el in loc_menu:
+        web, data, lst_menu = check_menu_options()
+        num, main = 1, ''
+        for el in lst_menu:
             title, options = el[0], el[1]
-            tmenu += f'\n{space}{title}\n'
+            main += f'\n{space}{title}\n'
             for option in options:
                 title = option[0]
-                tmenu += f'{space*2}{num}) {title}\n'
+                main += f'{space*2}{num}) {title}\n'
                 num += 1
 
         t = text.head('MAIN MENU') + '\n'
-        t += f'{tmenu}\n' if tmenu else ''
+        t += main  + '\n'
 
         if not data and not web:
             t += text.menu_no_internet_no_data + '\n'
@@ -420,9 +420,11 @@ def main_menu():
 
         else:
             if not web:
-                t += f'{space}No internet connection. Get an working internet connection for more menu options.\n'
+                t += f'{space}No internet connection.\n'
+                t += f'{space}Get an working internet connection for more menu options.\n'
             elif not data:
-                t += f'{space}No data found. Download the weather data (option 1 & 2) for more menu options.\n'
+                t += f'{space}No data found.\n'
+                t += f'{space}Download the weather data (option 1 & 2) for more menu options.\n'
 
             t += f'{space}Choose one of the following options: 1...{num-1}\n'
             t += f"{space}Press 'x' to quit program...\n\n"
@@ -441,7 +443,7 @@ def main_menu():
                 t = f'Option "{answ}" unknown...\n' # Input was not a number
             else:
                 if choice in range( 1, num ):
-                    fn_exec(choice, loc_menu)
+                    fn_exec(choice, lst_menu)
                     continue
                 else:
                     t = f'Option "{answ}" out of reach\n'
@@ -449,9 +451,9 @@ def main_menu():
             cnsl.log(t, True)
 
 
-def fn_exec( choice, loc_menu ):
+def fn_exec( choice, menu ):
     n = 1
-    for title in loc_menu:
+    for title in menu:
         for option in title[1]:
             if n == choice:
                 option[1]()
@@ -463,16 +465,9 @@ def error_no_stations_found():
     input(' ')
 
 
-
-
-
-
 ##########################################################################################
 ##########################################################################################
 ##########################################################################################
-
-
-
 
 # def quick_graphs_io():
 #     '''Function makes a graph with a statistic for one or more stations'''
