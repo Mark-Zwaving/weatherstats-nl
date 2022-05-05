@@ -36,7 +36,7 @@ options = {
     # List with the stations to add in the table 
     'lst-stations': stations.lst,
     # Global period: * for all
-    'period': '*',                    
+    'period': '*',
     # This is the period string for the calculation of one day
     'period-2': f'****{mm}*', # TODO
     # The table statistics cells - max_tx, min_tn - et cetera
