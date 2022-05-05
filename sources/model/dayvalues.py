@@ -9,7 +9,7 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg, os
-import stations
+import sources.model.stations as stations
 import sources.model.daydata as daydata
 import sources.model.stats as stats
 import sources.view.html as html
@@ -32,7 +32,7 @@ def calculate(options):
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
 
         if options['download']:
-            daydata.process_data( stations.wmo_to_station(station.wmo) )
+            daydata.process_data( station )
 
         ok, np_data_2d = daydata.read(station) # Read data stations
         days = stats.Days(station, np_data_2d, options['period']) # Get Days object with correct days
