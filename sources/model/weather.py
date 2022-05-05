@@ -10,7 +10,6 @@ __status__     =  "Development"
 
 import config as cfg, wget, os
 import sources.view.text as text
-import sources.model.utils as utils
 import common.control.fio as fio
 import common.view.txt as txt
 import common.model.ymd as ymd
