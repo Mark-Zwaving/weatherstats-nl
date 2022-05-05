@@ -372,7 +372,7 @@ def has_internet(verbose=cfg.verbose):
         try:
             sock = socket.create_connection( (cfg.check_ip, cfg.check_port) )
         except Exception as e:
-            cnsl.log(f'Check failed\n{e}', True)
+            cnsl.log(f'Check failed\n{e}', verbose)
         else:
             cnsl.log('Check succes', verbose)
             sock.close()
