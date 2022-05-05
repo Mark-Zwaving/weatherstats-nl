@@ -10,11 +10,11 @@ __status__     =  "Development"
 
 import config as cfg, stations
 import threading, time, numpy as np
-import sources.model.select as select
 import sources.view.text as text
+import sources.model.select as select
 import sources.model.utils as utils
-import common.control.fio as fio
 import common.view.console as cnsl
+import common.control.fio as fio
 import common.model.validate as validate
 import common.model.ymd as ymd
 import common.model.convert as convert
