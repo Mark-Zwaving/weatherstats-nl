@@ -17,7 +17,7 @@ import common.model.validate as validate
 import common.model.util as util
 import threading, urllib, json, os, time, zipfile, webbrowser
 import datetime, requests, shutil, subprocess, sys
-import urllib.request
+import urllib.request, socket
 
 abspath = lambda path: os.path.abspath(path)
 mk_path = lambda dir, f: abspath(os.path.join(dir, f))
@@ -364,25 +364,36 @@ def request_json( url, verbose=cfg.verbose):
 
 def has_internet(verbose=cfg.verbose):
     '''Function checks if there is a internet connection available'''
-    ok = False
     cnsl.log(f'[{ymd.now()}] check internet connection', verbose)
-    cnsl.log(f'Url {cfg.check_internet_url}', verbose)
+    cnsl.log(f'IP {cfg.check_ip}', verbose)
+
+    ok = False
     with threading.Lock():
         try:
-            urllib.request.urlopen(cfg.check_internet_url) #Python 3.x
+            sock = socket.create_connection( (cfg.check_ip, cfg.check_port) )
         except Exception as e:
-            cnsl.log(f'Check failed\n{e}', verbose)
+            cnsl.log(f'Check failed\n{e}', True)
         else:
             cnsl.log('Check succes', verbose)
+            sock.close()
             ok = True
+
         # try:
-        #     sock = socket.create_connection( (cfg.check_internet_url, 80) )
+        #     requests.head(cfg.cfg.check_ip, timeout=cfg.check_timeout)
+        # except Exception as e:
+        #     cnsl.log(f'Check failed\n{e}', True)
+        # else:
+        #     cnsl.log('Check succes', verbose)
+        #     ok = True
+
+        # try:
+        #     urllib.request.urlopen( cfg.cfg.check_ip ) #Python 3.x
         # except Exception as e:
         #     cnsl.log(f'Check failed\n{e}', verbose)
         # else:
         #     cnsl.log('Check succes', verbose)
-        #     sock.close()
         #     ok = True
+
     return ok
 
 # Function checks if a url exists
