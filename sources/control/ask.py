@@ -8,16 +8,16 @@ __version__    =  "0.2.3"
 __maintainer__ =  "Mark Zwaving"
 __status__     =  "Development"
 
-import sys, config as cfg, stations
+import sys, config as cfg
+import sources.view.text as text
+import sources.model.stations as stations
 import sources.model.utils as utils
 import sources.model.daydata as daydata
 import sources.model.select as select
-import sources.view.text as text
+import common.view.txt as txt
 import common.view.console as cnsl
-import common.model.validate as validate
 import common.control.answer as answer
 import common.control.ask as ask
-import common.view.txt as txt
 import common.model.validate as validate
 import common.model.util as util
 
@@ -112,9 +112,8 @@ def open_with_app( tt, default='', back=False, prev=False, exit=False, spacer=Fa
 
 
 def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
-    lst_sel_places, lst_stations = [], stations.lst_stations_in_map() # Update l
-    cnt_map = len(lst_stations)
-    if cnt_map > 0:
+    lst_sel = []
+    if len(stations.lst_stations_map()) > 0:
         while True:
             tt = ''
             if cfg.info:
@@ -123,7 +122,7 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             tt += 'To add one station, give a wmo-number or a city name\n'
             tt += 'To add more stations, give a wmo-number or a city name separated by a comma\n'
             tt += f"Press '*' to add all available weather stations\n"
-            tt += f'{text.next_n}' if len(lst_sel_places) > 0 else ''
+            tt += f'{text.next_n}' if len(lst_sel) > 0 else ''
 
             answ = question(tt, default, back, prev, exit, spacer)
 
@@ -133,32 +132,31 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             elif answer.quit(answ) or answer.prev(answ):
                 return answ
             elif answ == '*':
-                lst_sel_places = lst_stations
-            elif answ == 'n' and len(lst_sel_places) > 0:
+                lst_sel = stations.lst_stations_map()
+            elif answ == 'n' and len(lst_sel) > 0:
                 break
             else:
                 lst = answ_to_lst(answ)
 
                 # Check and add all added stations
-                for answ in lst:
-                    station = stations.find_by_wmo_or_name(answ, lst_stations)
-                    if station:
-                        wmo_place = f'{station.wmo} {station.place}'
-                        if not stations.check_if_station_already_in_list( station, lst_sel_places ):
-                            lst_sel_places.append(station) # Append station object to lst
-                            ttt += f'Station: {wmo_place} added...\n'
+                for wmo_or_place in lst:
+                    if stations.wmo_or_place_in_map(wmo_or_place) :
+                        station = stations.wmo_or_place_to_station(wmo_or_place)
+                        if stations.station_in_list(station, lst_sel):
+                            ttt += f'Station: {station.wmo} {station.place} already added...\n'
                         else:
-                            ttt += f'Station: {wmo_place} already added...\n'
+                            lst_sel.append(station) # Append station object to lst
+                            ttt += f'Station: {station.wmo} {station.place} added...\n'
                     else:
-                        ttt += f'Station: {answ} not found in list stations...\n'
+                        ttt += f'Station: {wmo_or_place} not found in list stations...\n'
 
             ttt += '\n'
-            if len(lst_sel_places) == cnt_map:
-                ttt += 'All available weatherstations added...\n'
+            if len(lst_sel) == len(stations.lst_stations_map()):
+                ttt += 'All available weatherstations are  added...\n'
                 break
-            elif len(lst_sel_places) > 0:
+            elif len(lst_sel) > 0:
                 ttt += 'All weatherstation(s) who are added are: \n'
-                ttt += txt.lst_to_col([f'{s.wmo} {s.place}' for s in lst_sel_places], 'left', 4)
+                ttt += txt.lst_to_col([f'{station.wmo} {station.place}' for station in lst_sel], 'left', 4)
 
             cnsl.log(ttt, True)
 
@@ -166,7 +164,7 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
         t = 'No weatherdata found in data map. Download weatherdata first...'
         cnsl.log(t, cfg.error)
 
-    return lst_sel_places
+    return lst_sel
 
 
 def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False):
@@ -524,7 +522,7 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=False):
 
     # Max options to aks in this function
-    stations, lst_sel_cel, lst_entity, quit = [], [], [], False
+    lst_stations, lst_sel_cel, lst_entity, quit = [], [], [], False
     s4d, per_1, per_2, per_cmp, f_type, f_name = '', '', '', '', '', name
     write = ''
 
@@ -545,8 +543,8 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
 
         if quest == 'lst-stations': # Ask for one or more stations
             t = 'Select one (or more) weather station(s) ?'
-            stations = lst_places(t, default, back, prev_act, exit, spacer)
-            answ = stations
+            lst_stations = lst_places(t, default, back, prev_act, exit, spacer)
+            answ = lst_stations
 
         elif quest in text.lst_period_1: # Ask for period
             t = f'Give the period for the calculation of {name}'
@@ -758,7 +756,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
 
     return { 
         'title': name, 
-        'lst-stations': stations,
+        'lst-stations': lst_stations,
         'period': per_1, 
         'period-2': per_2, 
         'period-cmp': per_cmp,
