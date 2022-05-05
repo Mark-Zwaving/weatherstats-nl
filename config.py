@@ -89,7 +89,7 @@ knmi_json_cols = 4  # Colums for the data
 
 # Dayvalues knmi
 knmi_dayvalues_url = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
-knmi_dayvalues_notification = 'SOURCE data: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)'
+knmi_dayvalues_notification = 'SOURCE DATA: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)'
 knmi_dayvalues_skip_header = 52
 knmi_dayvalues_skip_footer = 0
 knmi_dayvalues_dummy_val = 99999999
@@ -365,6 +365,7 @@ np_no_data = np.array([[]])
 txt_no_data = '.'
 txt_data_error = 'x'
 no_val = '.'  # Replacement for no output
+empthy = '.'
 
 # Descending min or max
 html_max = True
@@ -379,4 +380,4 @@ fl_min = sys.float_info.max  # Maximum possible value
 lang = 'EN'  # Select language. Only english
 translate = False  # Translation active or not
 
-created_by_notification = 'Created by WeatherstatsNL at %s'
+created_by_notification = 'Created by weatherstats-nl at %s'
