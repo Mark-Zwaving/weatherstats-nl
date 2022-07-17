@@ -84,7 +84,9 @@ def calculate( options ):
         col_list = util.lst_shuffle(col.save_colors, 3)
         col_ndx, col_cnt = 0, len(col_list) - 1
 
-    sub_txt, min_tot, max_tot = '', sys.float_info.max, sys.float_info.min
+    sub_txt = ''
+    max_all, min_all = sys.float_info.min, sys.float_info.max
+
     for station in options['lst-stations']:
         t  = f'[{ymd.now()}] Calculate graph <{options["graph-title"]}> '
         t += f'for period <{options["period"]}> '
@@ -95,9 +97,11 @@ def calculate( options ):
         if not ok: continue 
 
         # Get days from a station for the given period
-        days = stats.Days( station,np_data_2d, options['period'] )
+        days = stats.Days( station, np_data_2d, options['period'] )
         np_ymd = days.np_period_2d[:, daydata.etk('yyyymmdd')]  # Date np list
         lst_ymd = [cvt.fl_to_s(el) for el in np_ymd] # Date lst integers
+
+        min_tot, max_tot = sys.float_info.max, sys.float_info.min
 
         for graph in options['graph-lst-entities-types']:
             entity = graph['entity'].upper()
@@ -111,18 +115,17 @@ def calculate( options ):
             # Label, colors and lst_val
             label = f'{station.place} {text.entity_to_text(entity)}'
             color = col_list[col_ndx] if rnd_col else col.entity_to_color(entity)
-            lst_val = [daydata.rounding(el, entity) for el in list(np_entity_1d)]
+            lst_val = [ daydata.rounding(el, entity) for el in list(np_entity_1d) ]
 
             # Min/ max for ranges in graphs
-            min_act, _, _ = days.min(entity)
-            max_act, _, _ = days.max(entity)
-            min_act = daydata.rounding(min_act, entity)
-            max_act = daydata.rounding(max_act, entity)
-            if min_act < min_tot: min_tot = min_act
-            if max_act > max_tot: max_tot = max_act
+            min_tot_act, max_tot_act = min(lst_val), max(lst_val)
+            if min_tot_act < min_all: min_all = min_tot_act
+            if max_tot_act > max_all: max_all = max_tot_act
 
             if answer.yes(graph['min-max-ave-period']):
-                # Calculate extremes and make correct output            
+                # Calculate extremes and make correct output    
+                min_act, _, _ = days.min(entity)
+                max_act, _, _ = days.max(entity)        
                 ave_act, _ = days.average( entity )
                 sum_act, _ = days.sum( entity )
                 max_val = f'max={ text.fix_entity(max_act, entity) }'
@@ -238,8 +241,10 @@ def calculate( options ):
     # Diff_val = max - min1
     # Give legend some space above entities 
     add_space = ( len( options['lst-stations'] ) + 1 ) * ( len( options['graph-lst-entities-types'] ) ) 
-    max_tick  = round( math.ceil(max_tot),  1 ) # Alltime maximum
-    min_tick  = round( math.floor(min_tot), 1 ) # Alltime minimum
+
+    # !!!! TODO BUGGY MAX MIN VALUES
+    max_tick  = math.ceil( max_all ) # Alltime maximum
+    min_tick  = math.floor( min_all ) # Alltime minimum
     step_tick = math.floor( abs( abs( max_tick ) - abs( min_tick ) ) / 10 )
     step_tick = 1 if step_tick < 1 else step_tick # min step = 1
     y_pos_txt = max_tick + add_space * step_tick + 1  # Under the edgeplt.show()
