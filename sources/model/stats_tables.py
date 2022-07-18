@@ -66,7 +66,7 @@ def calculate(options, type='normal'):
 
 def head(options, cnt=0):
     '''Makes the header'''
-    head_htm, head_txt = '', ''
+    head_htm, head_txt, script = '', '', ''
 
     if options['file-type'] in text.typ_htm:
         head_htm += f'''
@@ -87,7 +87,9 @@ def head(options, cnt=0):
         # Info texts
         if typ == 'inf':
             if entity in text.lst_copyright:
-                if options['file-type'] in text.typ_htm: head_htm += '<th title="copyright data_notification"></th>'
+                if options['file-type'] in text.typ_htm: 
+                    head_htm += '<th title="copyright data_notification"></th>'
+                    script += ''
                 if options['file-type'] in text.typ_txt: head_txt += 'COPY'
 
             elif entity == 'place':
@@ -401,21 +403,19 @@ def tr_cells(options, days1, days2='', day='', cnt=-1):
  
     return body_htm, body_txt 
 
-def endline(options, station, per_2):
-    t  = f'\n[{ymd.now()}] End <{options["title"]}> for period <{options["period"]}>'
-    t += f'{per_2} {station.wmo} {station.place}'
+def info_line(txt, options, station):
+    t  = f'[{ymd.now()}] {txt} - {station.wmo} {station.place} - '
+    t += f'<{options["title"]}> for period <{options["period"]}> '
+    t += f'with sub-period <{options["period-2"]}>' if options['period-2'] else ''
     cnsl.log(t, True)
 
 def body(options):
     '''Makes the body'''
     body_htm, body_txt, cnt = '', '', 0
-    per_2 = f' <{options["period-2"]}>' if options['period-2'] else ''
 
     # Walkthrough stations and calculate statistics and add to table
     for station in options['lst-stations']:
-        t  = f'[{ymd.now()}] Start <{options["title"]}> for period <{options["period"]}>'
-        t += f'{per_2} {station.wmo} {station.place}'
-        cnsl.log(t, True)
+        info_line('Start', options, station)
 
         ok, np_data_2d = daydata.read(station, verbose=False)  # Read data stations
         if not ok: 
@@ -468,15 +468,13 @@ def body(options):
                 days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
                 if not days2.np_period_2d_has_days(): continue  # Skip whole day/row
 
-                tt  = f'[{ymd.now()}] Calculate statistics to compare period <{options["period-2"]}> '
-                tt += f'{station.wmo} {station.place}'
-                cnsl.log_r(tt, True)
+                info_line('Calculate statistics to compare', options, station)
 
                 cnt += 1  # Count the days
                 htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the cells with data
                 body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
 
-            endline(options, station, per_2)
+            info_line('End', options, station)
             continue
 
         # Search for days table
@@ -490,7 +488,7 @@ def body(options):
                     cnt += 1  # Count the days
                     htm, txt = tr_cells(options, days1, days2, day=day, cnt=cnt) # Get the cells with data
                     body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
-            endline(options, station, per_2)
+            info_line('End', options, station)
             continue
 
         # Period in period
@@ -510,7 +508,7 @@ def body(options):
         cnt += 1  # Count the days
         htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the tr cells with data
         body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
-        endline(options, station, per_2)
+        info_line('End', options, station)
 
     return body_htm, body_txt, options, cnt
 
