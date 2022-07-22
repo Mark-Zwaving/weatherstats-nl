@@ -8,11 +8,23 @@
 
 'use strict';
 
-let css_click_cell   =  'cursor: cell;',  // Extra css for click cell
+let table_tbody      =  'table#stats>tbody',
+    table_stats_sel  =  'table#stats>tbody>tr',  // Locations of the tr with data
+    table_popup_sel  =  'table#stats>tbody>tr>td>table.popup', // Popup table
+    css_click_cell   =  'cursor: cell;',  // Extra css for click cell
     separator        =  '<span></span>',  // Default separator in html files
     no_data_given    =  '...', // Default dummy value in weatherstats
     num_max          = Number.MAX_VALUE,  // Max possible value
     num_min          = num_max * -1.0,    // Min possible value
+    descending       =  '+',   // Identifier sort direction: large to small
+    ascending        =  '-',   // Identifier sort direction: small to high
+    sort_num         =  'num', // Identifier sort num-based
+    sort_txt         =  'txt', // Identifier sort txt-based
+    row_nr           =  2,     // Row tr num for click to sort
+    // Reg expression for grepping a float number from a td cell.
+    // Result float is used for numeric sorting in a td cell.
+    // Update here reg expression for extracting floats, if needed
+    reg_float        = /[+-]?[0-9]*[.]?[0-9]+/g,
 
     ////////////////////////////////////////////////////////////////////////////
     // Grep a float from a string. Needed for correct sorting
@@ -82,7 +94,7 @@ let css_click_cell   =  'cursor: cell;',  // Extra css for click cell
 
     // Function reads all the column values from the weather object into a list
     list_col_from_matrix = ( matrix, obj ) => {
-        let cols = [], ndx = obj.col - diff_col;
+        let cols = [], ndx = obj.col;
         matrix.forEach( (row, i) => cols.push(row[ndx]) );
 
         return cols;
@@ -180,22 +192,21 @@ let css_click_cell   =  'cursor: cell;',  // Extra css for click cell
 
     // Function adds/attaches the click events to the columns in the table
     add_events_to_table = () => {
-        //  Add events to table titles
+        // Add events to table titles
         for ( var x in col_titles )
             col_titles[x].doc.addEventListener(
-                    'click', (
-                      ( obj ) => () => event_click_num_sort( obj )
-                    ) ( col_titles[x] ),
-                    false
-            );
+                'click', (
+                  ( obj ) => () => event_click_num_sort( obj )
+                ) ( col_titles[x] ),
+                false
+            );  
     },
 
     // Function adds css to the clickable column titles in the table
     add_css_to_table_titles = () => {
-      //  Add events to table titles
-      let css = css_click_cell;
+      // Add events to table titles
       for ( var x in col_titles )
-          col_titles[x].doc.style = css;
+        col_titles[x].doc.style = css_click_cell;
     };
 
 //  After loading the page, add all events and css
