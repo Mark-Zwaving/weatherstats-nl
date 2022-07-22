@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 '''Library contains classes and functions for calculating summerstatistics'''
 import numpy as np
+from pyparsing import col
 import common.model.util as util
 import common.model.ymd as ymd
 import common.view.console as cnsl
@@ -49,13 +50,13 @@ __status__ = "Development"
 
 def calculate(options, type='normal'):
     '''Function calculates all statistics'''
-    cnsl.log(f'[{ymd.now()}] {options["title"]}', True)
+    cnsl.log(f'[{ymd.now()}] {options["title"].upper()}', True)
 
     body_htm, body_txt, options, cnt = body(options)
     options['colspan'] = len(options['lst-sel-cells'])
-    head_htm, head_txt = head(options, cnt)
+    head_htm, head_txt, script = head(options, cnt)
     foot_htm, foot_txt = foot(options)
-    htm = head_htm + body_htm + foot_htm
+    htm = head_htm + body_htm + foot_htm + script
     txt = f'{head_txt}\n{body_txt}\n{foot_txt}'
 
     # Output to screen or file(s)
@@ -63,10 +64,31 @@ def calculate(options, type='normal'):
 
     return ok, path
 
+def js_script_fn( option, sort_type, sort_dir, row_num, col_num ):
+    '''Function makes an JavaScript object to handle a function call for sorting the table column'''
+    # Option    : type coll TX, province, ... 
+    # Sort_type : 'num' or 'txt' (numeric of alfa)
+    # Sort_dir  : '+' (descending: large to small), '-' (ascending: small to high)
+    # Row_num   : 2 (num of row in table)
+    # Col_num   : 1..end (colum num in table)
+
+    # Sort object 
+    return f'\n{option}' + ': { ' + f''' 
+        name: '{option}',
+        doc: document.querySelector('table#stats>thead>tr:nth-child({row_num})>th:nth-child({col_num})'),
+        type: '{sort_type}', dir: '{sort_dir}', row: {row_num}, col: {col_num-1}
+    ''' + ' },'
 
 def head(options, cnt=0):
     '''Makes the header'''
     head_htm, head_txt, script = '', '', ''
+    # Sorting script vars
+    col_num    = 0     # Start column num is 0 increment at start
+    descending = '+'   # Identifier sort direction: large to small
+    ascending  = '-'   # Identifier sort direction: small to high
+    sort_num   = 'num' # Identifier sort num-based
+    sort_txt   = 'txt' # Identifier sort txt-based
+    row_num    = 2     # Row tr num for click to sort
 
     if options['file-type'] in text.typ_htm:
         head_htm += f'''
@@ -79,7 +101,12 @@ def head(options, cnt=0):
     if options['file-type'] in text.typ_txt:
         head_txt += '#' * 80 + '\n'
 
+    # Add a script with a Javascript object for sorting with columns
+    script = '' 
     for option in options['lst-sel-cells']:
+        # Sort options. 
+        # Defaults: sort is True, numeric and descending. Add 1 to col_num
+        sort, sort_type, sort_dir, col_num = True, sort_num, descending, col_num + 1
         lst = option.split('_') # Make lst
         typ, entity = lst[0], lst[1]
         ico = text.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
@@ -87,22 +114,24 @@ def head(options, cnt=0):
         # Info texts
         if typ == 'inf':
             if entity in text.lst_copyright:
-                if options['file-type'] in text.typ_htm: 
-                    head_htm += '<th title="copyright data_notification"></th>'
-                    script += ''
+                if options['file-type'] in text.typ_htm: head_htm += '<th title="copyright data_notification"></th>'
                 if options['file-type'] in text.typ_txt: head_txt += 'COPY'
+                sort = False # No sort
 
             elif entity == 'place':
                 if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}place</th>'
                 if options['file-type'] in text.typ_txt: head_txt += f'PLACE'
+                sort_type = sort_txt # Text sort
 
             elif entity == 'province':
                 if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}province</th>'
                 if options['file-type'] in text.typ_txt: head_txt += f'PROVINCE'
+                sort_type = sort_txt # Text sort
 
             elif entity == 'country':
                 if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}country</th>'
                 if options['file-type'] in text.typ_txt: head_txt += f'COUNTRY'
+                sort_type = sort_txt # Text sort
 
             elif entity in text.lst_period_1:
                 if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}period</th>'
@@ -176,11 +205,22 @@ def head(options, cnt=0):
             if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.title(entity,sign,val)}">{entity}{ico}{val}</th>'
             if options['file-type'] in text.typ_txt:  head_txt += f'{entity}{sign}{val}'
 
+        # Add Sort Script
+        if sort:
+            col_id = f'{entity}_col_{col_num}'.replace('-','').upper()
+            script += js_script_fn( col_id, sort_type, sort_dir, row_num, col_num )
+
     # Close
     if options['file-type'] in text.typ_htm: head_htm += '</tr></thead><tbody>'
     if options['file-type'] in text.typ_txt: head_txt += '\n'
 
-    return head_htm, head_txt
+    # Make JS script
+    js  = ' <script> ' 
+    js += 'let col_titles = { ' 
+    js += script.strip()[:-1] # Remove comma
+    js += ' }; </script> '     # Close JS object and script tag
+
+    return head_htm, head_txt, js
 
 
 def cells(options, days1, days2='', day='', cnt=-1):
@@ -404,8 +444,9 @@ def tr_cells(options, days1, days2='', day='', cnt=-1):
     return body_htm, body_txt 
 
 def info_line(txt, options, station):
-    t  = f'[{ymd.now()}] {txt} - {station.wmo} {station.place} - '
-    t += f'<{options["title"]}> for period <{options["period"]}> '
+    t  = f'[{ymd.now()}] {txt} <{options["title"]}> '
+    t += f'for {station.wmo} {station.place} '
+    t += f'in period <{options["period"]}> '
     t += f'with sub-period <{options["period-2"]}>' if options['period-2'] else ''
     cnsl.log(t, True)
 
@@ -544,14 +585,10 @@ def output(htm, txt, options):
         page = html.Template()
         page.template = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
         page.verbose = False
-        page.strip  = True
-        page.path = path
+        page.path  = path
         page.title = options['title']
         page.add_description(f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
         page.main = htm
-        page.js_code = '''
-        // TODO for sort colls
-        '''
         ok = page.save()
         if not ok:
             cnsl.log('Failed!', cfg.error)
