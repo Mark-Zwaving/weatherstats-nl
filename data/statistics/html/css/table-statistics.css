@@ -34,10 +34,10 @@ td {
 	text-align: center;
 }
 
-tr:hover {
-	color: green;
+tr:hover, tr:hover > td {
+	color:  green;
 	background:beige;
-	/* font-weight:bold */
+	font-weight:bold;
 }
 
 td:hover {
