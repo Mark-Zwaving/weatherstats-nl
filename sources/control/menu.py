@@ -332,7 +332,7 @@ def graph_period():
 # Menu options
 lst_download = [ 'DOWNLOAD', [ 
     [ 'Download all dayvalues knmi stations', process_knmi_dayvalues_all ],
-    [ 'Download dayvalues selected knmi stations', process_knmi_dayvalues_select]
+    [ 'Download selected dayvalues knmi stations', process_knmi_dayvalues_select]
 ] ]
 
 lst_statistics = [ 'STATISTICS TABLES', [  
