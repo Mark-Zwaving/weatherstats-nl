@@ -20,7 +20,6 @@ import sources.model.stats as stats
 import sources.model.utils as utils
 import sources.view.text as text
 
-
 class Template():
     ''' Class to make a html page based on the template - template.html'''
     charset     = 'UTF-8'
@@ -37,7 +36,7 @@ class Template():
     js_code     = ''
     css_files   = []
     css_code    = ''
-    strip       = False
+    strip       = cfg.html_strip
     verbose     = cfg.verbose
     template    = ''
     path        = ''
@@ -94,7 +93,7 @@ class Template():
     def save(self):
         ok = self.create()
         if ok:
-            if cfg.html_strip:
+            if self.strip:
                 self.html = re.sub('\n|\r|\t', '', self.html)
                 self.html = re.sub('\s+', ' ', self.html)
             ok = fio.write(self.path, self.html, verbose=False)
@@ -115,11 +114,10 @@ class Template():
         self.js_code = ''
         self.css_files = []
         self.css_code = ''
-        self.strip  = False
+        self.strip = cfg.html_strip
         self.verbose = cfg.verbose
         self.template = ''
         self.path = ''
-
 
 def max_popup_rows(total, max):
     return total if max == -1 else max
