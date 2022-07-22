@@ -509,7 +509,7 @@ def body(options):
                 days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
                 if not days2.np_period_2d_has_days(): continue  # Skip whole day/row
 
-                info_line('Calculate statistics to compare', options, station)
+                info_line('Calculate', options, station)
 
                 cnt += 1  # Count the days
                 htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the cells with data
