@@ -98,8 +98,7 @@ def calculate( options ):
 
         # Get days from a station for the given period
         days = stats.Days( station, np_data_2d, options['period'] )
-        np_ymd = days.np_period_2d[:, daydata.etk('yyyymmdd')]  # Date np list
-        lst_ymd = [cvt.fl_to_s(el) for el in np_ymd] # Date lst integers
+        lst_ymd = days.lst_yyyymmdd() # Date lst
 
         min_tot, max_tot = sys.float_info.max, sys.float_info.min
 
