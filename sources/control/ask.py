@@ -53,7 +53,7 @@ def back_to_main_menu(default='', back=False, prev=False, exit=True, spacer=Fals
 
 
 def again(tt, default='', back=False, prev=False, exit=False, spacer=False):
-    t  = f'{tt}\nPress a key...'
+    t  = f'{tt} Press a key...'
     answ = question(t, default, back, prev, exit, spacer)
 
     if answer.quit(answ):
@@ -760,6 +760,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         'period': per_1, 
         'period-2': per_2, 
         'period-cmp': per_cmp,
+        'clima-period': cfg.climate_period, # TODO ASK for years and put in year in head of table
         'lst-sel-cells': lst_sel_cel,
         's4d-query': s4d, 
         'write': write, 
