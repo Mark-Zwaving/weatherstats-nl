@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Library contains classes and functions for calculating summerstatistics'''
 import numpy as np
-from pyparsing import col
 import common.model.util as util
 import common.model.ymd as ymd
 import common.view.console as cnsl
@@ -13,13 +12,13 @@ import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import config as cfg
-__author__ = "Mark Zwaving"
-__email__ = "markzwaving@gmail.com"
-__copyright__ = "Copyright (C) Mark Zwaving. All rights reserved."
-__license__ = "GNU Lesser General Public License (LGPL)"
-__version__ = "0.1.0"
-__maintainer__ = "Mark Zwaving"
-__status__ = "Development"
+__author__ = 'Mark Zwaving'
+__email__ = 'markzwaving@gmail.com'
+__copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__ = 'GNU Lesser General Public License (LGPL)'
+__version__ = '0.1.0'
+__maintainer__ = 'Mark Zwaving'
+__status__ = 'Development'
 
 
 # Options examples what can be shown
@@ -112,25 +111,25 @@ def head(options, cnt=0):
         ico = text.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
 
         # Info texts
-        if typ == 'inf':
+        if typ in text.lst_info:
             if entity in text.lst_copyright:
                 if options['file-type'] in text.typ_htm: head_htm += '<th title="copyright data_notification"></th>'
                 if options['file-type'] in text.typ_txt: head_txt += 'COPY'
                 sort = False # No sort
 
-            elif entity == 'place':
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}place</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'PLACE'
-                sort_type = sort_txt # Text sort
+            elif entity in text.lst_geo_places:
+                if entity == 'place':
+                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}place</th>'
+                    if options['file-type'] in text.typ_txt: head_txt += f'PLACE'
 
-            elif entity == 'province':
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}province</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'PROVINCE'
-                sort_type = sort_txt # Text sort
+                elif entity == 'province':
+                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}province</th>'
+                    if options['file-type'] in text.typ_txt: head_txt += f'PROVINCE'
 
-            elif entity == 'country':
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}country</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'COUNTRY'
+                elif entity == 'country':
+                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}country</th>'
+                    if options['file-type'] in text.typ_txt: head_txt += f'COUNTRY'
+                
                 sort_type = sort_txt # Text sort
 
             elif entity in text.lst_period_1:
@@ -154,7 +153,7 @@ def head(options, cnt=0):
                 if options['file-type'] in text.typ_txt: head_txt += f'DAY'
                 
         # Fixed day values
-        elif typ == 'day':
+        elif typ in text.lst_day:
             if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}</th>'
             if options['file-type'] in text.typ_txt: head_txt += f'{entity}'
 
@@ -172,7 +171,8 @@ def head(options, cnt=0):
 
         # Average
         elif typ in text.lst_ave:
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{html.title_mean(entity)}</th>'
+            ico2 = text.entity_to_icon(entity, size='fa-sm', color='', extra='')
+            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{html.title_mean(f"{ico2}{entity}")}</th>'
             if options['file-type'] in text.typ_txt: head_txt += f'{typ} {entity}'
 
         # Sum
@@ -181,7 +181,7 @@ def head(options, cnt=0):
             if options['file-type'] in text.typ_txt: head_txt += f'Σ{entity}'
 
         # Indexes
-        elif typ == 'ndx':
+        elif typ in text.lst_ndx:
             if entity in text.lst_helmmann:
                 if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.hellmann()}">{ico}hmann</th>'
                 if options['file-type'] in text.typ_txt: head_txt += 'HMANN'
@@ -203,7 +203,21 @@ def head(options, cnt=0):
             sign, val = lst[2], lst[3]
             ico = text.entity_to_icon(sign, size="fa-xs") # Update icon
             if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.title(entity,sign,val)}">{entity}{ico}{val}</th>'
-            if options['file-type'] in text.typ_txt:  head_txt += f'{entity}{sign}{val}'
+            if options['file-type'] in text.typ_txt: head_txt += f'{entity}{sign}{val}'
+
+        # Climate
+        elif typ in text.lst_clima:
+            typ, entity = lst[1], lst[2]  # Update typ and entity 
+            ico_clima = icon. ellipsis(size='fa-sm', color='', extra='')
+
+            htm, title = f'{ico_clima}{entity}', f'climate {entity}'
+            if type in text.lst_ave: 
+                htm, title = html.title_mean(htm), f'climate mean {entity}'
+            elif type in text.lst_sum: 
+                htm, title = f'Σ{htm}', f'climate sum {entity}'
+            
+            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{title}">{htm}</th>'
+            if options['file-type'] in text.typ_txt: head_txt += 'CLI-' + entity 
 
         # Add Sort Script
         if sort:
@@ -234,30 +248,25 @@ def cells(options, days1, days2='', day='', cnt=-1):
         typ, entity = lst[0], lst[1]  # Always two available
 
         # Info texts
-        if typ == 'inf':
+        if typ in text.lst_info:
             if entity in text.lst_copyright:
                 if options['file-type'] in text.typ_htm:
                     cell_htm += f'<td title="{station.data_notification.lower()}"><small class="text-muted">{icon.copy_light(size="fa-xs")}</small></td>'
                 if options['file-type'] in text.typ_txt:
                     cell_txt += station.format
 
-            elif entity == 'place':
-                if options['file-type'] in text.typ_htm:
-                    cell_htm += f'<td class="font-italic text-left"><span class="val">{station.place}</span></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += station.place
+            elif entity in text.lst_geo_places:
+                if entity == 'place':
+                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.place}</span></td>'
+                    if options['file-type'] in text.typ_txt: cell_txt += station.place
 
-            elif entity == 'province':
-                if options['file-type'] in text.typ_htm:
-                    cell_htm += f'<td class="font-italic text-left"><span class="val">{station.province}</span></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += station.province
+                elif entity == 'province':
+                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.province}</span></td>'
+                    if options['file-type'] in text.typ_txt: cell_txt += station.province
 
-            elif entity == 'country':
-                if options['file-type'] in text.typ_htm:
-                    cell_htm += f'<td class="font-italic text-left"><span class="val">{station.country}</span></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += station.country
+                elif entity == 'country':
+                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.country}</span></td>'
+                    if options['file-type'] in text.typ_txt: cell_txt += station.country
 
             # yyyymmdd - yyyymmdd
             elif entity in text.lst_period_1:
@@ -361,7 +370,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cell_txt += sum_val
 
         # Indexes
-        elif typ == 'ndx':
+        elif typ in text.lst_ndx:
             if entity in text.lst_heat_ndx:
                 heat_ndx_raw, days_heat_2d = days.heat_ndx()
                 heat_ndx_val = text.fix_entity(heat_ndx_raw, entity)
@@ -415,13 +424,34 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cell_htm += f'<td>{cfg.txt_no_data}</td>'
                 continue
 
-
             if options['file-type'] in text.typ_htm:
                 value = html.span(cnt, 'val')
                 table = html.table_count(days_cnt_2d, entity)
                 cell_htm += f'<td>{value}{table}</td>'
+
             if options['file-type'] in text.typ_txt:
                 cell_txt += cnt
+
+        # Climate calculations
+        # TODO
+        # !Very extended and difficult
+        # eg: 202207 
+        # calculate month clima values 
+        # for the period for every climate year and month
+        # CALCULATE NEW CLIMATE PERIOD -> DIFFICULT
+        elif typ in text.lst_clima:
+            option, entity = lst[1], lst[2]
+            print(lst)
+            print(option, entity)
+
+            # Make clima days object
+            raw, _ = days.climate( entity, option ) # Calculate average
+            val = text.fix_entity( raw, entity )
+
+            if options['file-type'] in text.typ_htm:
+                cell_htm += f'<td>{html.span(val, "val")}</td>'
+            if options['file-type'] in text.typ_txt:
+                cell_txt += val
 
         else:
             cell_txt += cfg.txt_no_data
@@ -583,15 +613,16 @@ def output(htm, txt, options):
         fio.mk_dir(dir, verbose=False)
 
         page = html.Template()
-        page.template = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
+        page.template = cfg.html_template_statistics
         page.verbose = False
-        page.path  = path
+        page.path = path
         page.title = options['title']
-        page.add_description(f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
+        page.add_description( f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
         page.main = htm
+
         ok = page.save()
         if not ok:
-            cnsl.log('Failed!', cfg.error)
+            cnsl.log(f'Save {options["file-type"]} file failed!', cfg.error)
 
     if options['file-type'] in text.typ_txt:
         cnsl.log(txt, True)
@@ -600,6 +631,6 @@ def output(htm, txt, options):
         path, dir, _ = utils.mk_path_with_dates(cfg.dir_stats_txt, f'{options["file-name"]}.{options["file-type"]}')
         fio.mk_dir(dir, verbose=False)
 
-        ok = fio.save(path, txt, verbose=False)  # Schrijf naar bestand
+        ok = fio.save(path, txt, verbose=True)  # Schrijf naar bestand
 
     return ok, path
