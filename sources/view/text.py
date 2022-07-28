@@ -193,6 +193,9 @@ lst_op  = lst_gt + lst_ge + lst_lt + lst_le + lst_eq + lst_ne + lst_or + lst_and
 
 lst_date = ['date', 'yyyymmdd']
 lst_count = ['cnt', 'counter', 'count']
+lst_ndx = ['ndx', 'idx']
+lst_info = ['inf', 'info']
+lst_clima = ['clima', 'clim']
 lst_num = ['num']
 lst_max = ['max','up','high'] 
 lst_plus = ['+']
@@ -201,6 +204,7 @@ lst_sum = ['sum', 'total', 'tot', 'Σ']
 lst_ave = ['ave', 'mean', 'average', '~']
 lst_home = ['home', 'place'] 
 lst_states = ['province','country'] 
+lst_geo_places = lst_states + lst_home
 lst_period_1 = ['period','periode','period1','period-1']
 lst_period_2 = ['period2','period-2','periode-2']
 lst_temp = ['tx','tg','tn','t10n']
@@ -309,11 +313,14 @@ def frostsum():
 def heat_ndx():
     return 'heat_ndx'
 
+def climate(txt=''):
+    return f'climate {txt}'
+
 def title(entity, sign, val):
     return 'title'
 
-def title_mean():
-    return 'title mean'
+def title_mean(txt=''):
+    return f'title mean {txt}'
 
 ave_tg    = lambda s='cap': style('average temperature', s)
 ave_tx    = lambda s='cap': style('average maximum temperature', s)
@@ -463,6 +470,7 @@ def entity_to_icon(entity, color='', size='', extra=''):
     elif e in lst_eq: return '=='
     elif e in lst_ne: return '!=' 
     elif e in lst_num: return icon.sort_down(color, extra, size)
+    elif e in lst_clima: return icon.ellipsis(color, extra, size)
     else: 
         return icon.umbrella(color, extra, size)
 
