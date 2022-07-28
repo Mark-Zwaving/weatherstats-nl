@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Main statistics object for calculating and saving statistics'''
+from asyncio.windows_events import NULL
 from cmath import nan
 import common.view.console as cnsl
 import sources.view.text as text
@@ -14,8 +15,11 @@ __status__ = "Development"
 
 import config as cfg
 import numpy as np
+import statistics
 import sources.model.daydata as daydata
 import sources.model.utils as utils
+import sources.model.select as select
+import common.model.convert as cvt
 
 class Days:
     '''Class saves and stores statistics of a station in a given period'''
@@ -60,6 +64,10 @@ class Days:
                 self.np_ymd = self.np_period_2d[:, daydata.etk('yyyymmdd')]
                 self.ymd_start = f'{self.np_ymd[0]:.0f}' # Make txt and round 0
                 self.ymd_end = f'{self.np_ymd[-1]:.0f}' # Make txt and round 0
+            
+            return True
+
+        return False
 
 
     def process_days_1d_2d(self, entity):
@@ -108,6 +116,15 @@ class Days:
 
         return ymd_raw 
 
+    def lst_entities( self, entity ):
+        '''Get a list of the entities for a given period'''
+        data_1d, data_2d = self.process_days_1d_2d(entity) # Remove NAN
+        lst = [cvt.fl_to_s(el) for el in data_1d] # Date lst strings of all selected data
+        return lst 
+
+    def lst_yyyymmdd(self):
+        '''Get a list of the dates for a given period''' 
+        return self.lst_entities('yyyymmdd')
 
     def sort(
             self,
@@ -358,6 +375,75 @@ class Days:
 
         return ave, Days
 
+    def climate( self, entity, option="mean", start_year=-1, end_year=-1 ): # Option mean or sum, hellman et cetera
+        if start_year == -1: start_year = cfg.climate_start_year
+        if end_year   == -1: end_year = cfg.climate_end_year
+
+        value, days, np_clima_days_2d = cfg.np_no_data, None, np.array([]) 
+        sy, ey = cvt.fl_to_s(start_year), cvt.fl_to_s(end_year) # Climate years
+
+        for ymd in self.lst_yyyymmdd(): # Walkthrough all the days (=dates) for a given period
+            mmdd = ymd[4:8] # Get the day 
+            per_clima_days = f'{sy}-{ey}{mmdd}*' # All days period for calculating climate values 
+            clima = Days( self.station, self.np_data_2d, per_clima_days ) # Make new object with clima days  
+            np_clima_days_2d = select.np_merge(np_clima_days_2d, clima.np_period_2d) # Add days to clima list
+
+        # Calculate climate values and round correctly based on entity
+        if np_clima_days_2d.size > 0: 
+            days = Days( self.station, np_clima_days_2d )
+            if option in text.lst_ave: 
+                value, days = days.average(entity) # Calculate total average
+            elif option in text.lst_sum: 
+                value, days = days.sum(entity) # Calculate sum
+                value /= end_year - start_year + 1 # Get an average over the years
+
+        return value, days
+
+    def climate_mean( self, entity, start_year=-1, end_year=-1 ):
+        return self.climate( entity, text.lst_ave[0], start_year, end_year )
+
+    def climate_sum( self, entity, start_year=-1, end_year=-1 ):
+        return self.climate( entity, text.lst_sum[0], start_year, end_year )
+
+    def all_extreme(self, entity, option='max'):
+        '''Gets extreme value for a given entity for a given period in all the available data'''
+        if self.ymd_start == -1.0 or self.ymd_end == -1.0: return cfg.txt_no_data 
+
+        sy, ey = self.ymd_start, self.ymd_end 
+        extreme, descend, extreme_day, np_extreme_days_2d = None, None, None, np.array([])
+
+        if   option in text.lst_max: extreme, descend = cfg.fl_min, cfg.html_max
+        elif option in text.lst_min: extreme, descend = cfg.fl_max, cfg.html_min
+
+        for ymd in self.lst_yyyymmdd(): # Walkthrough all the days (=dates) for a given period
+            mmdd = ymd[4:8] # Get the day 
+            per_extreme_days = f'{sy}-{ey}{mmdd}*' # All days period for calculating climate values 
+            days = Days( self.station, self.np_data_2d, per_extreme_days ) # Make new object with clima days 
+            days.process_days_1d_2d( entity ) # Remove nan data of entity
+
+            if days.np_good_1d_has_days(): # There are good days
+                np_sorted_2d, _ = days.sort( entity, descend ) 
+                day = np_sorted_2d[ 0, : ]
+                value = day[ daydata.etk( entity ) ] # Get the extreme value
+
+                if option in text.lst_max:
+                    if value > extreme:
+                        extreme, extreme_day = value, day
+                        np_extreme_days_2d = select.np_merge(np_extreme_days_2d, np_sorted_2d) 
+
+                elif option in text.lst_min:
+                    if value < extreme:
+                        extreme, extreme_day = value, day
+                        np_extreme_days_2d = select.np_merge(np_extreme_days_2d, np_sorted_2d) 
+
+        return extreme, extreme_day, Days(self.station, np_extreme_days_2d)
+
+
+    def all_extreme_max( self, entity ):
+        return self.all_extreme( entity, text.lst_max[0] )
+
+    def all_extreme_min( self, entity ):
+        return self.all_extreme( entity, text.lst_min[0] )
 
     def query(self, query):
         # Sanitize and split too lst
