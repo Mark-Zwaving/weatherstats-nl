@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Library contains configuration options and a list with knmi stations'''
+from re import template
 import numpy as np
 import os, sys
 
@@ -27,11 +28,16 @@ save_forecasts = True
 # Default output type file. Options: html, text and cmd
 # cmd is output to screen only. Text en html writes texts/html files
 default_output = 'html'
+
 # The <default> years/period for the calculations of climate averages
-climate_period = '1991-2020'
+climate_start_year = 1991
+climate_end_year   = 2020
+
+# Do not change
+climate_period = f'{climate_start_year}-{climate_end_year}'
+
 # Set the time zone
 timezone = 'Europe/Amsterdam'  
-
 
 ################################################################################
 # For HTML pages
@@ -48,6 +54,7 @@ html_strip = True
 dir_app = fio.abspath(os.path.dirname(__file__))
 dir_www = fio.abspath('/var/www/html')
 dir_data = fio.mk_path(dir_app, 'data')
+dir_templates = fio.mk_path(dir_data, 'templates')
 # Downloaded forecasts (buienradar)
 dir_forecasts = fio.mk_path(dir_data, 'forecasts')
 dir_thirdparty = fio.mk_path(dir_data, 'thirdparty')
@@ -60,7 +67,6 @@ dir_dayvalues_htm = fio.mk_path(dir_dayvalues, 'html')
 dir_stats = fio.mk_path(dir_data, 'statistics')
 dir_stats_htm = fio.mk_path(dir_stats, 'html')
 dir_stats_txt = fio.mk_path(dir_stats, 'text')
-dir_stats_templates = fio.mk_path(dir_stats_htm, 'templates')
 
 
 ################################################################################
@@ -164,18 +170,19 @@ lst_cells_winter = [
 
 # Default cells summer
 lst_cells_summer = [ 
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 
+    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'max_tx', 'max_tg', 'max_tn', 'ndx_heat-ndx', 
-    'sum_sq', 'sum_rh', 'cnt_sq_ge_10', 'cnt_rh_ge_10', 
-    'cnt_tx_ge_20', 'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
-    'cnt_tg_ge_18', 'cnt_tg_ge_20', 'cnt_sq_ge_10', 'cnt_rh_ge_10'
+    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 'cnt_sq_ge_10', 'cnt_rh_ge_10',
+    'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
+    'cnt_tg_ge_18', 'cnt_tg_ge_20'
 ]
 
 # Default cells winter and summer
 lst_cells_winter_summer = [
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg',
+    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg',
     'max_tx', 'max_tg', 'max_tn', 'ndx_heat-ndx', 
-    'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'ndx_hellmann', 'ndx_frost-sum', # 'ndx_ijnsen', 
+    'min_tx', 'min_tg', 'min_tn', 'min_t10n', 
+    'ndx_hellmann', 'ndx_frost-sum', # 'ndx_ijnsen', 
     'sum_sq', 'sum_rh', 'cnt_sq_ge_10', 'cnt_rh_ge_10', 
     'cnt_tx_ge_20',  'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
     'cnt_tg_ge_18', 'cnt_tg_ge_20', 'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 
@@ -184,7 +191,7 @@ lst_cells_winter_summer = [
 
 # My Default option, will be in the menu option lst
 lst_cells_my_default = [ 
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg',
+    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'max_fhx', 'max_px', 
     'sum_sq', 'sum_rh',
     'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'min_pn', 'min_un',
@@ -193,14 +200,15 @@ lst_cells_my_default = [
 
 # Example spring ?
 lst_cells_spring = [ 
-    'inf_place', 'inf_period', 'ave_tg', 'max_tx', 'min_tx', 'max_tn', 'min_tn', 
+    'inf_place', 'inf_period', 'ave_tg', 'clima_ave_tg',  
+    'max_tx', 'min_tx', 'max_tn', 'min_tn', 
     'ndx_heat-ndx', 'ndx_frost-sum', 'sum_sq', 'sum_rh', 
     'cnt_tx_>_20', 'cnt_tn_<_0', 'cnt_tn_<_-5'
 ]
 
 # Default cells for the extrems
 lst_cells_my_extremes = [
-    'inf_place', 'inf_period', 'ave_tg',
+    'inf_place', 'inf_period', 
     'max_tx', 'max_tg', 'max_tn', 'max_t10n', 
     'min_tx', 'min_tg', 'min_tn', 'min_t10n',
     'max_rh', 'max_rhx','max_fg', 'max_fhx',  
@@ -211,7 +219,7 @@ lst_cells_my_extremes = [
 
 # Default cells for to count days
 lst_cells_my_counts = [
-    'inf_place', 'inf_period', 'ave_tg',
+    'inf_place', 'inf_period', 
     'cnt_tx_ge_20', 'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 
     'cnt_tx_ge_40', 'cnt_tg_ge_18', 'cnt_tg_ge_20', 
     'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 'cnt_tn_lt_-5', 
@@ -380,4 +388,6 @@ fl_min = sys.float_info.max  # Maximum possible value
 lang = 'EN'  # Select language. Only english
 translate = False  # Translation active or not
 
+html_template_dayvalues  = fio.mk_path(dir_templates, 'dayvalues.html')
+html_template_statistics = fio.mk_path(dir_templates, 'statistics.html')
 created_by_notification = 'Created by weatherstats-nl at %s'
