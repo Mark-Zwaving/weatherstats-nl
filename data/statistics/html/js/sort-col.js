@@ -13,9 +13,9 @@ let table_tbody      =  'table#stats>tbody',
     table_popup_sel  =  'table#stats>tbody>tr>td>table.popup', // Popup table
     css_click_cell   =  'cursor: cell;',  // Extra css for click cell
     separator        =  '<span></span>',  // Default separator in html files
-    no_data_given    =  '...', // Default dummy value in weatherstats
+    no_data_given    =  '.', // Default dummy value in weatherstats
     num_max          = Number.MAX_VALUE,  // Max possible value
-    num_min          = num_max * -1.0,    // Min possible value
+    num_min          = Number.MIN_VALUE,  // Min possible value
     descending       =  '+',   // Identifier sort direction: large to small
     ascending        =  '-',   // Identifier sort direction: small to high
     sort_num         =  'num', // Identifier sort num-based
@@ -30,16 +30,21 @@ let table_tbody      =  'table#stats>tbody',
     // Grep a float from a string. Needed for correct sorting
     grep_float = el => {
         let fl;
-        el = el.trim();
         if ( el != no_data_given )
-        {
+        {  
             try {
+                el = el.trim() // Remove whitespace
+                // For nums
+                // if ( el.includes('.') != true && el != '0' ) // Not a float
+                //     while ( el[0] == '0' ) 
+                //         el = el.substring(1) // Remove leading zero's
+                el = el.replace(/|A-Z|a-z|°|%|\/|cm2|/gi, ''); // Replace chars
                 fl = parseFloat(el.match( reg_float ), 10); // Match a float digit
             } catch (error) { }
         }
         else {
             // This value will always be most extreme
-            fl = obj.dir == ascending ? num_min : num_max;
+            fl = col_titles.dir == ascending ? num_min : num_max;
         }
         return fl;
     },
@@ -104,11 +109,24 @@ let table_tbody      =  'table#stats>tbody',
     max_from_list = l => {
         let max = num_min, key = 0;
         l.forEach( (item, i) => {
-            if (item > max)
-                max = item, key = i;
+            if ( item != no_data_given )
+                if (item > max)
+                    max = item, key = i;
         } );
 
         return { val: max, key: key };
+    },
+
+    // Function gets a minimum value and his key from a list
+    min_from_list = l => {
+        let min = num_max, key = 0;
+        l.forEach( (item, i) => {
+            if ( item != no_data_given )
+                if (item < min)
+                    min = item, key = i;
+        } );
+
+        return { val: min, key: key };
     },
 
     // Function gets the numeric sorted key list with values
@@ -116,22 +134,20 @@ let table_tbody      =  'table#stats>tbody',
 
         let len = col_list.length, keys = [];
 
-         // Replace all non-numeric values in col_list
-        col_list.forEach(
-            (item, i) => col_list[i] = grep_float(item)
-        );
+         // Replace/remove all non-numeric values in col_list
+        col_list.forEach( (item, i) => col_list[i] = grep_float(item) );
 
         while ( --len !== -1 )
-        {
-            let max = max_from_list( col_list );  // Get max key
-            col_list.splice( max.key, 1, num_min );  // Replace with minimum
-            keys.push( max.key );  // Add max key row to keys
+        { 
+            let extreme = max_from_list( col_list ); 
+            col_list.splice( extreme.key, 1, num_min );  // Replace with a contradictio extreme value
+            keys.push( extreme.key );  // Add max key row to keys
         }
 
-        if ( obj.dir == ascending )
+        if ( obj.dir == ascending ) 
             keys.reverse()
 
-        return keys;
+        return keys; // Sorted keys
     },
 
     // Function gets the txt sorted key list with values
@@ -204,9 +220,9 @@ let table_tbody      =  'table#stats>tbody',
 
     // Function adds css to the clickable column titles in the table
     add_css_to_table_titles = () => {
-      // Add events to table titles
-      for ( var x in col_titles )
-        col_titles[x].doc.style = css_click_cell;
+        // Add events to table titles
+        for ( var x in col_titles )
+            col_titles[x].doc.style = css_click_cell;
     };
 
 //  After loading the page, add all events and css
