@@ -51,7 +51,7 @@ class Template():
         title = self.title.strip().replace(' ', '')
         dt = cymd.text(cymd.yyyymmdd_now())
         self.file_name = f'{title}-{dt}.html'
-        self.template  = fio.mk_path( cfg.dir_stats_templates, 'template.html' )
+        self.template  = cfg.html_template_statistics
         self.path_to_root = ''
 
     def set_path(self, path):
@@ -87,6 +87,8 @@ class Template():
             self.html = self.html.replace('{{%js_files%}}', util.lst_to_s(self.js_files,'\n'))
             self.html = self.html.replace('{{%js_code%}}', self.js_code)
             self.html = self.html.replace('{{%path_to_root%}}', self.path_to_root)
+        else:
+            cnsl.log(f'Read {self.template} file failed!', cfg.error)
 
         return ok
 
