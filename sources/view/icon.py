@@ -59,3 +59,7 @@ def copy(color='', extra='', size=''): return i('fas fa-copyright', color, extra
 def copy_light(color='', extra='', size=''): return i('far fa-copyright', color, extra, size)
 
 def sort_down(color='', extra='', size=''): return i('fas fa-sort-amount-down-alt', color, extra, size)
+
+def bars(color='', extra='', size=''): return i('fas fa-bars', color, extra, size)
+def ellipsis(color='', extra='', size=''): return i('fas fa-ellipsis-v', color, extra, size)
+# def ellipsis_alt(color='', extra='', size=''): return i('fas fa-ellipsis-v-alt', color, extra, size)
