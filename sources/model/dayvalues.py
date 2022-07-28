@@ -21,8 +21,6 @@ import common.model.ymd as ymd
 # Relative from the made html station dayvalues files 
 # Example: /280/2024/04/dayvalues-280-2024-01-01.html
 path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data html file 
-html_template = fio.mk_path(cfg.dir_dayvalues_htm, 'templates/template-dayvalues.html') # Template file 
-
 
 def calculate(options):
     cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
@@ -123,7 +121,7 @@ def calculate(options):
             # HTML object
             page = html.Template()
             page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
-            page.template = html_template
+            page.template = cfg.html_template_dayvalues
             page.verbose = False
             page.strip  = True
             page.path = path
