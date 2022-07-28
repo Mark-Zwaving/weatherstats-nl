@@ -397,7 +397,7 @@ def update_minus_1( data ):
 
 def sel_period( data, period ):
     '''Function selects days by start and end dates'''
-    data = select.days_period( data, period ) # Get the data for a period
+    data, lst_period = select.days_period( data, period ) # Get the data for a period
     data = update_minus_1( data ) # Update/correct values -1
     return data
 
@@ -432,7 +432,8 @@ def read( station, verbose=cfg.verbose ):
 
 def read_period(station, period):
     ok, data = read(station)
-    if ok: data = select.days_period(data, period)
+    if ok: 
+        data, _ = select.days_period(data, period)
     return ok, data
 
 
