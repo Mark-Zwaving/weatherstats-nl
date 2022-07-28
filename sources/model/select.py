@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__version__    =  '0.0.5'
+__version__    =  '0.0.6'
 __license__    =  'GNU Lesser General Public License (LGPL)'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -234,9 +234,10 @@ def np_merge(result, new):
 def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
     '''Function returns a np array with data based on a period.
        Function can be used to check_only periods too.'''
+    ok, lst_periods, result = False, [], np.array([])  # Lst with all the dates
     if not check_only:
         if np_data_2d.size == 0:
-            return np_data_2d # This must not
+            return np_data_2d, lst_periods # This must not
 
     # Get the dates array from data
     if not check_only: 
@@ -266,52 +267,51 @@ def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
         # Get keys for the given periode
         if ymdss.isdigit() and ymdee.isdigit() and \
            len(ymdss) == 8 and len(ymdee) == 8:
-            if check_only: return True
-
             # print('OPTION YYYYMMDD-YYYYMMDD')
-
-            sp, ep = ymds, ymde
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = ymds, ymde
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # OPTION: YYYY****-****
         # From a full year till data end
         elif ys.isdigit() and is_x_or_(ys) and \
              len(ymdss) == 8 and is_xx(ymdee):
-            if check_only: return True
-
             # print('OPTION YYYY****-****')
-            result = np.array([])
-            for y in utils.l_years(ys, ye):
-                sp = f'{y}0101'
-                ep = max_date(ymde)
-                days   = sel_days(np_data_2d, sp, ep)
-                result = np_merge(result, days)
-
-            return result
+            if check_only: 
+                ok = True
+            else:
+                for y in utils.l_years(ys, ye):
+                    sp, ep = f'{y}0101', max_date(ymde)
+                    lst_periods.append( [sp, ep] )
+                    result = np_merge(result, sel_days(np_data_2d, sp, ep))
 
         # OPTION: YYYY****-YYYY**** | YYYY**-YYYY** | YYYY-YYYY
         # From full year to year
         elif ys.isdigit() and ye.isdigit() and is_x_or_(mds) and \
              len(ymdss) <= 8 and len(ymdee) <= 8 and \
              ( is_xx(mde) or is_(mde) ):
-            if check_only: return True
-
             # print('OPTION YYYY****-YYYY**** | YYYY**-YYYY** | YYYY-YYYY')
-
-            sp = f'{ys}0101'
-            ep = max_date(ymde)
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = f'{ys}0101',  max_date(ymde)
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # OPTION: YYYYMMDD-YYYYMM** | YYYYMMDD-YYYYMM**
         # A start day untill possible month end end
         elif ymdss.isdigit() and yme.isdigit() and is_x_or_(de) and \
              len(ymdss) == 8 and len(ymdee) in [6,8]:
-            if check_only: return True
-
             # print('OPTION YYYYMMDD-YYYYMM** | YYYYMMDD-YYYYMM**')
-
-            sp, ep = ymds, max_date(ymde)
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = ymds, max_date(ymde)
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # Other options more later maybe
         #
@@ -322,21 +322,19 @@ def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
              len(ymdss) == 10 and len(ymdee) == 10 and \
              ymdss[4] == x1 and ymdee[4] == x1 and \
              ymdss[9] == x1 and ymdee[9] == x1:
-            if check_only: return True
-
             # print('OPTION YYYY*MMDD*-YYYY*MMDD*')
+            if check_only: 
+                ok = True
+            else:
+                iys, iye = int(ys), int(ye)
+                imds, imde = int(mds), int(mde)
+                diff = 1 if imds > imde else 0 # Date will go over a year
 
-            result = np.array([])
-            iys, iye = int(ys), int(ye)
-            imds, imde = int(mds), int(mde)
-            diff = 1 if imds > imde else 0 # Date will go over a year
-
-            while (iys+diff) <= iye:
-                sp, ep = f'{iys}{mds}', f'{iys+diff}{mde}'
-                result = np_merge(result, sel_days(np_data_2d, sp, ep))
-                iys += 1
-
-            return result
+                while (iys+diff) <= iye:
+                    sp, ep = f'{iys}{mds}', f'{iys+diff}{mde}'
+                    lst_periods.append( [sp, ep] )
+                    result = np_merge(result, sel_days(np_data_2d, sp, ep))
+                    iys += 1
 
         # ADVANCED OPTIONS for more different periods in a given period
         # OPTION YYYY-YYYYMMDD* | YYYY****-YYYYMMDD*
@@ -344,35 +342,29 @@ def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
         elif ys.isdigit() and is_x_or_(mds) and ymde.isdigit() and \
              len(ymdss) in [4,8] and len(ymdee) == 9 and \
              re == x1:
-            if check_only: return True
-
             # print('OPTION YYYY-YYYYMMDD* | YYYY****-YYYYMMDD*')
-            result = np.array([])
-            for y in utils.l_years(ys, ye):
-                per = f'{y}{me}{de}'
-                days = days_period(np_data_2d, per)
-                result = np_merge(result, days)
-
-            return result
+            if check_only: 
+                ok = True
+            else:
+                for y in utils.l_years(ys, ye):
+                    p = f'{y}{me}{de}'
+                    lst_periods.append( [p] )
+                    result = np_merge(result, sel_days( np_data_2d, p, p ) )
 
         # OPTION YYYY****-YYYYMM** | YYYY-YYYYMM** | YYYY-YYYYMM
         # A full 1 month in an year. From startyear to endyear
         elif ys.isdigit() and is_x_or_(mds) and \
              len(ymdss) in [4,8] and len(ymdee) in [6,8] and \
              yme.isdigit() and is_x_or_(de):
-            if check_only: return True
-
             # print('OPTION YYYY****-YYYYMM** | YYYY-YYYYMM** | YYYY-YYYYMM')
-
-            result = np.array([])
-            for y in utils.l_years(ys, ye):
-                d = days_in_month(y, me)
-                sp = f'{y}{me}01'
-                ep = f'{y}{me}{d}'
-                days = sel_days(np_data_2d, sp, ep)
-                result = np_merge(result, days)
-
-            return result
+            if check_only: 
+                ok = True
+            else:
+                for y in utils.l_years(ys, ye):
+                    d = days_in_month(y, me)
+                    sp, ep = f'{y}{me}01', f'{y}{me}{d}'
+                    lst_periods.append( [sp, ep] )
+                    result = np_merge(result, sel_days(np_data_2d, sp, ep))
 
     else:
         # No '-' in period
@@ -381,102 +373,102 @@ def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
         # OPTION ******** or *
         # All the data # All time
         if ymd in [x8,x1] and len(ymd) in [1,8]:
-            if check_only: return True
-
-            return np_data_2d 
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = np_data_2d[0, daydata.etk('yyyymmdd')], np_data_2d[-1, daydata.etk('yyyymmdd')]
+                lst_periods.append( [sp, ep] )
+                result = np_data_2d # All data
 
         # OPTION YYYYMMDD
         # Get only one day in a year
         elif ymd.isdigit() and len(ymd) == 8:
-            if check_only: return True
-
-            return np_data_2d[ np.where( dymd == float(ymd) ) ]
+            if check_only: 
+                ok = True
+            else:
+                lst_periods.append( [ymd] )
+                result = sel_days(np_data_2d, ymd, ymd)
 
         # OPTION ****
         # The current whole year
         elif ymd == x4 and len(ymd) == 4:
-            if check_only: return True
-
-            sp = f'{y_now}0101'
-            ep = ymd_now
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = f'{y_now}0101', ymd_now
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # OPTION **
         # The current month
         elif ymd == x2 and len(ymd) == 2:
-            if check_only: return True
-
-            d = days_in_month(y_now, m_now)
-            sp = f'{y_now}{m_now}01'
-            ep = f'{ymd_now}'
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                d = days_in_month(y_now, m_now)
+                sp, ep = f'{y_now}{m_now}01', f'{ymd_now}'
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # OPTION YYYY**** | YYYY
         # The whole year
         elif y.isdigit() and is_x_or_(md):
-            if check_only: return True
-
-            sp = f'{y}0101'
-            ep = ymd_now if y == y_now else f'{y}1231'
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                sp, ep = f'{y}0101', ymd_now if y == y_now else f'{y}1231'
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # OPTION YYYYMM** | YYYYMM
         # The whole month in a year
         elif ym.isdigit() and is_x_or_(d):
-            if check_only: return True
-
-            # Is it the actual month in the actual year? Then actual day
-            sp = f'{ym}01'
-            ep = max_date(ymd)
-            return sel_days(np_data_2d, sp, ep)
+            if check_only: 
+                ok = True
+            else:
+                # Is it the actual month in the actual year? Then actual day
+                sp, ep = f'{ym}01', max_date(ymd)
+                lst_periods.append( [sp, ep] )
+                result = sel_days(np_data_2d, sp, ep)
 
         # ADVANCED OPTIONS for more different periods in a given period
         # OPTION ****MM** | ****MM
         # Get selected month in all the years
         elif y == x4 and m.isdigit() and is_x_or_(d):
-            if check_only: return True
-
-            result = np.array([])
-            for y in utils.l_years(dys, dye):
-                d  = days_in_month(y, m)
-                sp = f'{y}{m}01'
-                if int(sp) > int(ymd_now):
-                    break
-                else:
-                    if y == y_now:
-                        if m == m_now:
-                            d = d_now
-                    ep = f'{y}{m}{d}'
-                days = sel_days(np_data_2d, sp, ep)
-                result = np_merge(result, days)
-
-            return result
+            if check_only: 
+                ok = True
+            else:
+                for y in utils.l_years(dys, dye):
+                    d  = days_in_month(y, m)
+                    sp = f'{y}{m}01'
+                    if int(sp) > int(ymd_now):
+                        break
+                    else:
+                        if y == y_now:
+                            if m == m_now:
+                                d = d_now
+                        ep = f'{y}{m}{d}'
+                    lst_periods.append( [sp, ep] )
+                    result = np_merge(result, sel_days(np_data_2d, sp, ep))
 
         # OPTION ****MMDD
         # Get the day for every available year
         elif y == x4 and md.isdigit():
-            if check_only: return True
+            if check_only: 
+                ok = True
+            else:
+                for y in utils.l_years(dys, dye):
+                    p = f'{y}{md}'
+                    if int(p) > int(ymd_now):
+                        break
+                    lst_periods.append( [p, p] )
+                    result = np_merge(result, sel_days(np_data_2d, p, p))
 
-            result = np.array([])
-            for y in utils.l_years(dys, dye):
-                p = f'{y}{md}'
-                if int(p) > int(ymd_now):
-                    break
-                days = days_period(np_data_2d, p)
-                result = np_merge(result, days)
+    if check_only: 
+        return ok
+    else:
+        return result, lst_periods
 
-            # print(result)
-            # input('Hier moet het goed zijn')
-
-            return result
-
-    if check_only: return False
-
-    # NOT GOOD
-    # cnsl.log(f'Error! No correct data found for period - {period} - ?', cfg.error)
-
-    # This must not
-    return np_data_2d
 
 def day_only( data, period, mmdd ):
     '''Function selects a day over multiple years'''
