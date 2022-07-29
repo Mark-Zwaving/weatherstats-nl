@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 '''Library contains configuration options and a list with knmi stations'''
-from re import template
-import numpy as np
-import os, sys
-
-__author__ = 'Mark Zwaving'
-__email__ = 'markzwaving@gmail.com'
-__copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.9.6'
+__author__     = 'Mark Zwaving'
+__email__      = 'markzwaving@gmail.com'
+__copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    = 'GNU Lesser General Public License (LGPL)'
+__version__    = '0.9.7'
 __maintainer__ = 'Mark Zwaving'
-__status__ = 'Development'
-
+__status__     = 'Development'
 ################################################################################
-# Import the common lib
-import common.control.fio as fio
+import common.control.fio as fio  # Import the common lib from the common map
+import os, sys, numpy as np       # Python modules
 ################################################################################
 
 verbose = False # Print more(all) to screen
@@ -130,30 +125,44 @@ buienradar_json_cols = 4  # Colums for the data
 
 
 ################################################################################
-# Default cells for seasons (winter, summer and winter-summer)
-# Options examples what can be shown
+# Default cells for seasons (winter, summer and winter-summer), extremes and 
+# climate and own default lists
+################################################################################
+# Abbreviations
+# See for weather entities eg. tx, tn et cetera info-entities.txt
+# info: information (eg. places, period), cnt: count(er)
+# ave: average or mean, max: maximum extreme, min: minimum extreme
+# ndx: indexex (eg. hellmann, frost-sum, heat-ndx)  
+# ge: greather than and equal, gt: greater than, eq: equal, ne: not equal
+# le: less than and equal, lt: less than
+# day: dayvalue (to get the dayvalues)
 
-# Examples - info cells: 
+# Options examples what can be shown
+# Examples - info cells
 # inf_copyright, inf_place, inf_province, inf_country, inf_period, inf_month, 
 # inf_num, inf_period-2
 
-# Examples - normal statistics: 
+# Examples normal statistics 
 # ave_tg, sum_sq, sum_rh
 
-# Examples - extremes: max_tx, max_tg, max_tn, max_t10n, min_tx, min_tg, min_tn, 
+# Examples extremes 
+# max_tx, max_tg, max_tn, max_t10n, min_tx, min_tg, min_tn, 
 # min_t10n, max_rh, max_sq, max_rhx, max_px, max_pn, min_px, min_pn, max_ux, 
-# max_ug, max_un, min_ux, min_ug, min_un,
+# max_ug, max_un, min_ux, min_ug, min_un
 
-# Examples indexes:
-# ndx_hellmann, ndx_ijnsen, ndx_frost-sum, ndx_heat-ndx,
+# Examples indexes
+# ndx_hellmann, ndx_ijnsen, ndx_frost-sum, ndx_heat-ndx
 
-# Examples extremes:
+# Examples counters
 # cnt_tx_ge_20, cnt_tx_ge_25, cnt_tx_ge_30, cnt_tx_ge_35, cnt_tx_ge_40, cnt_tg_ge_18, 
 # cnt_tg_ge_20, cnt_sq_ge_10, cnt_rh_ge_10, cnt_tx_lt_0, cnt_tg_lt_0, cnt_tn_lt_0, 
-# cnt_tn_lt_-5, cnt_tn_lt_-10, cnt_tn_lt_-15, cnt_tn_lt_-20,
+# cnt_tn_lt_-5, cnt_tn_lt_-10, cnt_tn_lt_-15, cnt_tn_lt_-20
+
+# Examples climates <beta>
+# clima_ave_tg, clima_ave_tx, clima_ave_tn, clima_sum_sq, clima_sum_rh 
 
 # Examples normal day values
-# inf_copyright, inf_num, inf_place, inf_province, inf_period, inf_day, 
+# inf_num, inf_place, inf_province, inf_period, inf_day, 
 # day_tx, day_tg, day_tn, day_t10n, day_sq, day_sp, day_rh, day_rhx,
 # day_dr, day_pg, day_px, day_pn, day_ug, day_ux, day_un, day_ng, day_ddvec,
 # day_fhvec, day_fg, day_fhx, day_fhn, day_fxx, day_vvx, day_vvn, day_q
@@ -161,18 +170,19 @@ buienradar_json_cols = 4  # Colums for the data
 # Menu default options lst 
 # Default cells winter
 lst_cells_winter = [
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg',
+    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'ndx_hellmann', 'ndx_frost-sum', # 'ndx_ijnsen', 
-    'sum_sq', 'sum_rh', 'cnt_rh_ge_10', 
+    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
     'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 'cnt_tn_lt_-5', 
-    'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20'
-] 
+    'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20', 'cnt_rh_ge_10' 
+]
 
 # Default cells summer
 lst_cells_summer = [ 
     'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'max_tx', 'max_tg', 'max_tn', 'ndx_heat-ndx', 
-    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 'cnt_sq_ge_10', 'cnt_rh_ge_10',
+    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
+    'cnt_sq_ge_10', 'cnt_rh_ge_10',
     'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
     'cnt_tg_ge_18', 'cnt_tg_ge_20'
 ]
@@ -189,13 +199,20 @@ lst_cells_winter_summer = [
     'cnt_tn_lt_-5', 'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20'
 ]
 
-# My Default option, will be in the menu option lst
-lst_cells_my_default = [ 
+# My Default option 1, another option, will be in the menu option lst
+lst_cells_my_default_1 = [ 
     'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'max_fhx', 'max_px', 
-    'sum_sq', 'sum_rh',
+    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
     'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'min_pn', 'min_un',
     'cnt_tx_ge_20', 'cnt_tn_lt_0'
+]
+
+# My Default option 2, another option, will be in the menu option lst
+lst_cells_my_default_2 = [ 
+    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
+    'max_tx', 'min_tn', 'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh',
+    'cnt_tx_ge_30', 'cnt_tx_lt_0', 'cnt_tn_lt_0'
 ]
 
 # Example spring ?
@@ -241,7 +258,6 @@ lst_cells_dayvalues = [
     'sq', 'sp', 'rh', 'rhx',  'dr', 'px', 'pg', 'pn', 'ux', 'ug', 'un', 
     'vvx', 'vvn', 'ng', 'q', 'ev24'
 ]
-
 
 ################################################################################
 # Plotting default values
@@ -360,16 +376,15 @@ plot_legend_shadow = None
 plot_legend_frameon = None
 plot_legend_fancybox = None
 
-
 ################################################################################
 # Constants do not change
 data_comment_sign = '#'
-no_data_given = '...'
-data_empthy = ''
 data_dtype = np.float64  # Data type for reading data files
 data_min_year = 1901  # Minumum year of possible data
 np_empthy = np.array([[]])
 np_no_data = np.array([[]])
+no_data_given = '.'
+data_empthy = ''
 txt_no_data = '.'
 txt_data_error = 'x'
 no_val = '.'  # Replacement for no output
@@ -385,9 +400,12 @@ fl_min = sys.float_info.max  # Maximum possible value
 # Give language for app. Under contruction. TODO
 # 'NL' for Netherlands/Dutch, 'EN' for English, Default is English
 # TODO
-lang = 'EN'  # Select language. Only english
-translate = False  # Translation active or not
+lang = 'EN' # Select language. Only english
+translate = False # Translation active or not
 
-html_template_dayvalues  = fio.mk_path(dir_templates, 'dayvalues.html')
+# Paths templates
+html_template_dayvalues = fio.mk_path(dir_templates, 'dayvalues.html')
 html_template_statistics = fio.mk_path(dir_templates, 'statistics.html')
+
+# Copyright notification weatherstats 
 created_by_notification = 'Created by weatherstats-nl at %s'
