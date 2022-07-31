@@ -104,11 +104,15 @@ def table_stats_summer():
 
 
 # Default statistics
-def table_stats_default(): 
-    title = 'my default statistics'
+def table_stats_default_1(): 
+    title = 'my default statistics 1'
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
-    table_stats(title, lst_ask, cfg.lst_cells_default)
+    table_stats(title, lst_ask, cfg.lst_cells_my_default_1)
 
+def table_stats_default_2(): 
+    title = 'my default statistics 2'
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
+    table_stats(title, lst_ask, cfg.lst_cells_my_default_2)
 
 # Default extremes
 def table_stats_extremes(): 
@@ -116,12 +120,11 @@ def table_stats_extremes():
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_my_extremes)
 
-
-# Default extremes
+# Default counts
 def table_stats_counts(): 
     title = 'my default counters'
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
-    table_stats(title, lst_ask, cfg.lst_cells_my_extremes)
+    table_stats(title, lst_ask, cfg.lst_cells_my_counts)
 
 
 # Do it yourself
@@ -340,9 +343,10 @@ lst_statistics = [ 'STATISTICS TABLES', [
     [ 'Winter statistics', table_stats_winter ],
     [ 'Summer statistics', table_stats_summer ],
     [ 'Winter & summer statistics', table_stats_winter_summer ],
-    [ 'My default statistics (see config.py)', table_stats_default ],
-    [ 'My default extremes (see config.py)', table_stats_extremes ],
-    [ 'My default counts (see config.py)', table_stats_counts ],
+    [ 'Default extremes (see config.py)', table_stats_extremes ],
+    [ 'Default counts (see config.py)', table_stats_counts ],
+    [ 'Default statistics 1 (see config.py)', table_stats_default_1 ],
+    [ 'Default statistics 2 (see config.py)', table_stats_default_2 ],
     [ 'Day, month & period statistics in a period', table_stats_period_in_period ],
     [ 'Compare (day, month, year and season)', table_stats_compare ],
 ] ]
@@ -353,7 +357,7 @@ lst_days = [ 'DAYS', [
 ] ]
 
 lst_graphs = [ 'GRAPHS', [ 
-    [ 'DIY period', graph_period ]
+    [ 'DIY period <beta>', graph_period ]
 ] ]
 
 lst_weather = [ 'WEATHER (dutch)', [ 
@@ -365,15 +369,11 @@ lst_weather = [ 'WEATHER (dutch)', [
     [ 'Stations NL knmi', process_weather_knmi_current ]
 ] ]
 
-# Menu list all
-# lst_menu = [ lst_download, lst_statistics, lst_days, lst_graphs, lst_weather ]
-
 # [ 'QUICK IO <TODO>',
 #     [ [ 'Quick statistics', cquick_stats_io ],
 #       [ 'Quick graphs', cquick_graphs_io ],
 #     ]
 # ],
-
 
 def check_menu_options():
     '''If no internet, skip download part'''
@@ -475,7 +475,7 @@ def error_no_stations_found():
 #         cnsl.log(text.head('START QUICK GRAPH'), True)
 
 #         t = 'Give a correct quick command ?\n'
-#         t += 'Format:  period -> station(s) (wmo or name) -> statistic(s)  -> width, heigth image \n'
+#         t += 'Format:  period -> station(s) (wmo or name) -> statistic(s)  -> width, height image \n'
 #         t += 'Example: 202106 -> 310, Eelde, De Kooy, 380 -> TX+, TG~, TN-  -> 1280, 900'
 
 #         query_io = ask.querio(t)
