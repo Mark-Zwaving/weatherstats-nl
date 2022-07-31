@@ -26,6 +26,7 @@ def foot(t='Footer'): return f'{line}\n##  {t}\n{line}'
 
 type_in = 'Type in something...'
 next_n  = "Press 'n' to move to the next..."
+next_press_enter = "Press <enter> to move to the next..."
 back_main = "Press a 'key' to go back to the main menu..."
 
 exit = ['x','X','exit','get out','stop']
