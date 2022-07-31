@@ -5,6 +5,7 @@ import common.model.util as util
 import common.model.ymd as ymd
 import common.view.console as cnsl
 import common.control.fio as fio
+import common.model.validate as valid
 import sources.view.text as text
 import sources.view.icon as icon
 import sources.view.html as html
@@ -105,7 +106,7 @@ def head(options, cnt=0):
     for option in options['lst-sel-cells']:
         # Sort options. 
         # Defaults: sort is True, numeric and descending. Add 1 to col_num
-        sort, sort_type, sort_dir, col_num = True, sort_num, descending, col_num + 1
+        sort_type, sort_dir, col_num = sort_num, descending, col_num + 1
         lst = option.split('_') # Make lst
         typ, entity = lst[0], lst[1]
         ico = text.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
@@ -207,20 +208,20 @@ def head(options, cnt=0):
 
         # Climate
         elif typ in text.lst_clima:
-            typ, entity = lst[1], lst[2]  # Update typ and entity 
+            tp, entity = lst[1], lst[2]  # Update typ and entity 
             ico_clima = icon. ellipsis(size='fa-sm', color='', extra='')
 
             htm, title = f'{ico_clima}{entity}', f'climate {entity}'
-            if type in text.lst_ave: 
+            if tp in text.lst_ave: 
                 htm, title = html.title_mean(htm), f'climate mean {entity}'
-            elif type in text.lst_sum: 
+            elif tp in text.lst_sum: 
                 htm, title = f'Σ{htm}', f'climate sum {entity}'
             
             if options['file-type'] in text.typ_htm: head_htm += f'<th title="{title}">{htm}</th>'
             if options['file-type'] in text.typ_txt: head_txt += 'CLI-' + entity 
 
         # Add Sort Script
-        if sort:
+        if options['file-type'] in text.typ_htm:
             col_id = f'{entity}_col_{col_num}'.replace('-','').upper()
             script += js_script_fn( col_id, sort_type, sort_dir, row_num, col_num )
 
@@ -433,16 +434,13 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cell_txt += cnt
 
         # Climate calculations
-        # TODO
-        # !Very extended and difficult
-        # eg: 202207 
+        # TODO / beta
         # calculate month clima values 
         # for the period for every climate year and month
-        # CALCULATE NEW CLIMATE PERIOD -> DIFFICULT
         elif typ in text.lst_clima:
             option, entity = lst[1], lst[2]
-            print(lst)
-            print(option, entity)
+            # print(lst)
+            # print(option, entity)
 
             # Make clima days object
             raw, _ = days.climate( entity, option ) # Calculate average
@@ -498,7 +496,7 @@ def body(options):
         # Compare periods
         if options['period-cmp']: # More periods to calculate
             typ, val = options['period-cmp'][0], options['period-cmp'][1]
-            lst_yyyy = [ str(y)[:4] for y in range( int(days1.ymd_start), int(days1.ymd_end) + 1, 10000 ) ]
+            lst_yyyy = [ str(yymmdd)[:4] for yymmdd in range( int(days1.ymd_start), int(days1.ymd_end), 10000 ) ]
             
             # Add period-2 to list cell to show in table, if not there yet
             if util.key_from_lst(options['lst-sel-cells'], 'inf_period-2') == -1:
@@ -513,36 +511,24 @@ def body(options):
                     options['lst-sel-cells'].remove('inf_period')
 
             for yyyy in lst_yyyy[::-1]: # Reverse lst
-                if   typ in text.lst_year:  
-                    options['period-2'] = f'{yyyy}**'
-                elif typ in text.lst_month: 
-                    options['period-2'] = f'{yyyy}{val}**'
-                elif typ in text.lst_day:   
-                    options['period-2'] = f'{yyyy}{val}'
+                if   typ in text.lst_year:  options['period-2'] = f'{yyyy}****'
+                elif typ in text.lst_month: options['period-2'] = f'{yyyy}{val}**'
+                elif typ in text.lst_day:   options['period-2'] = f'{yyyy}{val}'
                 elif typ in text.lst_season:
-                    if val == 'winter':
-                        sp, ep = '1201', '0229' if util.is_leap(yyyy) else '0228'
-                        options['period-2'] = f'{int(yyyy)-1}{sp}-{yyyy}{ep}'
-                    elif val == 'spring': 
-                        options['period-2'] = f'{yyyy}0301-{yyyy}0531'
-                    elif val == 'summer': 
-                        options['period-2'] = f'{yyyy}0601-{yyyy}0831'
-                    elif val == 'autumn': 
-                        options['period-2'] = f'{yyyy}0901-{yyyy}1130'
+                    if   val == 'winter': options['period-2'] = f'{int(yyyy)-1}1201-{yyyy}{"0229" if valid.is_leap(yyyy) else "0228"}'
+                    elif val == 'spring': options['period-2'] = f'{yyyy}0301-{yyyy}0531'
+                    elif val == 'summer': options['period-2'] = f'{yyyy}0601-{yyyy}0831'
+                    elif val == 'autumn': options['period-2'] = f'{yyyy}0901-{yyyy}1130'
                 elif typ in text.lst_period_1:
                     mmdd1, mmdd2 = val.split('-')
-                    if int(mmdd1) <= int(mmdd2):
-                        options['period-2'] = f'{yyyy}{mmdd1}-{yyyy}{mmdd2}'
-                    else:
-                        options['period-2'] = f'{int(yyyy)-1}{mmdd1}-{yyyy}{mmdd2}'
-
-                days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
-                if not days2.np_period_2d_has_days(): continue  # Skip whole day/row
+                    if int(mmdd1) <= int(mmdd2): options['period-2'] = f'{yyyy}{mmdd1}-{yyyy}{mmdd2}'
+                    else: options['period-2'] = f'{int(yyyy)-1}{mmdd1}-{yyyy}{mmdd2}'
 
                 info_line('Calculate', options, station)
-
+                days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
+                if not days2.np_period_2d_has_days(): continue # Skip whole day/row
                 cnt += 1  # Count the days
-                htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the cells with data
+                htm, txt = tr_cells( options, days1, days2, day='', cnt=cnt ) # Get the cells with data
                 body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
 
             info_line('End', options, station)
