@@ -126,6 +126,27 @@ class Days:
         '''Get a list of the dates for a given period''' 
         return self.lst_entities('yyyymmdd')
 
+    def ranges_climate_years(self, entity, start_year=-1, end_year=-1):
+        '''Update climate ranges years for calculating climate values'''
+        # Get climate start and end years if its not given 
+        if start_year == -1: start_year = cfg.climate_start_year 
+        if end_year   == -1: end_year   = cfg.climate_end_year
+
+        # Convert years to integers for checking the values
+        clima_isy, clima_iey = int(start_year), int(end_year) 
+
+        # Make new object with all clima days 
+        clima_ranges = Days(self.station, self.np_data_2d) 
+        # Get data start and end year and convert to integers
+        data_isy, data_iey = int(clima_ranges.ymd_start[:4]), int(clima_ranges.ymd_end[:4])
+
+        # If given clima years falls outside ranges of data given 
+        # then update clima start and end year  
+        if data_isy > clima_isy: clima_isy = data_isy
+        if data_iey < clima_iey: clima_iey = data_iey
+
+        return clima_isy, clima_iey 
+
     def sort(
             self,
             entity,
@@ -358,9 +379,12 @@ class Days:
 
     def climate_average_periode_in_year(self, start_year, end_year, smmdd, emmdd, entity):
         '''Function calculates climate averages over a period in a year'''
+        # Get climate start and end year 
+        isy, iey = self.ranges_climate_years(start_year, end_year)
+
         # YYYYMMDD-YYYY*MMDD*
         # Special period for a day during the years
-        self.set_period(f'{start_year}*{smmdd}*-{end_year}*{emmdd}*')
+        self.set_period(f'{isy}*{smmdd}*-{iey}*{emmdd}*')
         ave, Days = self.average(entity)  # Calculate averages
 
         return ave, Days
@@ -368,23 +392,28 @@ class Days:
 
     def climate_average_for_a_day(self, start_year, end_year, mmdd, entity):
         '''Function calculate climate averages for a day for a station'''
+        # Get climate start and end year 
+        isy, iey = self.ranges_climate_years(start_year, end_year)
+
         # yyyymmdd-yyyymmdd*
         # Special period for a day during the years
-        self.set_period(f'{start_year}-{end_year}{mmdd}*')
+        self.set_period(f'{isy}-{iey}{mmdd}*')
         ave, Days = self.average(entity)
 
         return ave, Days
 
     def climate( self, entity, option="mean", start_year=-1, end_year=-1 ): # Option mean or sum, hellman et cetera
-        if start_year == -1: start_year = cfg.climate_start_year
-        if end_year   == -1: end_year = cfg.climate_end_year
+        # Get climate start and end year 
+        isy, iey = self.ranges_climate_years(start_year, end_year)
+        # print(isy, iey)
+        # input()
 
         value, days, np_clima_days_2d = cfg.np_no_data, None, np.array([]) 
-        sy, ey = cvt.fl_to_s(start_year), cvt.fl_to_s(end_year) # Climate years
 
-        for ymd in self.lst_yyyymmdd(): # Walkthrough all the days (=dates) for a given period
+        # Walkthrough all the days (=dates) for a given period
+        for ymd in self.lst_yyyymmdd(): 
             mmdd = ymd[4:8] # Get the day 
-            per_clima_days = f'{sy}-{ey}{mmdd}*' # All days period for calculating climate values 
+            per_clima_days = f'{isy}-{iey}{mmdd}*' # All days period for calculating climate values 
             clima = Days( self.station, self.np_data_2d, per_clima_days ) # Make new object with clima days  
             np_clima_days_2d = select.np_merge(np_clima_days_2d, clima.np_period_2d) # Add days to clima list
 
@@ -395,7 +424,7 @@ class Days:
                 value, days = days.average(entity) # Calculate total average
             elif option in text.lst_sum: 
                 value, days = days.sum(entity) # Calculate sum
-                value /= end_year - start_year + 1 # Get an average over the years
+                value /= iey - isy + 1 # Get an average over the years
 
         return value, days
 
