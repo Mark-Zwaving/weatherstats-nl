@@ -122,19 +122,19 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             tt += 'To add one station, give a wmo-number or a city name\n'
             tt += 'To add more stations, give a wmo-number or a city name separated by a comma\n'
             tt += f"Press '*' to add all available weather stations\n"
-            tt += f'{text.next_n}' if len(lst_sel) > 0 else ''
+            tt += f'{text.next_press_enter}' if len(lst_sel) > 0 else ''
 
             answ = question(tt, default, back, prev, exit, spacer)
 
             ttt = ''
-            if answer.empty(answ):
-                ttt += text.type_in
+            if answer.empty(answ) and len(lst) == 0:
+                ttt += text.type_in # Empthy list
+            elif answer.empty(answ) and len(lst) > 0:
+                break # Done
             elif answer.quit(answ) or answer.prev(answ):
                 return answ
             elif answ == '*':
                 lst_sel = stations.lst_stations_map()
-            elif answ == 'n' and len(lst_sel) > 0:
-                break
             else:
                 lst = answ_to_lst(answ)
 
@@ -421,17 +421,17 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
 
         tt += 'To add one table cell give one statistics table cell option\n'
         tt += 'To add more table cells give table cell statistics separated by a comma\n'
-        tt += f'{text.next_n}' if len(lst_cells) > 0 else ''
+        tt += f'{text.next_press_enter}' if len(lst_cells) > 0 else ''
     
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ):
-            ttt += text.type_in
+        if answer.empty(answ) and len(lst) == 0:
+            ttt += text.type_in # Empthy list
+        elif answer.empty(answ) and len(lst) > 0:
+            break # Done
         elif answer.quit(answ) or answer.prev(answ):
             return answ
-        elif answ == 'n' and len(lst_cells) > 0:
-            break
         else:
             lst = answ_to_lst(answ)
             lst_cells += lst
@@ -455,9 +455,10 @@ def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=Fals
         'winter statistics <default, see config.py>', 
         'summer statistics <default, see config.py>', 
         'winter and summer statistics <default, see config.py>', 
-        'my default statistics <see config.py>',
-        'my default extremes <see config.py>',
-        'my default counters <see config.py>'
+        'default extremes <see config.py>',
+        'default counters <see config.py>',
+        'default statistics 1 <see config.py>',
+        'default statistics 2 <see config.py>'
     ]
  
     answ = type_options(t, lst, default, back, prev, exit, spacer)
@@ -466,9 +467,10 @@ def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=Fals
     elif answ == lst[1]: return cfg.lst_cells_winter
     elif answ == lst[2]: return cfg.lst_cells_summer 
     elif answ == lst[3]: return cfg.lst_cells_winter_summer
-    elif answ == lst[4]: return cfg.lst_cells_my_default
-    elif answ == lst[5]: return cfg.lst_cells_my_extremes
-    elif answ == lst[6]: return cfg.lst_cells_my_counts
+    elif answ == lst[4]: return cfg.lst_cells_my_extremes
+    elif answ == lst[5]: return cfg.lst_cells_my_counts
+    elif answ == lst[6]: return cfg.lst_cells_my_default_1
+    elif answ == lst[7]: return cfg.lst_cells_my_default_2
      
     return answ 
 
@@ -483,19 +485,18 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
         tt += t + '\n'
         tt += 'To add one weather entity, type in the enitity name. e.g. TX\n'
         tt += 'To add one more entities, give entity name separated by a comma. e.g TX, TG, TN'
-        if len(lst) > 0: 
-            tt += f'\n{text.next_n}'
+        if len(lst) > 0: tt += f'\n{text.next_press_enter}'
 
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ):
+        if answer.empty(answ) and len(lst) == 0:
             ttt += text.type_in
             continue # Again
+        elif answer.empty(answ) and len(lst) > 0:
+            break
         elif answer.quit(answ) or answer.prev(answ):
             return answ # Return first el for quit
-        elif answ == 'n' and len(lst) > 0:
-            return lst
         else:
             l = answ.split(',') if answ.find(',') != -1 else [answ]
             l = [el.strip() for el in l]
@@ -568,10 +569,6 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             t = 'What will be the statistics cells ?'
             lst_sel_cel = lst_sel_cells(t, default, back, prev_act, exit, spacer )
             answ = lst_sel_cel
-            # Period 2 or not!
-            if 'inf_period-2' in lst_sel_cel: # Add period 2 to question list
-                lst_ask = lst_ask[:i].append(text.lst_period_2[0]) + lst_ask[i:]
-                max = len(lst_ask)  # Update max
 
         elif quest == 'write': # Rewrite or only make new non-existing files
             t, lst = 'Do you want to add only new files or rewrite it all ?', ['add', 'rewrite']
