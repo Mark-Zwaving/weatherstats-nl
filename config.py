@@ -22,7 +22,7 @@ save_forecasts = True
 
 # Default output type file. Options: html, text and cmd
 # cmd is output to screen only. Text en html writes texts/html files
-default_output = 'html'
+default_output = 'html file'
 
 # The <default> years/period for the calculations of climate averages
 climate_start_year = 1991
@@ -277,7 +277,7 @@ plot_line_width = 1       # Width line
 plot_line_style = 'solid'  # Linestyle
 plot_marker_size = 3       # Dot sizes
 plot_marker_type = 'o'     # Type marker
-plot_marker_txt = 'y'   # Markertext. yess (y) or no (n)
+plot_marker_txt = 'n'   # Markertext. yess (y) or no (n)
 plot_cummul_val = 'n'      # Cummulative values. yess (y) or no (n)
 # Adding climate averages to plot. yess (y) or no (n)
 plot_climate_ave = 'n'
