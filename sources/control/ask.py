@@ -310,7 +310,7 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
 
 
 def file_type(t, default='', back=False, prev=False, exit=False, spacer=False):
-    lst = ['txt TODO', 'html', 'cmd TODO']
+    lst = text.lst_output_options
     return type_options(t, lst, default, back, prev, exit, spacer)
 
 
@@ -592,7 +592,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             answ = per_2
 
         elif quest == 'file-name': # Ask for a name
-            if f_type != 'cmd':  # Add query to title if there
+            if f_type not in text.lst_typ_cnsl:  # Add query to title if there
                 squery = f'-{text.query_sign_to_text(s4d)}' if s4d else '' 
                 tmp_per = f'-{per_2}' if per_2 else ''
                 tmp_name = f'{name}{squery}-{per_1}{tmp_per}-{utils.now_for_file()}' 
@@ -601,6 +601,8 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                 t = 'Give a name for the output file ? <optional>'
                 f_name = file_name(t, tmp_name, back, prev_act, exit, spacer) 
                 answ = f_name
+            else:
+                f_name=''
 
         elif quest == 'lst-entities':
             t = 'Select weather entity(s) ?'
@@ -665,7 +667,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                 climate_ave_marker_txt = cfg.plot_climate_marker_txt
                 climate_periode = ''
                 lst_ask_graph = [ 
-                    'line-bar', 'marker-text', 'min-max-ave-period', 'climate-ave', 
+                    'line-bar', 'marker-txt', 'min-max-ave-period', 'climate-ave', 
                     'climate-ave-marker-txt', 'climate-periode', 'climate-yyyy-start', 'climate-yyyy-end'
                 ]
                 k, max = 0, len( lst_ask_graph )
