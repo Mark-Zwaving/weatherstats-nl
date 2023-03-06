@@ -24,19 +24,28 @@ import common.view.console as cnsl
 import common.model.util as util
 import sources.control.ask as ask
 
+def fl_to_s( fl ):
+    return str(int(round(fl)))
+
+def file_extension( typ ):
+    if   typ in text.lst_output_htm: return text.extension_htm
+    elif typ in text.lst_output_txt: return text.extension_txt
+    elif typ in text.lst_output_csv: return text.extension_csv 
+    elif typ in text.lst_output_excel: return text.extension_excel
+    else: return typ
+
 def again(t):
     return ask.again(t, default='', back=True, exit=True, spacer=True)
 
 def open_with_default_app(path, options):
-    if options['file-type'] != 'cmd':
-        t = f'\nOpen the file <type={ options["file-type"] }> with your default application ?'
-        fopen = ask.open_with_app(t, default='', back=True, exit=True, spacer=True)
-        if answer.quit(fopen):
-            return fopen
-        elif fopen:
-            fio.open_with_app(path)
+    t = f'\nOpen the file <type={ options["file-type"] }> with your default application ?'
+    fopen = ask.open_with_app(t, default='', back=True, exit=True, spacer=True)
+    if answer.quit(fopen):
+        return fopen
+    elif fopen:
+        fio.open_with_app(path)
+        
     return True
-
 
 def mk_path_with_dates(base_dir, fname):
     yyyy, mm, dd = ymd.yyyy_mm_dd_now()
@@ -229,7 +238,7 @@ def now_created_notification():
     return cfg.created_by_notification % ds
 
 def ymd_to_txt( yyyymmdd ):
-    yyyymmdd = yyyymmdd if type(yyyymmdd) is str else f_to_s(yyyymmdd)
+    yyyymmdd = yyyymmdd if type(yyyymmdd) is str else fl_to_s(yyyymmdd)
     return datetime.strptime(yyyymmdd, '%Y%m%d').strftime('%A, %d %B %Y')
 
 def mk_name( base='x', period='x', places=[], entities=[] ):
