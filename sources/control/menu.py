@@ -1,12 +1,12 @@
 '''Library contains functions for asking questions and to deal with the input
 given by a user'''
-import sources.model.graphs as graphs
-import sources.view.text as text
 import sources.control.ask as ask
+import sources.model.graphs as graphs
 import sources.model.weather as weather
 import sources.model.dayvalues as dayvalues
 import sources.model.stats_tables as stats_tables
 import sources.model.daydata as daydata
+import sources.view.text as text
 import common.control.answer as answer
 import common.view.console as cnsl
 import common.control.fio as fio
@@ -15,7 +15,7 @@ __author__ = 'Mark Zwaving'
 __email__ = 'markzwaving@gmail.com'
 __copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.2.8'
+__version__ = '0.2.9'
 __maintainer__ = 'Mark Zwaving'
 __status__ = 'Development'
 
@@ -23,8 +23,35 @@ import time
 import config as cfg
 import sources.model.utils as utils
 
-##########################################################################################
-# DOWNLOADS
+##########################################################################################s
+
+def select_menu_option( option ):
+    # Downloads
+    if   option == 'process_knmi_dayvalues_all':     process_knmi_dayvalues_all()
+    elif option == 'process_knmi_dayvalues_select':  process_knmi_dayvalues_select()
+    # Statistics
+    elif option == 'table_stats_diy':              table_stats_diy()
+    elif option == 'table_stats_winter':           table_stats_winter()
+    elif option == 'table_stats_summer':           table_stats_summer()
+    elif option == 'table_stats_winter_summer':    table_stats_winter_summer()
+    elif option == 'table_stats_extremes':         table_stats_extremes()
+    elif option == 'table_stats_counts':           table_stats_counts()
+    elif option == 'table_stats_default_1':        table_stats_default_1()
+    elif option == 'table_stats_default_2':        table_stats_default_2()
+    elif option == 'table_stats_period_in_period': table_stats_period_in_period()
+    elif option == 'table_stats_compare':          table_stats_compare()
+    # Days
+    elif option == 'make_dayvalues':  make_dayvalues()
+    elif option == 'search_for_days': search_for_days()
+    # Graphs
+    elif option == 'graph_period': graph_period()
+    # Weather
+    elif option == 'process_weather_buienradar_forecast': process_weather_buienradar_forecast()
+    elif option == 'process_weather_buienradar_current':  process_weather_buienradar_current()
+    elif option == 'process_weather_knmi_forecast':       process_weather_knmi_forecast()
+    elif option == 'process_weather_knmi_model':          process_weather_knmi_model()
+    elif option == 'process_weather_knmi_guidance':       process_weather_knmi_guidance()
+    elif option == 'process_weather_knmi_current':        process_weather_knmi_current()
 
 # Menu choice 1
 def process_knmi_dayvalues_all(): 
@@ -32,7 +59,6 @@ def process_knmi_dayvalues_all():
     daydata.process_all()
     cnsl.log(text.foot('END DOWNLOAD ALL DAYVALUES KNMI'), True)
     ask.back_to_main_menu()
-
 
 # Menu choice 2
 def process_knmi_dayvalues_select():
@@ -73,8 +99,9 @@ def table_stats(title, lst_questions, lst_cells=[]):
         ok, path = stats_tables.calculate(options) # Calculate with the given options
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
-        if answer.quit( utils.open_with_default_app(path, options) ):
-            break
+        if options['file-type'] in text.lst_output_files:
+            if answer.quit( utils.open_with_default_app(path, options) ):
+                break
 
         if answer.quit( utils.again(f'Do you want to make another <{title}> table ?') ):
             break
@@ -167,8 +194,9 @@ def make_dayvalues():
         path = dayvalues.calculate(options)
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
-        if answer.quit( utils.open_with_default_app(path, options) ):
-            break
+        if options['file-type'] in text.lst_output_files:
+            if answer.quit( utils.open_with_default_app(path, options) ):
+                break
 
         if answer.quit( utils.again('Do you want to select other period(s) or station(s) ?') ):
             break
@@ -197,8 +225,9 @@ def search_for_days():
         ok, path = stats_tables.calculate(options) # Calculate with the given options
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
-        if answer.quit( utils.open_with_default_app(path, options) ):
-            break
+        if options['file-type'] in text.lst_output_files:
+            if answer.quit( utils.open_with_default_app(path, options) ):
+                break
         
         if answer.quit( utils.again('Do you want to search for days again ?') ):
             break
@@ -332,68 +361,26 @@ def graph_period():
 ##########################################################################################
 # MAIN MENU 
 
-# Menu options
-lst_download = [ 'DOWNLOAD', [ 
-    [ 'Download all dayvalues knmi stations', process_knmi_dayvalues_all ],
-    [ 'Download selected dayvalues knmi stations', process_knmi_dayvalues_select]
-] ]
-
-lst_statistics = [ 'STATISTICS TABLES', [  
-    [ 'DIY cells statistics', table_stats_diy ],
-    [ 'Winter statistics', table_stats_winter ],
-    [ 'Summer statistics', table_stats_summer ],
-    [ 'Winter & summer statistics', table_stats_winter_summer ],
-    [ 'Default extremes (see config.py)', table_stats_extremes ],
-    [ 'Default counts (see config.py)', table_stats_counts ],
-    [ 'Default statistics 1 (see config.py)', table_stats_default_1 ],
-    [ 'Default statistics 2 (see config.py)', table_stats_default_2 ],
-    [ 'Day, month & period statistics in a period', table_stats_period_in_period ],
-    [ 'Compare (day, month, year and season)', table_stats_compare ],
-] ]
-
-lst_days = [ 'DAYS', [ 
-    [ 'Make or see dayvalues', make_dayvalues ],
-    [ 'Search 4 days', search_for_days ]
-] ]
-
-lst_graphs = [ 'GRAPHS', [ 
-    [ 'DIY period <beta>', graph_period ]
-] ]
-
-lst_weather = [ 'WEATHER (dutch)', [ 
-    [ 'Forecast buienradar', process_weather_buienradar_forecast ],
-    [ 'Stations NL buienradar', process_weather_buienradar_current ],
-    [ 'Forecast knmi', process_weather_knmi_forecast ],
-    [ 'Forecast model knmi', process_weather_knmi_model ],
-    [ 'Forecast guidance knmi', process_weather_knmi_guidance ],
-    [ 'Stations NL knmi', process_weather_knmi_current ]
-] ]
-
-# [ 'QUICK IO <TODO>',
-#     [ [ 'Quick statistics', cquick_stats_io ],
-#       [ 'Quick graphs', cquick_graphs_io ],
-#     ]
-# ],
-
 def check_menu_options():
     '''If no internet, skip download part'''
     web, data, lst_menu = False, False, []
 
-    # Check for data in map
-    if not fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
-        data = True
     # Check internet
     if fio.has_internet(verbose=cfg.verbose):
         web = True
+
+    # Check for data in map
+    if not fio.is_dir_empthy(cfg.dir_dayvalues_txt, verbose=cfg.verbose):
+        data = True
         
     if data: # Add data menu options to menu 
-        lst_menu.append(lst_statistics)
-        lst_menu.append(lst_days)
-        lst_menu.append(lst_graphs)
+        lst_menu.append(text.lst_menu_statistics)
+        lst_menu.append(text.lst_menu_days)
+        lst_menu.append(text.lst_menu_graphs)
 
     if web: # Add downloadable options
-        lst_menu.insert(0, lst_download) # Add at first position
-        lst_menu.append(lst_weather) # Add at the end
+        lst_menu.insert(0, text.lst_menu_download) # Add at first position
+        lst_menu.append(text.lst_menu_weather) # Add at the end
 
     return web, data, lst_menu
 
@@ -456,7 +443,7 @@ def fn_exec( choice, menu ):
     for title in menu:
         for option in title[1]:
             if n == choice:
-                option[1]()
+                select_menu_option( option[1] )
             n += 1
 
 
