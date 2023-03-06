@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Color Tester
+    </title>
+    <style>
+      div {
+        margin: 1rem;
+        padding: 1rem;
+        border: 1px solid gray;
+        border-radius: 1rem;
+      }
+
+      div > div {
+        width: 100px;
+        height: 80px;
+        display: inline-block;
+      }
+    </style>
+    <body>
+      <div>
+        <script>
+          function remove( num ) {
+            let el = document.getElementById(num);
+            el.parentNode.removeChild(el);
+          }
+          let html = '', num = 0,
+              save_colors = [
+                '#0000FF','#8A2BE2','#A52A2A','#5F9EA0','#D2691E','#6495ED','#DC143C',
+                '#00008B','#008B8B','#B8860B','#006400','#BDB76B','#8B008B','#556B2F',
+                '#9932CC','#8B0000','#E9967A','#483D8B','#2F4F4F','#00CED1','#9400D3',
+                '#1E90FF','#B22222','#228B22','#DAA520','#808080','#008000','#9ACD32',
+                '#FF69B4','#CD5C5C','#4B0082','#20B2AA','#778899','#32CD32','#800000',
+                '#66CDAA','#0000CD','#BA55D3','#9370DB','#3CB371','#7B68EE','#48D1CC',
+                '#C71585','#191970','#000080','#808000','#6B8E23','#DA70D6','#DB7093',
+                '#CD853F','#800080','#663399','#FF0000','#BC8F8F','#4169E1','#8B4513',
+                '#2E8B57','#A0522D','#6A5ACD','#708090','#708090','#4682B4','#008080',
+              ];
+
+          save_colors.forEach( ( el, key ) => {
+              let id = key + 1
+              html += `<div id="${id}" onclick="remove(${id})" style="background-color:${el};">`;
+              html += "'" + el + "',";
+              html += '</div>'
+          } );
+
+          document.write(html)
+        </script>
+      </div>
+    </body>
+</html>
