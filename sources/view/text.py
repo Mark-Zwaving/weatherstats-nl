@@ -4,23 +4,89 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU Lesser General Public License (LGPL)'
-__version__    =  '0.1.3'
+__version__    =  '0.1.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
 import numpy as np, math, time, re
-import sources.view.icon as icon
+import sources.control.menu as ctrl_menu
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.stations as stations
-import common.model.convert as cvt
-import common.view.txt as txt
+import common.model.convert as common_cvt
+import common.view.txt as common_txt
 
-##########################################################################################
+# File extensions
+extension_htm = '.html'
+extension_txt = '.txt'
+extension_csv = '.csv'
+extension_excel = '.xlsx'
+
+# Output options
+lst_output_options = ['console only', 'text file', 'html file', 'csv file', 'excel file', 'all file types TODO']
+lst_output_cnsl = ['cmd', 'console', 'command', 'command line', 'console only']
+lst_output_htm = ['html', 'htm', 'html file', 'htm file']
+lst_output_txt = ['txt', 'text', 'text file', 'txt file']
+lst_output_csv = ['csv', 'csv file']
+lst_output_excel = ['excel', 'excel file', 'excell', 'excell file']
+lst_output_all = ['*', 'all', 'all file types']
+lst_output_txt_cnsl = lst_output_txt + lst_output_cnsl
+lst_output_csv_excel = lst_output_csv + lst_output_excel
+lst_output_files = lst_output_txt + lst_output_htm + lst_output_csv_excel
+lst_output_all = lst_output_cnsl + lst_output_files
+
 # MENU 
+title_menu_diy_stats = 'DIY cells statistics'
+title_menu_winter_stats = 'Winter statistics'
+title_menu_summer_stats = 'Summer statistics' 
+title_menu_winter_summer_stats = 'Winter & summer statistics'
+title_menu_default_extremes = 'Default extremes (see config.py)'
+title_menu_default_counts = 'Default counts (see config.py)'
 
-line = txt.line_hashtag
+lst_menu_download = [ 'DOWNLOAD', [ 
+    [ 'Download all dayvalues knmi stations', 'process_knmi_dayvalues_all' ],
+    [ 'Download selected dayvalues knmi stations', 'process_knmi_dayvalues_select' ]
+] ]
+
+lst_menu_statistics = [ 'STATISTICS TABLES', [  
+    [ 'DIY cells statistics', 'table_stats_diy' ],
+    [ 'Winter statistics', 'table_stats_winter' ],
+    [ 'Summer statistics', 'table_stats_summer' ],
+    [ 'Winter & summer statistics', 'table_stats_winter_summer' ],
+    [ 'Default extremes (see config.py)', 'table_stats_extremes' ],
+    [ 'Default counts (see config.py)', 'table_stats_counts' ],
+    [ 'Default statistics 1 (see config.py)', 'table_stats_default_1' ],
+    [ 'Default statistics 2 (see config.py)', 'table_stats_default_2' ],
+    [ 'Day, month & period statistics in a period', 'table_stats_period_in_period' ],
+    [ 'Compare (day, month, year and season)', 'table_stats_compare' ],
+] ]
+
+lst_menu_days = [ 'DAYS', [ 
+    [ 'Make or see dayvalues', 'make_dayvalues' ],
+    [ 'Search 4 days', 'search_for_days' ]
+] ]
+
+lst_menu_graphs = [ 'GRAPHS', [ 
+    [ 'DIY period <beta>', 'graph_period' ]
+] ]
+
+lst_menu_weather = [ 'WEATHER (dutch)', [ 
+    [ 'Forecast buienradar', 'process_weather_buienradar_forecast' ],
+    [ 'Stations NL buienradar', 'process_weather_buienradar_current' ],
+    [ 'Forecast knmi', 'process_weather_knmi_forecast' ],
+    [ 'Forecast model knmi', 'process_weather_knmi_model' ],
+    [ 'Forecast guidance knmi', 'process_weather_knmi_guidance' ],
+    [ 'Stations NL knmi', 'process_weather_knmi_current' ]
+] ]
+
+# [ 'QUICK IO <TODO>',
+#     [ [ 'Quick statistics', cquick_stats_io ],
+#       [ 'Quick graphs', cquick_graphs_io ],
+#     ]
+# ],
+
+line = common_txt.line_hashtag
 def head(t='Header'): return f'{line}\n##  {t}\n{line}'
 def foot(t='Footer'): return f'{line}\n##  {t}\n{line}'
 
@@ -81,12 +147,12 @@ yyyymmdd-yyyy*mmdd* selects a certain period from mmdd=mmdd* in a year from yyyy
 
 menu_info_select_a_day = f'''
 DAY INFO
-{txt.lst_to_col(txt.lst_mmdd, 'left', 16)}
+{common_txt.lst_to_col(common_txt.lst_mmdd, 'left', 16)}
 '''
 
 menu_info_select_a_month = f'''
 MONTH INFO
-{txt.lst_to_col(txt.lst_months_all, 'left', 6)}
+{common_txt.lst_to_col(common_txt.lst_months_all, 'left', 6)}
 '''
 
 menu_info_queries = '''
@@ -161,7 +227,7 @@ def menu_info_stations():
     l = [f'{s.wmo} {s.place}' for s in stations.lst_stations_map()]
     return  f'''
 STATIONS INFO
-{txt.lst_to_col(l, 'left', 4)}
+{common_txt.lst_to_col(l, 'left', 4)}
 '''
 
 menu_allAvailable_info = f'''
@@ -176,9 +242,6 @@ menu_allAvailable_info = f'''
 
 
 ##########################################################################################
-typ_htm = ['html', 'htm']
-typ_txt = ['txt','cmd', 'console']
-
 # Quick txt lists
 lst_gt  = ['gt', '>'] # , 'greater than'
 lst_ge  = ['ge', '>=', '≥', 'gte'] # , 'greater than and equal'
@@ -380,7 +443,66 @@ days_t10n_lt__20  = lambda s='cap': style('days with a ground minimum temperatur
 days_t10n_lt__25  = lambda s='cap': style('days with a ground minimum temperature below -25 degrees celsius', s)
 days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperature below -30 degrees celsius', s)
 
-
+# Padding text values for text output
+pad_default = 10
+pad_tx = 5
+pad_tg = 5
+pad_tn = 5
+pad_t10n = 5
+pad_ddvec = 5
+pad_fg = 5
+pad_rh = 5
+pad_sq = 5
+pad_pg = 5
+pad_ug = 5
+pad_fxx = 5
+pad_fhvec = 5
+pad_fhx = 5
+pad_fhn = 5
+pad_sp = 5
+pad_q = 5
+pad_dr = 5
+pad_rhx = 5
+pad_px = 10
+pad_pn = 10
+pad_vvn = 5
+pad_vvx = 5
+pad_ng = 3
+pad_ux = 5
+pad_un = 5
+pad_ev24 = 5
+pad_cnt = 10
+pad_day = 10
+pad_max = 10 + 12
+pad_min = 10 + 12
+pad_home = 15
+pad_states = 15
+pad_place = 15
+pad_province = 15
+pad_country = 15
+pad_period_1 = 19
+pad_period_2 = 19
+pad_month = 3
+pad_heat_ndx = 5
+pad_hmann = 7
+pad_ijns = 7
+pad_fsum = 7
+pad_cold_ndx = 7
+pad_wind = 10
+pad_copyright = 3
+pad_view = 10
+pad_sum = 10
+pad_ave = 10
+pad_gt = 4
+pad_ge = 4
+pad_lt = 4
+pad_le = 4
+pad_eq = 4
+pad_ne = 4
+pad_num = 4
+pad_clima = 10 
+pad_view = 4 
+pad_evaporation = 4 
 
 def entity_to_text(entity):
     e = entity.lower()
@@ -411,70 +533,6 @@ def entity_to_text(entity):
     elif e == 'un':    return tr('minimum humidity')
     elif e == 'ev24':  return tr('evapotranspiration (potential)')
     return tr(e)
-
-
-def entity_to_icon(entity, color='', size='', extra=''):
-    e = entity.lower()
-    if   e == 'tx':    return icon.temp_full(color, extra, size)
-    elif e == 'tg':    return icon.temp_half(color, extra, size)
-    elif e == 'tn':    return icon.temp_empty(color, extra, size)
-    elif e == 't10n':  return icon.temp_empty(color, extra, size)
-    elif e == 'ddvec': return icon.wind_dir(color, extra, size)
-    elif e == 'fg':    return icon.wind(color, extra, size)
-    elif e == 'rh':    return icon.shower_heavy(color, extra, size)
-    elif e == 'sq':    return icon.sun(color, extra, size)
-    elif e == 'pg':    return icon.compress_alt(color, extra, size)
-    elif e == 'ug':    return icon.drop_tint(color, extra, size)
-    elif e == 'fxx':   return icon.wind(color, extra, size)
-    elif e == 'fhvec': return icon.wind(color, extra, size)
-    elif e == 'fhx':   return icon.wind(color, extra, size)
-    elif e == 'fhn':   return icon.wind(color, extra, size)
-    elif e == 'sp':    return icon.sun(color, extra, size)
-    elif e == 'q':     return icon.radiation(color, extra, size)
-    elif e == 'dr':    return icon.shower_heavy(color, extra, size)
-    elif e == 'rhx':   return icon.shower_heavy(color, extra, size)
-    elif e == 'px':    return icon.compress_alt(color, extra, size)
-    elif e == 'pn':    return icon.compress_alt(color, extra, size)
-    elif e == 'vvn':   return icon.eye(color, extra, size)
-    elif e == 'vvx':   return icon.eye(color, extra, size)
-    elif e == 'ng':    return icon.cloud(color, extra, size)
-    elif e == 'ux':    return icon.drop_tint(color, extra, size)
-    elif e == 'un':    return icon.drop_tint(color, extra, size)
-    elif e == 'ev24':  return icon.sweat(color, extra, size)
-    elif e in lst_day: return icon.day(color, extra, size)
-    elif e in lst_max: return icon.arrow_up(color, extra, size)
-    elif e in lst_min: return icon.arrow_down(color, extra, size)
-    elif e in lst_home: return icon.home(color, extra, size)
-    elif e in lst_states: return icon.flag(color, extra, size)
-    elif e in lst_states: return icon.flag(color, extra, size)
-    elif e in lst_period_1: return icon.cal_period(color, extra, size)
-    elif e in lst_period_2: return icon.cal_day(color, extra, size)
-    elif e in lst_heat_ndx: return icon.fire(color, extra, size)
-    elif e in lst_cold_ndx: return icon.icicles(color, extra, size)
-    elif e in ['pg', 'pn', 'px']: return icon.compress_alt(color, extra, size)
-    elif e in ['ux', 'un', 'ug']: return icon.drop_tint(color, extra, size)
-    elif e in lst_wind: return icon.wind(color, extra, size)
-    elif e in lst_rain: return icon.shower_heavy(color, extra, size)
-    elif e in lst_wind_direction: return icon.wind_dir(color, extra, size)
-    elif e in lst_copyright: return icon.copy(color, extra, size)
-    elif e in lst_view: return icon.eye(color, extra, size)
-    elif e in ['q']: return icon.radiation(color, extra, size)
-    elif e in ['ng']: return icon.cloud(color, extra, size)
-    elif e in lst_evaporation: return icon.sweat(color, extra, size)
-    elif e in ['sq','sp']: return icon.sun(color, extra, size)
-    elif e in lst_sum: return 'Σ'
-    elif e in lst_ave: return ''
-    elif e in lst_gt: return icon.gt(color, extra, size)
-    elif e in lst_ge: return icon.ge(color, extra, size)
-    elif e in lst_lt: return icon.lt(color, extra, size)
-    elif e in lst_le: return icon.le(color, extra, size)
-    elif e in lst_eq: return '=='
-    elif e in lst_ne: return '!=' 
-    elif e in lst_num: return icon.sort_down(color, extra, size)
-    elif e in lst_clima: return icon.ellipsis(color, extra, size)
-    else: 
-        return icon.umbrella(color, extra, size)
-
 
 # def home(color='', extra='', size=''): return i('fas fa-home', color, extra, size)
 # def flag(color='', extra='', size=''): return i('fab fa-font-awesome-flag', color, extra, size)
@@ -675,7 +733,7 @@ def fix_entity(val, entity):
 
     # Wind
     elif e in lst_wind:
-        bft = cvt.ms_to_bft(val)
+        bft = common_cvt.ms_to_bft(val)
         return f'{f:.1f}m/s {bft}bft'
 
     # Evapotranspiration
