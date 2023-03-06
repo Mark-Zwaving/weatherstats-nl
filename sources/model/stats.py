@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 '''Main statistics object for calculating and saving statistics'''
-from asyncio.windows_events import NULL
-from cmath import nan
-import common.view.console as cnsl
-import sources.view.text as text
-import sources.model.daydata as daydata
 __author__ = "Mark Zwaving"
 __email__ = "markzwaving@gmail.com"
 __copyright__ = "Copyright (C) Mark Zwaving. All rights reserved."
 __license__ = "GNU Lesser General Public License (LGPL)"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __maintainer__ = "Mark Zwaving"
 __status__ = "Development"
 
 import config as cfg
-import numpy as np
-import statistics
+import sys, numpy as np
+from cmath import nan
+import common.view.console as cnsl
+import sources.view.text as text
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.select as select
 import common.model.convert as cvt
+
+if sys.platform in ['cygwin', 'win32']:
+    from asyncio.windows_events import NULL
 
 class Days:
     '''Class saves and stores statistics of a station in a given period'''
