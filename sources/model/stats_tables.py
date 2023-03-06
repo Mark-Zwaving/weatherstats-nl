@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-'''Library contains classes and functions for calculating summerstatistics'''
+'''Library contains classes and functions for calculating statistics'''
+from importlib.resources import path
+from pkgutil import read_code
 import numpy as np
+import pandas as pd
 import common.model.util as util
 import common.model.ymd as ymd
 import common.view.console as cnsl
 import common.control.fio as fio
 import common.model.validate as valid
+import common.view.txt as ctxt
 import sources.view.text as text
 import sources.view.icon as icon
 import sources.view.html as html
@@ -13,54 +17,43 @@ import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import config as cfg
+
 __author__ = 'Mark Zwaving'
 __email__ = 'markzwaving@gmail.com'
 __copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __maintainer__ = 'Mark Zwaving'
 __status__ = 'Development'
-
-
-# Options examples what can be shown
-# lst_cells = [
-#     # Info cells
-#     'inf_copyright', 'inf_place', 'inf_province', 'inf_country', 'inf_period', 'inf_month', 'inf_num', 'inf_period-2'
-#     # Normal statistics cells
-#     'ave_tg',
-
-#     # Extremes
-#     'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'min_tx', 'min_tg', 'min_tn', 'min_t10n',
-#     'max_rh', 'max_sq', 'max_rhx',
-#     'max_px', 'max_pn', 'min_px', 'min_pn',
-#     'max_ux', 'max_ug', 'max_un', 'min_ux', 'min_ug', 'min_un',
-
-#     'sum_sq', 'sum_rh',
-#     'ndx_hellmann', 'ndx_ijnsen', 'ndx_frost-sum', 'ndx_heat-ndx',
-#     'cnt_tx_ge_20', 'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 'cnt_tg_ge_18', 'cnt_tg_ge_20', 'cnt_sq_ge_10', 'cnt_rh_ge_10',
-#     'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 'cnt_tn_lt_-5', 'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20',
-
-#     # Search for days cells
-#     'day_num', 'day_yyyymmdd',
-#     'day_tx', 'day_tg', 'day_tn', 'day_t10n', 'day_sq', 'day_sp', 'day_rh', 'day_rhx',
-#     'day_dr', 'day_pg', 'day_px', 'day_pn', 'day_ug', 'day_ux', 'day_un', 'day_ng', 'day_ddvec',
-#     'day_fhvec', 'day_fg', 'day_fhx', 'day_fhn', 'day_fxx', 'day_vvx', 'day_vvn', 'day_q'
-# ]
-
 
 def calculate(options, type='normal'):
     '''Function calculates all statistics'''
     cnsl.log(f'[{ymd.now()}] {options["title"].upper()}', True)
 
-    body_htm, body_txt, options, cnt = body(options)
+    body_htm, body_txt, body_csv, options, cnt = body(options)
     options['colspan'] = len(options['lst-sel-cells'])
-    head_htm, head_txt, script = head(options, cnt)
-    foot_htm, foot_txt = foot(options)
-    htm = head_htm + body_htm + foot_htm + script
-    txt = f'{head_txt}\n{body_txt}\n{foot_txt}'
 
-    # Output to screen or file(s)
-    ok, path = output(htm, txt, options)
+    head_htm, head_txt, head_csv, script = head(options, cnt)
+    foot_htm, foot_txt, foot_csv = foot(options)
+
+    htm = f'{head_htm}{body_htm}{foot_htm}{script}' # HTML data
+    txt = f'{head_txt}\n{body_txt}{foot_txt}' # Text data
+
+    # Remove separator at the end if there
+    if len( head_csv) > 0: 
+        if head_csv[-1] == cfg.csv_sep: 
+            head_csv = head_csv[:-1]
+    if len(body_csv) > 0: 
+        if body_csv[-1] == cfg.csv_sep: 
+            body_csv = body_csv[:-1]
+    if len(foot_csv) > 0: 
+        if foot_csv[-1] == cfg.csv_sep: 
+            foot_csv = foot_csv[:-1]
+
+    csv = f'{head_csv}\n{body_csv}\n{foot_csv}' # Csv data
+
+    # Output to screen or file(s) 
+    ok, path = output(htm, txt, csv, options)
 
     return ok, path
 
@@ -81,7 +74,7 @@ def js_script_fn( option, sort_type, sort_dir, row_num, col_num ):
 
 def head(options, cnt=0):
     '''Makes the header'''
-    head_htm, head_txt, script = '', '', ''
+    head_htm, head_txt, head_csv, ftyp = '', '', '', options['file-type']
     # Sorting script vars
     col_num    = 0     # Start column num is 0 increment at start
     descending = '+'   # Identifier sort direction: large to small
@@ -89,158 +82,212 @@ def head(options, cnt=0):
     sort_num   = 'num' # Identifier sort num-based
     sort_txt   = 'txt' # Identifier sort txt-based
     row_num    = 2     # Row tr num for click to sort
+    # Add a script with a Javascript object for sorting with columns
+    script     = '' 
 
-    if options['file-type'] in text.typ_htm:
+    if ftyp in text.lst_output_htm:
         head_htm += f'''
         <table class="rounded shadow border" id="stats"><thead><tr>
             <th colspan="{options['colspan']}">
-                {icon.weather_all()} {options['title']} {icon.wave_square()} 
-                {options['period']} {icon.cal_period()}                 
+                {icon.weather_all()} {options['title']} {icon.wave_square()} {options['period']} {icon.cal_period()}                 
             </th></tr><tr>'''
 
-    if options['file-type'] in text.typ_txt:
-        head_txt += '#' * 80 + '\n'
+    if ftyp in text.lst_output_txt_cnsl:
+        pass # head_txt += '#' * 80 + '\n'
 
-    # Add a script with a Javascript object for sorting with columns
-    script = '' 
     for option in options['lst-sel-cells']:
         # Sort options. 
         # Defaults: sort is True, numeric and descending. Add 1 to col_num
         sort_type, sort_dir, col_num = sort_num, descending, col_num + 1
         lst = option.split('_') # Make lst
         typ, entity = lst[0], lst[1]
-        ico = text.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
+        ico = html.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
 
         # Info texts
         if typ in text.lst_info:
             if entity in text.lst_copyright:
-                if options['file-type'] in text.typ_htm: head_htm += '<th title="copyright data_notification"></th>'
-                if options['file-type'] in text.typ_txt: head_txt += 'COPY'
-                sort = False # No sort
+                head_txt += ctxt.padding(' ', 'center', text.pad_copyright)[:text.pad_copyright]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += '<th title="copyright data_notification"></th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'copy{cfg.csv_sep}'
 
             elif entity in text.lst_geo_places:
                 if entity == 'place':
-                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}place</th>'
-                    if options['file-type'] in text.typ_txt: head_txt += f'PLACE'
+                    head_txt += ctxt.padding('PLACE', 'left', text.pad_place)[:text.pad_place]
+                    if ftyp in text.lst_output_htm: 
+                        head_htm += f'<th>{ico}place</th>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        head_csv += f'place{cfg.csv_sep}'
 
                 elif entity == 'province':
-                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}province</th>'
-                    if options['file-type'] in text.typ_txt: head_txt += f'PROVINCE'
+                    head_txt += ctxt.padding('PROVINCE', 'left', text.pad_province)[:text.pad_province]
+                    if ftyp in text.lst_output_htm: 
+                        head_htm += f'<th>{ico}province</th>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        head_csv += f'province{cfg.csv_sep}'
 
                 elif entity == 'country':
-                    if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}country</th>'
-                    if options['file-type'] in text.typ_txt: head_txt += f'COUNTRY'
-                
+                    head_txt += ctxt.padding('COUNTRY', 'left', text.pad_country)[:text.pad_country]
+                    if ftyp in text.lst_output_htm: 
+                        head_htm += f'<th>{ico}country</th>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        head_csv += f'country{cfg.csv_sep}'
+
                 sort_type = sort_txt # Text sort
 
             elif entity in text.lst_period_1:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}period</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'PERIOD'
-
+                head_txt += ctxt.padding('PERIOD1', 'center', text.pad_period_1)[:text.pad_period_1]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th>{ico}period</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'period{cfg.csv_sep}'
+                    
             elif entity in text.lst_period_2:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}period2</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'PERIOD2'
+                head_txt += ctxt.padding('PERIOD2', 'center', text.pad_period_2)[:text.pad_period_2]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th>{ico}period2</th>'    
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'period2{cfg.csv_sep}'
 
             elif entity in text.lst_num:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}num</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'NUM'
+                head_txt += ctxt.padding('NUM', 'center', text.pad_num)[:text.pad_num]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th>{ico}num</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'num{cfg.csv_sep}'
 
             elif entity in text.lst_month:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}month</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'MONTH'
+                head_txt += ctxt.padding('MONTH', 'center', text.pad_month)[:text.pad_month]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th>{ico}month</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'month{cfg.csv_sep}'
 
             elif entity in text.lst_day:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th>{ico}day</th>'
-                if options['file-type'] in text.typ_txt: head_txt += f'DAY'
-                
+                head_txt += ctxt.padding('DAY', 'center', text.pad_day)[:text.pad_day]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th>{ico}day</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'day{cfg.csv_sep}'
+
         # Fixed day values
         elif typ in text.lst_day:
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'{entity}'
+            head_txt += ctxt.padding(entity, 'center', text.pad_day)[:text.pad_day]
+            if ftyp in text.lst_output_htm: 
+                head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'{entity}{cfg.csv_sep}'
 
         # Max extreme
         if typ in text.lst_max:
-            ico2 = text.entity_to_icon(typ, size='fa-sm', color='', extra='') # Icon2
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}{ico2}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'{entity} {entity}'
+            head_txt += ctxt.padding(f'max {entity}', 'center', text.pad_max)[:text.pad_max]
+            if ftyp in text.lst_output_htm:
+                ico2 = html.entity_to_icon(typ, size='fa-sm', color='', extra='') # Icon2
+                head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}{ico2}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'max {entity}{cfg.csv_sep}'
 
         # Min extreme
         elif typ in text.lst_min:
-            ico2 = text.entity_to_icon(typ, size='fa-sm', color='', extra='') # Icon2
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}{ico2}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'{entity} {entity}'
+            head_txt += ctxt.padding(f'min {entity}', 'center', text.pad_min)[:text.pad_min]
+            if ftyp in text.lst_output_htm: 
+                ico2 = html.entity_to_icon(typ, size='fa-sm', color='', extra='') # Icon2
+                head_htm += f'<th title="{html.attr_title(entity)}">{ico}{entity}{ico2}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'min {entity}{cfg.csv_sep}'
 
         # Average
         elif typ in text.lst_ave:
-            ico2 = text.entity_to_icon(entity, size='fa-sm', color='', extra='')
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">{html.title_mean(f"{ico2}{entity}")}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'{typ} {entity}'
+            head_txt += ctxt.padding(f'ave {entity}', 'center', text.pad_ave)[:text.pad_ave]
+            if ftyp in text.lst_output_htm:
+                ico2 = html.entity_to_icon(entity, size='fa-sm', color='', extra='')
+                head_htm += f'<th title="{html.attr_title(entity)}">{html.title_mean(f"{ico2}{entity}")}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'ave {entity}{cfg.csv_sep}'
 
         # Sum
         elif typ in text.lst_sum:
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{html.attr_title(entity)}">Σ{entity}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'Σ{entity}'
+            head_txt += ctxt.padding(f'Σ{entity}', 'center', text.pad_sum)[:text.pad_sum]
+            if ftyp in text.lst_output_htm: 
+                head_htm += f'<th title="{html.attr_title(entity)}">Σ{entity}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'Σ{entity}{cfg.csv_sep}'
 
         # Indexes
         elif typ in text.lst_ndx:
             if entity in text.lst_helmmann:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.hellmann()}">{ico}hmann</th>'
-                if options['file-type'] in text.typ_txt: head_txt += 'HMANN'
-
+                head_txt += ctxt.padding('HMANN', 'center', text.pad_hmann)[:text.pad_hmann]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th title="{text.hellmann()}">{ico}hmann</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'HMANN{cfg.csv_sep}'
+                    
             elif entity in text.lst_ijnsen:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.ijnsen()}">{ico}ijnsen</th>'
-                if options['file-type'] in text.typ_txt: head_txt += 'IJNS'
+                head_txt += ctxt.padding('IJNS', 'center', text.pad_ijns)[:text.pad_ijns]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th title="{text.ijnsen()}">{ico}ijnsen</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'IJNS{cfg.csv_sep}'
 
             elif entity in text.lst_frost_sum:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.frostsum()}">{ico}fsum</th>'
-                if options['file-type'] in text.typ_txt: head_txt += 'FSUM'
+                head_txt += ctxt.padding('FSUM', 'center', text.pad_fsum)[:text.pad_fsum]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th title="{text.frostsum()}">{ico}fsum</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'FSUM{cfg.csv_sep}'
 
             elif entity in text.lst_heat_ndx:
-                if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.heat_ndx()}">{ico}heat</th>'
-                if options['file-type'] in text.typ_txt: head_txt += 'HEAT'
+                head_txt += ctxt.padding('HEAT', 'center', text.pad_heat_ndx)[:text.pad_heat_ndx]
+                if ftyp in text.lst_output_htm: 
+                    head_htm += f'<th title="{text.heat_ndx()}">{ico}heat</th>'
+                elif ftyp in text.lst_output_csv_excel:
+                    head_csv += f'HEAT{cfg.csv_sep}'
 
         # Counters
         elif typ in text.lst_count:
             sign, val = lst[2], lst[3]
-            ico = text.entity_to_icon(sign, size="fa-xs") # Update icon
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{text.title(entity,sign,val)}">{entity}{ico}{val}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += f'{entity}{sign}{val}'
+            head_txt += ctxt.padding(f'{entity}{sign}{val}', 'center', text.pad_cnt)[:text.pad_cnt]
+            if ftyp in text.lst_output_htm: 
+                ico = html.entity_to_icon(sign, size="fa-xs") # Update icon
+                head_htm += f'<th title="{text.title(entity,sign,val)}">{entity}{ico}{val}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'{entity}{sign}{val}{cfg.csv_sep}'
 
         # Climate
         elif typ in text.lst_clima:
-            tp, entity = lst[1], lst[2]  # Update typ and entity 
-            ico_clima = icon. ellipsis(size='fa-sm', color='', extra='')
-
+            ico_clima = icon.ellipsis(size='fa-sm', color='', extra='')
             htm, title = f'{ico_clima}{entity}', f'climate {entity}'
-            if tp in text.lst_ave: 
-                htm, title = html.title_mean(htm), f'climate mean {entity}'
-            elif tp in text.lst_sum: 
-                htm, title = f'Σ{htm}', f'climate sum {entity}'
+            if   typ in text.lst_ave: htm, title = html.title_mean(htm), f'climate mean {entity}'
+            elif typ in text.lst_sum: htm, title = f'Σ{htm}', f'climate sum {entity}'
             
-            if options['file-type'] in text.typ_htm: head_htm += f'<th title="{title}">{htm}</th>'
-            if options['file-type'] in text.typ_txt: head_txt += 'CLI-' + entity 
+            head_txt += ctxt.padding(f'{typ} {entity}', 'center', text.pad_clima)[:text.pad_clima]
+            if ftyp in text.lst_output_htm: 
+                head_htm += f'<th title="{title}">{htm}</th>'
+            elif ftyp in text.lst_output_csv_excel:
+                head_csv += f'CLI {typ} {entity}{cfg.csv_sep}'
 
         # Add Sort Script
-        if options['file-type'] in text.typ_htm:
-            col_id = f'{entity}_col_{col_num}'.replace('-','').upper()
+        if ftyp in text.lst_output_htm:
+            col_id = ctxt.strip_all_whitespace(f'{entity}_col_{col_num}'.replace('-','_')).upper()
             script += js_script_fn( col_id, sort_type, sort_dir, row_num, col_num )
 
     # Close
-    if options['file-type'] in text.typ_htm: head_htm += '</tr></thead><tbody>'
-    if options['file-type'] in text.typ_txt: head_txt += '\n'
+    if ftyp in text.lst_output_htm: 
+        head_htm += '</tr></thead><tbody>'
 
     # Make JS script
     js  = ' <script> ' 
     js += 'let col_titles = { ' 
-    js += script.strip()[:-1] # Remove comma
+    js += script.strip()[:-1]  # Remove comma
     js += ' }; </script> '     # Close JS object and script tag
 
-    return head_htm, head_txt, js
+    return head_htm, head_txt.upper(), head_csv, js
 
 
 def cells(options, days1, days2='', day='', cnt=-1):
     '''Process all the data cells types'''
-    cell_htm, cell_txt = '', ''
+    cell_htm, cell_txt, cell_csv, ftyp = '', '', '', options['file-type']
     station = days1.station
     days = days2 if days2 else days1
 
@@ -251,69 +298,88 @@ def cells(options, days1, days2='', day='', cnt=-1):
         # Info texts
         if typ in text.lst_info:
             if entity in text.lst_copyright:
-                if options['file-type'] in text.typ_htm:
+                cell_txt += ctxt.padding('©', 'center', text.pad_copyright)[:text.pad_copyright]
+                if ftyp in text.lst_output_htm:
                     cell_htm += f'<td title="{station.data_notification.lower()}"><small class="text-muted">{icon.copy_light(size="fa-xs")}</small></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += station.format
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += '©,'
 
             elif entity in text.lst_geo_places:
                 if entity == 'place':
-                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.place}</span></td>'
-                    if options['file-type'] in text.typ_txt: cell_txt += station.place
+                    cell_txt += ctxt.padding(station.place, 'left', text.pad_place)[:text.pad_place]
+                    if ftyp in text.lst_output_htm: 
+                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.place}</span></td>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        cell_csv += f'{station.place}{cfg.csv_sep}'
 
                 elif entity == 'province':
-                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.province}</span></td>'
-                    if options['file-type'] in text.typ_txt: cell_txt += station.province
+                    cell_txt += ctxt.padding(station.province, 'left', text.pad_province)[:text.pad_province]
+                    if ftyp in text.lst_output_htm: 
+                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.province}</span></td>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        cell_csv += f'{station.province}{cfg.csv_sep}'
 
                 elif entity == 'country':
-                    if options['file-type'] in text.typ_htm: cell_htm += f'<td class="font-italic text-left"><span class="val">{station.country}</span></td>'
-                    if options['file-type'] in text.typ_txt: cell_txt += station.country
+                    cell_txt += ctxt.padding(station.country, 'left', text.pad_country)[:text.pad_country]
+                    if ftyp in text.lst_output_htm: 
+                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.country}</span></td>'
+                    elif ftyp in text.lst_output_csv_excel:
+                        cell_csv += f'{station.country}{cfg.csv_sep}'
 
             # yyyymmdd - yyyymmdd
             elif entity in text.lst_period_1:
-                if options['file-type'] in text.typ_htm:
-                    period_ymd = f'{int(days1.ymd_start)}-{int(days1.ymd_end)}'
+                period_ymd = f'{int(days1.ymd_start)}-{int(days1.ymd_end)}'
+                cell_txt += ctxt.padding(period_ymd, 'center', text.pad_period_1)[:text.pad_period_1]
+                if ftyp in text.lst_output_htm:
                     period_txt = f'{ymd.text(days1.ymd_start)} - {ymd.text(days1.ymd_end)}'
                     cell_htm += f'<td title="{period_txt}"><span class="val">{period_ymd}</span></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += days.period
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{period_ymd}{cfg.csv_sep}'
 
             # yyyymmdd or mmdd or yyyymmdd-yyyymmdd
             elif entity in text.lst_period_2:
                 per2 = days2.period.replace('*', '')
-                if options['file-type'] in text.typ_htm:
+                
+                cell_txt += ctxt.padding(per2, 'center', text.pad_period_2)[:text.pad_period_2]
+                if ftyp in text.lst_output_htm:
                     cell_htm += f'<td><span class="val">{per2}</span></td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += per2
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{per2}{cfg.csv_sep}'
 
             # Counter for rows
             elif entity in text.lst_num:
+                cell_txt += ctxt.padding(cnt, 'center', text.pad_num)[:text.pad_num]
                 cnt = util.l0(cnt, 3)
-                if options['file-type'] in text.typ_htm:
+                if ftyp in text.lst_output_htm:
                     cell_htm += f'<td title="num of day">{cnt}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += cnt  # TODO
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{cnt}{cfg.csv_sep}'
+
             # Day
             elif entity in text.lst_day:
-                ymd1 = day[daydata.etk('yyyymmdd')]
-                if options['file-type'] in text.typ_htm:
+                ymd1 = utils.fl_to_s(day[daydata.etk('yyyymmdd')])
+                
+                cell_txt += ctxt.padding(ymd, 'center', text.pad_day)[:text.pad_day]
+                if ftyp in text.lst_output_htm:
                     cell_htm += f'<td title="{ymd.text(ymd1)}">{int(ymd1)}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += ymd
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{ymd1}{cfg.csv_sep}'
 
             # A day in a month
             elif entity in text.lst_yyyymmdd:
-                if options['file-type'] in text.typ_htm:
+                cell_txt += ctxt.padding(entity, 'center', text.pad_day)[:text.pad_day]
+                if ftyp in text.lst_output_htm:
                     cell_htm += f'<td title="">{entity}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += entity  # TODO
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{entity}{cfg.csv_sep}'
 
             # Month num/name TODO
             elif entity in text.lst_month:
-                if options['file-type'] in text.typ_htm:
-                    head_htm += f'<td>month</tdh>'
-                if options['file-type'] in text.typ_txt:
-                    head_txt += f'{entity}'
+                cell_txt += ctxt.padding(entity, 'center', text.pad_month)[:text.pad_month]
+                if ftyp in text.lst_output_htm:
+                    cell_htm += f'<td>{entity}</td>'
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{entity}{cfg.csv_sep}'
 
         # if not days1.np_period_2d_has_days():
         #     cell_txt += cfg.txt_no_data
@@ -323,153 +389,183 @@ def cells(options, days1, days2='', day='', cnt=-1):
         # Fixed day values
         elif typ in text.lst_day:
             val = text.fix_entity(day[daydata.etk(entity)], entity)
-            if options['file-type'] in text.typ_htm:
+            cell_txt += ctxt.padding(val, 'center', text.pad_day)[:text.pad_day]
+            if ftyp in text.lst_output_htm:
                 cell_htm += f'<td>{val}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += val  # TODO
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{val}{cfg.csv_sep}'
 
         # Max extreme
         elif typ in text.lst_max:
+            max_txt = cfg.empthy  
             max_raw, max_day, days_max_2d = days.max(entity)
-            if options['file-type'] in text.typ_htm:
+            if max_day != cfg.np_no_data:
+                max_txt = f'{text.fix_entity(max_raw, entity)} {utils.fl_to_s(max_day[daydata.etk("yyyymmdd")])}'
+
+            cell_txt += ctxt.padding(max_txt, 'center', text.pad_max)[:text.pad_max]
+
+            if ftyp in text.lst_output_htm:
                 htm_val = html.extreme_values(max_day, entity)
                 table = html.table_days(days_max_2d, entity)
                 cell_htm += f'<td>{htm_val}{table}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += text.fix_entity(max_raw, entity)
+            elif ftyp in text.lst_output_csv_excel:
+                 cell_csv += f'{max_txt}{cfg.csv_sep}'
 
         # Min extreme
         elif typ in text.lst_min:
+            min_txt = cfg.empthy
             min_raw, min_day, days_min_2d = days.min(entity)
-            if options['file-type'] in text.typ_htm:
+            if min_raw != cfg.np_no_data:
+                min_txt  = f'{text.fix_entity(min_raw, entity)} '
+                min_txt += f'{utils.fl_to_s(min_day[daydata.etk("yyyymmdd")])}'
+            
+            cell_txt += ctxt.padding(min_txt, 'center', text.pad_min)[:text.pad_min]
+ 
+            if ftyp in text.lst_output_htm:
                 htm_val = html.extreme_values(min_day, entity)
                 table = html.table_days(days_min_2d, entity)
                 cell_htm += f'<td>{htm_val}{table}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += text.fix_entity(min_raw, entity)
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{min_txt}{cfg.csv_sep}'
 
         # Average
         elif typ in text.lst_ave:
             ave_raw, days_ave_2d = days.average(entity)
             ave_val = text.fix_entity(ave_raw, entity)
-            if options['file-type'] in text.typ_htm:
+
+            cell_txt += ctxt.padding(ave_val, 'center', text.pad_ave)[:text.pad_ave]
+            if ftyp in text.lst_output_htm:
                 value = html.span(ave_val, 'val')
                 table = html.table_average(days_ave_2d, entity, reverse=True)
                 cell_htm += f'<td>{value}{table}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += ave_val
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{ave_val}{cfg.csv_sep}'
 
         # Sum
         elif typ in text.lst_sum:
             sum_raw, days_sum_2d = days.sum(entity)
             sum_val = text.fix_entity(sum_raw, entity)
-            if options['file-type'] in text.typ_htm:
+
+            cell_txt += ctxt.padding(sum_val, 'center', text.pad_sum)[:text.pad_sum]
+            if ftyp in text.lst_output_htm:
                 value = html.span(sum_val, 'val')
                 table = html.table_sum(days_sum_2d, entity)
                 cell_htm += f'<td>{value}{table}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += sum_val
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{sum_val}{cfg.csv_sep}'
 
         # Indexes
         elif typ in text.lst_ndx:
             if entity in text.lst_heat_ndx:
                 heat_ndx_raw, days_heat_2d = days.heat_ndx()
                 heat_ndx_val = text.fix_entity(heat_ndx_raw, entity)
-                if options['file-type'] in text.typ_htm:
+
+                cell_txt += ctxt.padding(heat_ndx_val, 'center', text.pad_heat_ndx)[:text.pad_heat_ndx]
+                if ftyp in text.lst_output_htm:
                     value = html.span(heat_ndx_val, 'val')
                     table = html.table_heat_ndx(days_heat_2d)
                     cell_htm += f'<td>{value}{table}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += heat_ndx_val
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{heat_ndx_val}{cfg.csv_sep}'
 
             elif entity in text.lst_helmmann:
                 hellmann_raw, days_hmann_2d = days.hellmann()
                 hellmann_val = text.fix_entity(hellmann_raw, entity)
-                if options['file-type'] in text.typ_htm:
+
+                cell_txt += ctxt.padding(hellmann_val, 'center', text.pad_hmann)[:text.pad_hmann]
+                if ftyp in text.lst_output_htm:
                     value = html.span(hellmann_val, 'val')
                     table = html.table_hellmann(days_hmann_2d)
                     cell_htm += f'<td>{value}{table}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += hellmann_val
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{hellmann_val}{cfg.csv_sep}'
 
             elif entity in text.lst_ijnsen:
                 ijnsen_raw, days_ijnsen_2d = days.ijnsen()
                 ijnsen_val = text.fix_entity(ijnsen_raw, entity)
-                if options['file-type'] in text.typ_htm:
+
+                cell_txt += ctxt.padding(ijnsen_val, 'center', text.pad_ijns)[:text.pad_ijns]
+                if ftyp in text.lst_output_htm:
                     value = html.span(ijnsen_val, 'val')
                     table = html.table_ijnsen(days_ijnsen_2d)
                     cell_htm += f'<td>{value}{table}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += ijnsen_val
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{ijnsen_val}{cfg.csv_sep}'
 
             elif entity in text.lst_frost_sum:
                 fsum_raw, days_fsum_2d = days.frost_sum()
                 fsum_val = text.fix_entity(fsum_raw, entity)
-                if options['file-type'] in text.typ_htm:
+
+                cell_txt += ctxt.padding(fsum_val, 'center', text.pad_fsum)[:text.pad_default]
+                if ftyp in text.lst_output_htm:
                     value = html.span(fsum_val, 'val')
                     table = html.table_frost_sum(days_fsum_2d)
                     cell_htm += f'<td>{value}{table}</td>'
-                if options['file-type'] in text.typ_txt:
-                    cell_txt += fsum_val
+                elif ftyp in text.lst_output_csv_excel:
+                    cell_csv += f'{fsum_val}{cfg.csv_sep}'
 
         # Counters
         elif typ in text.lst_count:
             sign, val = lst[2], lst[3]
-
             np_terms_2d, days_cnt_2d = days.conditional_2d(entity, sign, val)  # Get days
             cnt = 0
             if np_terms_2d != cfg.np_no_data: # This hack must not
                 cnt = text.fix_entity(np.size(np_terms_2d, axis=0), typ) 
             else:
-                cell_txt += cfg.txt_no_data
+                cell_txt += ctxt.padding(cfg.txt_no_data, 'center', text.pad_cnt)[:text.pad_cnt]
                 cell_htm += f'<td>{cfg.txt_no_data}</td>'
                 continue
 
-            if options['file-type'] in text.typ_htm:
+            cell_txt += ctxt.padding(cnt, 'center', text.pad_cnt)[:text.pad_cnt]
+            if ftyp in text.lst_output_htm:
                 value = html.span(cnt, 'val')
                 table = html.table_count(days_cnt_2d, entity)
                 cell_htm += f'<td>{value}{table}</td>'
-
-            if options['file-type'] in text.typ_txt:
-                cell_txt += cnt
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{cnt}{cfg.csv_sep}'
 
         # Climate calculations
         # TODO / beta
         # calculate month clima values 
         # for the period for every climate year and month
         elif typ in text.lst_clima:
-            option, entity = lst[1], lst[2]
-            # print(lst)
-            # print(option, entity)
+            # print(typ, entity)
+            # input()
 
             # Make clima days object
-            raw, _ = days.climate( entity, option ) # Calculate average
+            raw, _ = days.climate( entity, 'mean' ) # Calculate average
             val = text.fix_entity( raw, entity )
 
-            if options['file-type'] in text.typ_htm:
+            cell_txt += ctxt.padding(val, 'center', text.pad_clima)[:text.pad_clima]
+            if ftyp in text.lst_output_htm:
                 cell_htm += f'<td>{html.span(val, "val")}</td>'
-            if options['file-type'] in text.typ_txt:
-                cell_txt += val
+            elif ftyp in text.lst_output_csv_excel:
+                cell_csv += f'{val}{cfg.csv_sep}'
 
         else:
-            cell_txt += cfg.txt_no_data
+            cell_txt += ctxt.padding(cfg.txt_no_data, 'center', text.pad_default)[:text.pad_default]
             cell_htm += f'<td>{cfg.txt_no_data}</td>'
+            cell_csv += f'{cfg.txt_no_data}{cfg.csv_sep}'
 
-    return cell_htm, cell_txt
+    return cell_htm, cell_txt, cell_csv
 
 def tr_cells(options, days1, days2='', day='', cnt=-1):
-    body_htm, body_txt = '', '' 
-    htm, txt = cells(options, days1, days2, day, cnt=cnt)     # Get the cells with data        
+    body_htm, body_txt, body_csv = '', '', ''
+    htm, txt, csv = cells(options, days1, days2, day, cnt=cnt)     # Get the cells with data        
     if htm: 
         body_htm += '<tr>'  # Open htm row
         body_htm += htm     # Add to body
         body_htm += '</tr>' # Close htm row
-    if txt:
+    if txt or csv:
         body_txt += ''      # Open txt row
         body_txt += txt     # Add to body
         body_txt += '\n'    # Close txt row
- 
-    return body_htm, body_txt 
+    if csv:
+        body_csv += ''      # Open txt row
+        body_csv += csv     # Add to body
+        body_csv += '\n'    # Close txt row
+    
+    return body_htm, body_txt, body_csv
 
 def info_line(txt, options, station):
     t  = f'[{ymd.now()}] {txt} <{options["title"]}> '
@@ -478,9 +574,15 @@ def info_line(txt, options, station):
     t += f'with sub-period <{options["period-2"]}>' if options['period-2'] else ''
     cnsl.log(t, True)
 
+def subject_map( title, map ):
+    # TODO
+    pass
+
+
+
 def body(options):
     '''Makes the body'''
-    body_htm, body_txt, cnt = '', '', 0
+    body_htm, body_txt, body_csv, cnt = '', '', '', 0
 
     # Walkthrough stations and calculate statistics and add to table
     for station in options['lst-stations']:
@@ -526,10 +628,12 @@ def body(options):
 
                 info_line('Calculate', options, station)
                 days2 = stats.Days(station, days1.np_period_2d, options['period-2'])
-                if not days2.np_period_2d_has_days(): continue # Skip whole day/row
+                if not days2.np_period_2d_has_days(): 
+                    continue # Skip whole day/row
+
                 cnt += 1  # Count the days
-                htm, txt = tr_cells( options, days1, days2, day='', cnt=cnt ) # Get the cells with data
-                body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
+                htm, txt, csv = tr_cells( options, days1, days2, day='', cnt=cnt ) # Get the cells with data
+                body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
 
             info_line('End', options, station)
             continue
@@ -543,8 +647,8 @@ def body(options):
             else:
                 for day in np_2d_search:
                     cnt += 1  # Count the days
-                    htm, txt = tr_cells(options, days1, days2, day=day, cnt=cnt) # Get the cells with data
-                    body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
+                    htm, txt, csv = tr_cells(options, days1, days2, day=day, cnt=cnt) # Get the cells with data
+                    body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
             info_line('End', options, station)
             continue
 
@@ -555,7 +659,7 @@ def body(options):
             # Add period-2 to list cell to show in table, if not there yet
             if util.key_from_lst(options['lst-sel-cells'], 'inf_period-2') == -1:
                 lst = options['lst-sel-cells']
-                key = util.key_from_lst(options['lst-sel-cells'], 'inf_period') # Get key value
+                key = util.key_from_lst( options['lst-sel-cells'], 'inf_period' ) # Get key value
                 key = 0 if key == -1 else key + 1 # input(key)
                 lst_2 = lst[:key] # Add period-2 to lst to show in table
                 lst_2.append('inf_period-2')
@@ -563,18 +667,18 @@ def body(options):
 
         # Statistics table
         cnt += 1  # Count the days
-        htm, txt = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the tr cells with data
-        body_htm, body_txt = body_htm + htm, body_txt + txt # Add to body
+        htm, txt, csv = tr_cells(options, days1, days2, day='', cnt=cnt) # Get the tr cells with data
+        body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
         info_line('End', options, station)
 
-    return body_htm, body_txt, options, cnt
+    return body_htm, body_txt, body_csv, options, cnt
 
 
 def foot(options):
     '''Makes the footer'''
-    foot_htm, foot_txt = '', ''
+    foot_htm, foot_txt, foot_csv, ftyp = '', '', '', options['file-type']
 
-    if options['file-type'] in text.typ_htm:
+    if ftyp in text.lst_output_htm:
         foot_htm += f'''
         </tbody><tfoot>
         <tr><td class="text-muted" colspan="{options['colspan']}">
@@ -583,40 +687,50 @@ def foot(options):
         </td></tr>
         </tfoot></table>'''
 
-    if options['file-type'] in text.typ_txt:
-        foot_txt += '\n{cfg.knmi_dayvalues_notification}'
+    if ftyp in text.lst_output_txt_cnsl:
+        foot_txt += cfg.knmi_dayvalues_notification
 
-    return foot_htm, foot_txt
+    return foot_htm, foot_txt, foot_csv
 
 
-def output(htm, txt, options):
+def output(htm, txt, csv, options):
     '''Make output to screen or file(s)'''
-    ok = True
+    ok, path, ftyp = True, '', options['file-type'] 
+    input(ftyp)
 
-    if options['file-type'] in text.typ_htm:
-        fname = f'{options["file-name"]}.{options["file-type"]}'
-        path, dir, _ = utils.mk_path_with_dates(cfg.dir_stats_htm, fname)
-        fio.mk_dir(dir, verbose=False)
+    if ftyp in text.lst_output_cnsl or cfg.console:  # For console
+        cnsl.log(f'\n{txt}\n', True)  # Add 1 spacer/enter around console output
 
-        page = html.Template()
-        page.template = cfg.html_template_statistics
-        page.verbose = False
-        page.path = path
-        page.title = options['title']
-        page.add_description( f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
-        page.main = htm
+    if ftyp in text.lst_output_files:
+        fname = options['file-name'] + utils.file_extension(ftyp)  # File name
+        data, map = '.', cfg.dir_data  # Data and dir
+        if   ftyp in text.lst_output_txt:   data, map = txt, cfg.dir_stats_txt
+        elif ftyp in text.lst_output_htm:   data, map = htm, cfg.dir_stats_htm
+        elif ftyp in text.lst_output_csv:   data, map = csv, cfg.dir_stats_csv
+        elif ftyp in text.lst_output_excel: data, map = csv, cfg.dir_stats_excel
 
-        ok = page.save()
-        if not ok:
-            cnsl.log(f'Save {options["file-type"]} file failed!', cfg.error)
 
-    if options['file-type'] in text.typ_txt:
-        cnsl.log(txt, True)
 
-    if options['file-type'] in text.typ_txt:  # Save to htm/txt file
-        path, dir, _ = utils.mk_path_with_dates(cfg.dir_stats_txt, f'{options["file-name"]}.{options["file-type"]}')
-        fio.mk_dir(dir, verbose=False)
+        path, map, _ = utils.mk_path_with_dates(map, fname) # Update dir with date maps
+        fio.mk_dir( map, verbose=False ) # Make dir if not there yet 
 
-        ok = fio.save(path, txt, verbose=True)  # Schrijf naar bestand
+        if ftyp in text.lst_output_htm: # Create html file
+            page = html.Template()
+            page.template = cfg.html_template_statistics
+            page.verbose = False
+            page.path = path
+            page.title = options['title']
+            page.add_description( f'{options["title"]} {", ".join(options["lst-sel-cells"])}' )
+            page.main = data
+            ok = page.save()  # Save page
+            if not ok: 
+                cnsl.log( f'Save {ftyp} file failed!', cfg.error )
+
+        elif ftyp in text.lst_output_txt + text.lst_output_csv: # text, csv
+            ok = fio.save( path, data, verbose=True )  # Schrijf naar bestand
+
+        elif ftyp in text.lst_output_excel: # Convert csv to excel 
+            csv_data = pd.read_table(data, sep=cfg.csv_sep ) # Read the csv data with panda
+            csv_data.to_excel(path, index = None, header=True) # Write excel file
 
     return ok, path
