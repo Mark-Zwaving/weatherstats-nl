@@ -19,6 +19,7 @@ import sources.model.daydata as daydata
 import sources.model.stats as stats
 import sources.model.utils as utils
 import sources.view.text as text
+import sources.view.icon as icon
 
 class Template():
     ''' Class to make a html page based on the template - template.html'''
@@ -148,157 +149,157 @@ def dayvalue_div_entity(title=False, val=False, time=False ):
 
 def day_value_tx(tx, txh):
     if tx != cfg.no_data_given: 
-        tx = f'{text.entity_to_icon("tx", "text-danger")} {tx}'
+        tx = f'{entity_to_icon("tx", "text-danger")} {tx}'
     htm = dayvalue_div_entity( text.entity_to_text('TX'), tx, txh )
     return htm
 
 def day_value_tg(tg): 
     if tg != cfg.no_data_given:
-        tg = f'{text.entity_to_icon("tg", "text-success")} {tg}'
+        tg = f'{entity_to_icon("tg", "text-success")} {tg}'
     htm = dayvalue_div_entity( text.entity_to_text('TG'), tg, '')
     return htm
 
 def day_value_tn(tn, tnh):
     if tn != cfg.no_data_given: 
-        tn = f'{text.entity_to_icon("tn", "text-primary")} {tn}'
+        tn = f'{entity_to_icon("tn", "text-primary")} {tn}'
     htm = dayvalue_div_entity( text.entity_to_text('TN'), tn, tnh )
     return htm
 
 def day_value_t10n(t10n, t10nh):    
     if t10n != cfg.no_data_given:
-        t10n = f'{text.entity_to_icon("t10n", "text-warning")} {t10n}'
+        t10n = f'{entity_to_icon("t10n", "text-warning")} {t10n}'
     htm = dayvalue_div_entity( text.entity_to_text('T10N'), t10n, t10nh)
     return htm
 
 def day_value_ddvec(ddvec): 
     if ddvec != cfg.no_data_given: 
-        ddvec = f'{text.entity_to_icon("ddvec", "text-info")} {ddvec}'
+        ddvec = f'{entity_to_icon("ddvec", "text-info")} {ddvec}'
     htm = dayvalue_div_entity( text.entity_to_text('DDVEC'), ddvec, '')
     return htm
 
 def day_value_fhvec(fhvec):
     if fhvec != cfg.no_data_given: 
-        fhvec = f'{text.entity_to_icon("fhvec", "text-success")} {fhvec}'
+        fhvec = f'{entity_to_icon("fhvec", "text-success")} {fhvec}'
     htm = dayvalue_div_entity( text.entity_to_text('FHVEC'), fhvec, '')
     return htm
 
 def day_value_fg(fg):
     if fg != cfg.no_data_given:
-        fg = f'{text.entity_to_icon("fg", "text-success")} {fg}'
+        fg = f'{entity_to_icon("fg", "text-success")} {fg}'
     htm = dayvalue_div_entity( text.entity_to_text('FG'), fg, '')
     return htm
 
 def day_value_fhx(fhx, fhxh):
     if fhx != cfg.no_data_given:
-        fhx = f'{text.entity_to_icon("fhx", "text-success")} {fhx}'
+        fhx = f'{entity_to_icon("fhx", "text-success")} {fhx}'
     htm = dayvalue_div_entity( text.entity_to_text('FHX'), fhx, fhxh)
     return htm
 
 def day_value_fxx(fxx, fxxh):
     if fxx !=  cfg.no_data_given:
-        fxx = f'{text.entity_to_icon("fxx", "text-success")} {fxx}'
+        fxx = f'{entity_to_icon("fxx", "text-success")} {fxx}'
     htm = dayvalue_div_entity( text.entity_to_text('FXX'), fxx, fxxh)
     return htm
 
 def day_value_fhn(fhn, fhnh):
     if fhn != cfg.no_data_given:
-        fhn = f'{text.entity_to_icon("fhn", "text-success")} {fhn}'
+        fhn = f'{entity_to_icon("fhn", "text-success")} {fhn}'
     htm = dayvalue_div_entity( text.entity_to_text('FHN'), fhn, fhnh)
     return htm
 
 def day_value_sq(sq):
     if sq != cfg.no_data_given:
-        sq = f'{text.entity_to_icon("sq", "text-warning")} {sq}'
+        sq = f'{entity_to_icon("sq", "text-warning")} {sq}'
     htm = dayvalue_div_entity( text.entity_to_text('SQ'), sq, '')
     return htm
 
 def day_value_sp(sp):
     if sp != cfg.no_data_given:
-        sp = f'{text.entity_to_icon("sp", "text-warning")} {sp}'
+        sp = f'{entity_to_icon("sp", "text-warning")} {sp}'
     htm = dayvalue_div_entity( text.entity_to_text('SP'), sp, '')
     return htm
 
 def day_value_rh(rh):
     if rh != cfg.no_data_given: 
-        rh = f'{text.entity_to_icon("rh", "text-primary")} {rh}'
+        rh = f'{entity_to_icon("rh", "text-primary")} {rh}'
     htm = dayvalue_div_entity( text.entity_to_text('RH'), rh, '')
     return htm
 
 def day_value_rhx(rhx, rhxh):
     if rhx != cfg.no_data_given: 
-        rhx = f'{text.entity_to_icon("rhx", "text-primary")} {rhx}'
+        rhx = f'{entity_to_icon("rhx", "text-primary")} {rhx}'
     htm = dayvalue_div_entity( text.entity_to_text('RHX'), rhx, rhxh)
     return htm
 
 def day_value_dr(dr):
     if dr != cfg.no_data_given: 
-        dr = f'{text.entity_to_icon("dr", "text-primary")} {dr}'
+        dr = f'{entity_to_icon("dr", "text-primary")} {dr}'
     htm = dayvalue_div_entity( text.entity_to_text('DR'), dr, '')
     return htm
 
 def day_value_px(px, pxh):
     if px != cfg.no_data_given:
-        px = f'{text.entity_to_icon("px", "text-warning")} {px}'
+        px = f'{entity_to_icon("px", "text-warning")} {px}'
     htm = dayvalue_div_entity( text.entity_to_text('PX'), px, pxh)
     return htm 
 
 def day_value_pg(pg):
     if pg != cfg.no_data_given: 
-        pg = f'{text.entity_to_icon("pg", "text-warning")} {pg}'
+        pg = f'{entity_to_icon("pg", "text-warning")} {pg}'
     htm = dayvalue_div_entity( text.entity_to_text('PG'), pg, '')
     return htm 
 
 def day_value_pn(pn, pnh):
     if pn != cfg.no_data_given: 
-        pn = f'{text.entity_to_icon("pn", "text-warning")} {pn}'
+        pn = f'{entity_to_icon("pn", "text-warning")} {pn}'
     htm =  dayvalue_div_entity( text.entity_to_text('PN'), pn, pnh)
     return htm 
 
 def day_value_ux(ux, uxh):
     if ux != cfg.no_data_given: 
-        ux = f'{text.entity_to_icon("ux", "text-primary")} {ux}'
+        ux = f'{entity_to_icon("ux", "text-primary")} {ux}'
     htm = dayvalue_div_entity( text.entity_to_text('UX'), ux, uxh)
     return htm
 
 def day_value_ug(ug):
     if ug != cfg.no_data_given: 
-        ug = f'{text.entity_to_icon("ug", "text-primary")} {ug}'
+        ug = f'{entity_to_icon("ug", "text-primary")} {ug}'
     htm = dayvalue_div_entity( text.entity_to_text('UG'), ug, '')
     return htm 
 
 def day_value_un(un, unh):
     if un != cfg.no_data_given: 
-        un = f'{text.entity_to_icon("un", "text-primary")} {un}'
+        un = f'{entity_to_icon("un", "text-primary")} {un}'
     htm = dayvalue_div_entity( text.entity_to_text('UN'), un, unh)
     return htm 
 
 def day_value_vvx(vvx, vvxh):
     if vvx != cfg.no_data_given:
-        vvx = f'{text.entity_to_icon("vvx", "text-info")} {vvx}'
+        vvx = f'{entity_to_icon("vvx", "text-info")} {vvx}'
     htm = dayvalue_div_entity( text.entity_to_text('VVX'), vvx, vvxh)
     return htm
 
 def day_value_vvn(vvn, vvnh):
     if vvn != cfg.no_data_given:
-        vvn = f'{text.entity_to_icon("vvn", "text-info")} {vvn}'
+        vvn = f'{entity_to_icon("vvn", "text-info")} {vvn}'
     htm = dayvalue_div_entity( text.entity_to_text('VVN'), vvn, vvnh )
     return htm
 
 def day_value_ng(ng):
     if ng != cfg.no_data_given: 
-        ng = f'{text.entity_to_icon("ng", "text-secondary")} {ng}'
+        ng = f'{entity_to_icon("ng", "text-secondary")} {ng}'
     htm = dayvalue_div_entity( text.entity_to_text('NG'), ng, '')
     return htm 
 
 def day_value_q(q):
     if q != cfg.no_data_given:
-        q = f'{text.entity_to_icon("q", "text-danger")} {q}'
+        q = f'{entity_to_icon("q", "text-danger")} {q}'
     htm = dayvalue_div_entity( text.entity_to_text('Q'), q, '')
     return htm
 
 def day_value_ev24(ev24):
     if ev24 != cfg.no_data_given: 
-        ev24 = f'{text.entity_to_icon("ev24", "text-warning")} {ev24}'
+        ev24 = f'{entity_to_icon("ev24", "text-warning")} {ev24}'
     htm = dayvalue_div_entity( text.entity_to_text('EV24'), ev24, '')
     return htm 
 
@@ -361,7 +362,7 @@ def tr_td(ltd, clas=''):
     return t
 
 def title_mean(entity):
-    return f'<span class="overline">{text.entity_to_icon("ave")} {entity}</span>'
+    return f'<span class="overline">{entity_to_icon("ave")} {entity}</span>'
 
 def attr_title(entity, value=''):
     return f'{text.entity_to_text(entity)} { text.fix_entity(value) if value else "" }'.strip()
@@ -723,3 +724,67 @@ def table_heat_ndx(days):
             html = table(['cnt', 'date', 'tg', 'heat', 'total'], lst, reverse=True)
 
     return html
+
+
+def entity_to_icon(entity, color='', size='', extra=''):
+    e = entity.lower()
+    if   e == 'tx':    return icon.temp_full(color, extra, size)
+    elif e == 'tg':    return icon.temp_half(color, extra, size)
+    elif e == 'tn':    return icon.temp_empty(color, extra, size)
+    elif e == 't10n':  return icon.temp_empty(color, extra, size)
+    elif e == 'ddvec': return icon.wind_dir(color, extra, size)
+    elif e == 'fg':    return icon.wind(color, extra, size)
+    elif e == 'rh':    return icon.shower_heavy(color, extra, size)
+    elif e == 'sq':    return icon.sun(color, extra, size)
+    elif e == 'pg':    return icon.compress_alt(color, extra, size)
+    elif e == 'ug':    return icon.drop_tint(color, extra, size)
+    elif e == 'fxx':   return icon.wind(color, extra, size)
+    elif e == 'fhvec': return icon.wind(color, extra, size)
+    elif e == 'fhx':   return icon.wind(color, extra, size)
+    elif e == 'fhn':   return icon.wind(color, extra, size)
+    elif e == 'sp':    return icon.sun(color, extra, size)
+    elif e == 'q':     return icon.radiation(color, extra, size)
+    elif e == 'dr':    return icon.shower_heavy(color, extra, size)
+    elif e == 'rhx':   return icon.shower_heavy(color, extra, size)
+    elif e == 'px':    return icon.compress_alt(color, extra, size)
+    elif e == 'pn':    return icon.compress_alt(color, extra, size)
+    elif e == 'vvn':   return icon.eye(color, extra, size)
+    elif e == 'vvx':   return icon.eye(color, extra, size)
+    elif e == 'ng':    return icon.cloud(color, extra, size)
+    elif e == 'ux':    return icon.drop_tint(color, extra, size)
+    elif e == 'un':    return icon.drop_tint(color, extra, size)
+    elif e == 'ev24':  return icon.sweat(color, extra, size)
+    elif e in text.lst_day: return icon.day(color, extra, size)
+    elif e in text.lst_max: return icon.arrow_up(color, extra, size)
+    elif e in text.lst_min: return icon.arrow_down(color, extra, size)
+    elif e in text.lst_home: return icon.home(color, extra, size)
+    elif e in text.lst_states: return icon.flag(color, extra, size)
+    elif e in text.lst_states: return icon.flag(color, extra, size)
+    elif e in text.lst_period_1: return icon.cal_period(color, extra, size)
+    elif e in text.lst_period_2: return icon.cal_day(color, extra, size)
+    elif e in text.lst_heat_ndx: return icon.fire(color, extra, size)
+    elif e in text.lst_cold_ndx: return icon.icicles(color, extra, size)
+    elif e in ['pg', 'pn', 'px']: return icon.compress_alt(color, extra, size)
+    elif e in ['ux', 'un', 'ug']: return icon.drop_tint(color, extra, size)
+    elif e in text.lst_wind: return icon.wind(color, extra, size)
+    elif e in text.lst_rain: return icon.shower_heavy(color, extra, size)
+    elif e in text.lst_wind_direction: return icon.wind_dir(color, extra, size)
+    elif e in text.lst_copyright: return icon.copy(color, extra, size)
+    elif e in text.lst_view: return icon.eye(color, extra, size)
+    elif e in ['q']: return icon.radiation(color, extra, size)
+    elif e in ['ng']: return icon.cloud(color, extra, size)
+    elif e in text.lst_evaporation: return icon.sweat(color, extra, size)
+    elif e in ['sq','sp']: return icon.sun(color, extra, size)
+    elif e in text.lst_sum: return 'Σ'
+    elif e in text.lst_ave: return ''
+    elif e in text.lst_gt: return icon.gt(color, extra, size)
+    elif e in text.lst_ge: return icon.ge(color, extra, size)
+    elif e in text.lst_lt: return icon.lt(color, extra, size)
+    elif e in text.lst_le: return icon.le(color, extra, size)
+    elif e in text.lst_eq: return '=='
+    elif e in text.lst_ne: return '!=' 
+    elif e in text.lst_num: return icon.sort_down(color, extra, size)
+    elif e in text.lst_clima: return icon.ellipsis(color, extra, size)
+    else: return icon.umbrella(color, extra, size)
+
+    
