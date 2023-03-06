@@ -7,3 +7,13 @@ data/dayvalues/html
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
 data/graphs
+
+__pycache__
+sources/model/__pycache__
+sources/view/__pycache__
+sources/control/__pycache__
+
+common/__pycache__
+common/sources/model/__pycache__
+common/sources/view/__pycache__
+common/sources/control/__pycache__
