@@ -256,16 +256,21 @@ def head(options, cnt=0):
 
         # Climate
         elif typ in text.lst_clima:
+            option = entity
+            entity = lst[2]
+
+            # print(typ, option, entity)
+            # input()
             ico_clima = icon.ellipsis(size='fa-sm', color='', extra='')
-            htm, title = f'{ico_clima}{entity}', f'climate {entity}'
-            if   typ in text.lst_ave: htm, title = html.title_mean(htm), f'climate mean {entity}'
-            elif typ in text.lst_sum: htm, title = f'Σ{htm}', f'climate sum {entity}'
-            
-            head_txt += ctxt.padding(f'{typ} {entity}', 'center', text.pad_clima)[:text.pad_clima]
+            htm, title = f'{ico_clima}{entity}', f'climate {option} {entity}'
+            if   typ in text.lst_ave: htm, title = html.title_mean(htm), f'climate mean {option} {entity}'
+            elif typ in text.lst_sum: htm, title = f'Σ{htm}', f'climate sum {option} {entity}'
+        
+            head_txt += ctxt.padding(f'{typ}-{option}-{entity}', 'center', text.pad_clima)[:text.pad_clima]
             if ftyp in text.lst_output_htm: 
                 head_htm += f'<th title="{title}">{htm}</th>'
             elif ftyp in text.lst_output_csv_excel:
-                head_csv += f'CLI {typ} {entity}{cfg.csv_sep}'
+                head_csv += f'CLI {option} {entity}{cfg.csv_sep}'
 
         # Add Sort Script
         if ftyp in text.lst_output_htm:
@@ -529,11 +534,14 @@ def cells(options, days1, days2='', day='', cnt=-1):
         # calculate month clima values 
         # for the period for every climate year and month
         elif typ in text.lst_clima:
-            # print(typ, entity)
+            option = entity
+            entity = lst[2]
+
+            # print(typ, option, entity)
             # input()
 
             # Make clima days object
-            raw, _ = days.climate( entity, 'mean' ) # Calculate average
+            raw, _ = days.climate( entity, option ) # Calculate average
             val = text.fix_entity( raw, entity )
 
             cell_txt += ctxt.padding(val, 'center', text.pad_clima)[:text.pad_clima]
@@ -696,7 +704,7 @@ def foot(options):
 def output(htm, txt, csv, options):
     '''Make output to screen or file(s)'''
     ok, path, ftyp = True, '', options['file-type'] 
-    input(ftyp)
+    # input(ftyp)
 
     if ftyp in text.lst_output_cnsl or cfg.console:  # For console
         cnsl.log(f'\n{txt}\n', True)  # Add 1 spacer/enter around console output
