@@ -12,9 +12,10 @@ import common.control.fio as fio  # Import the common lib from the common map
 import os, sys, numpy as np       # Python modules
 ################################################################################
 
-verbose = False # Print more(all) to screen
-error = True   # Print exceptions and errors to screen
-info = True    # Show examples and help info in menu by default
+verbose = False  # Print more(all) to screen
+error   = True   # Print exceptions and errors to screen
+info    = True   # Show examples and help info in menu by default
+console = True   # Show always the calculated tables in the console 
 
 # To save the current weather and forecasts in the data/forecasts map,
 # set save_forecasts to true
@@ -34,6 +35,9 @@ climate_period = f'{climate_start_year}-{climate_end_year}'
 # Set the time zone
 timezone = 'Europe/Amsterdam'  
 
+# csv separator
+csv_sep = ';'
+
 ################################################################################
 # For HTML pages
 # Add popup tables in html tables. True for yess, False for no
@@ -43,26 +47,27 @@ html_popup_table_max_rows = 10  # -1 for all rows
 # Remove whitespace from html pages source code
 html_strip = True
 
-
 ################################################################################
 # Config base maps
-dir_app = fio.abspath(os.path.dirname(__file__))
-dir_www = fio.abspath('/var/www/html')
-dir_data = fio.mk_path(dir_app, 'data')
-dir_templates = fio.mk_path(dir_data, 'templates')
-# Downloaded forecasts (buienradar)
-dir_forecasts = fio.mk_path(dir_data, 'forecasts')
+dir_app        = fio.abspath(os.path.dirname(__file__))
+dir_www        = fio.abspath('/var/www/html')
+dir_data       = fio.mk_path(dir_app, 'data')
+dir_statistics = fio.mk_path(dir_data, 'statistics')
+dir_templates  = fio.mk_path(dir_data, 'templates')
+dir_forecasts  = fio.mk_path(dir_data, 'forecasts')    # Downloaded forecasts
 dir_thirdparty = fio.mk_path(dir_data, 'thirdparty')
-dir_graphs = fio.mk_path(dir_data, 'graphs')
-dir_dayvalues = fio.mk_path(dir_data, 'dayvalues')
+dir_graphs     = fio.mk_path(dir_data, 'graphs')
+
+# Dayvalues
+dir_dayvalues     = fio.mk_path(dir_data, 'dayvalues')
 dir_dayvalues_zip = fio.mk_path(dir_dayvalues, 'zip')  # knmi zip files
 dir_dayvalues_txt = fio.mk_path(dir_dayvalues, 'txt')  # knmi text files
-# Made html files from knmi text files
-dir_dayvalues_htm = fio.mk_path(dir_dayvalues, 'html')
-dir_stats = fio.mk_path(dir_data, 'statistics')
-dir_stats_htm = fio.mk_path(dir_stats, 'html')
-dir_stats_txt = fio.mk_path(dir_stats, 'text')
+dir_dayvalues_htm = fio.mk_path(dir_dayvalues, 'html') # knmi html files from text
 
+dir_stats_txt   = fio.mk_path(dir_statistics, 'text')
+dir_stats_htm   = fio.mk_path(dir_statistics, 'html')
+dir_stats_csv   = fio.mk_path(dir_statistics, 'csv')
+dir_stats_excel = fio.mk_path(dir_statistics, 'excel')
 
 ################################################################################
 # KNMI Weather
