@@ -100,8 +100,6 @@ def calculate( options ):
         days = stats.Days( station, np_data_2d, options['period'] )
         lst_ymd = days.lst_yyyymmdd() # Date lst
 
-        min_tot, max_tot = sys.float_info.max, sys.float_info.min
-
         for graph in options['graph-lst-entities-types']:
             entity = graph['entity'].upper()
             cnsl.log( f'Process weatherdata {station.place} for {entity}', cfg.verbose )
@@ -117,37 +115,36 @@ def calculate( options ):
             lst_val = [ daydata.rounding(el, entity) for el in list(np_entity_1d) ]
 
             # Min/ max for ranges in graphs
-            min_tot_act, max_tot_act = min(lst_val), max(lst_val)
-            if min_tot_act < min_all: min_all = min_tot_act
-            if max_tot_act > max_all: max_all = max_tot_act
+            min_act, max_act = min(lst_val), max(lst_val)
+            if min_act < min_all: min_all = min_act
+            if max_act > max_all: max_all = max_act
 
             if answer.yes(graph['min-max-ave-period']):
                 # Calculate extremes and make correct output    
-                min_act, _, _ = days.min(entity)
-                max_act, _, _ = days.max(entity)        
+                min_act, min_day, _ = days.min(entity)
+                max_act, max_day, _ = days.max(entity)        
                 ave_act, _ = days.average( entity )
                 sum_act, _ = days.sum( entity )
-                max_val = f'max={ text.fix_entity(max_act, entity) }'
-                min_val = f'min={ text.fix_entity(min_act, entity) }'
+                max_val = f'max={ text.fix_entity(max_act, entity) } at { int(max_day[daydata.etk("yyyymmdd")]) }'
+                min_val = f'min={ text.fix_entity(min_act, entity) } at { int(min_day[daydata.etk("yyyymmdd")]) }'
                 ave_val = f'mean={ text.fix_entity(ave_act, entity) }'
                 sum_val = f'sum={ text.fix_entity(sum_act, entity) }'
 
-                ttt = f'{station.place} {entity}: '
+                ttt = f'{station.place} {entity} '
                 if entity in ['SQ', 'RH', 'EV24', 'Q']: 
-                    ttt += f'{max_val}  {sum_val}  {ave_val}' 
+                    ttt += f'{ave_val} {max_val} {sum_val}' 
                 else: 
-                    ttt += f'{max_val}  {min_val}  {ave_val}' 
+                    ttt += f'{ave_val} {max_val} {min_val}' 
                 cnsl.log(ttt, cfg.verbose)
                 sub_txt += ttt + '\n'
-
+ 
             if answer.yes( graph['climate-ave'] ):
                 label_clima = f'Day climate {station.place} {text.entity_to_text(entity)}'
-                ttt = f'Calculate climate value {entity} for {station.place} (might take a while...)'
+                ttt = f'Calculate climate value {entity} for {station.place}...'
                 cnsl.log(ttt, True)
 
                 lst_clima = []
-                for f_ymd in np_ymd:
-                    yyyymmdd = cvt.fl_to_s(f_ymd)
+                for yyyymmdd in lst_ymd:
                     mmdd = yyyymmdd[4:8]  # What day it is ? 
 
                     period_days = f'{graph["climate-yyyy-start"]}-{graph["climate-yyyy-end"]}{mmdd}*'
@@ -164,9 +161,8 @@ def calculate( options ):
                 # Clima average round correctly based on entity
                 if len(lst_clima) > 0:
                     clima_ave = statistics.mean(lst_clima) # Calculate average
-                    ttt  = f'{station.place} {entity}: '
-                    ttt += f'climate mean={text.fix_entity(clima_ave, entity)} '
-                    ttt += f'<{ graph["climate-yyyy-start"] }-{ graph["climate-yyyy-end"] }>'
+                    ttt  = f'{station.place} {entity} mean={text.fix_entity(clima_ave, entity)} climate period '
+                    ttt += f'from { graph["climate-yyyy-start"] } to { graph["climate-yyyy-end"] }'
                     cnsl.log(ttt, cfg.verbose)
                     sub_txt += ttt + '\n'
                 else:
@@ -237,27 +233,33 @@ def calculate( options ):
             if rnd_col:
                 col_ndx = 0 if col_ndx == col_cnt else col_ndx + 1
 
-    # Diff_val = max - min1
-    # Give legend some space above entities 
-    add_space = ( len( options['lst-stations'] ) + 1 ) * ( len( options['graph-lst-entities-types'] ) ) 
+    # Give legend some space above (maximimum) entity 
 
     # !!!! TODO BUGGY MAX MIN VALUES
-    max_tick  = math.ceil( max_all ) # Alltime maximum
-    min_tick  = math.floor( min_all ) # Alltime minimum
-    step_tick = math.floor( abs( abs( max_tick ) - abs( min_tick ) ) / 10 )
-    step_tick = 1 if step_tick < 1 else step_tick # min step = 1
-    y_pos_txt = max_tick + add_space * step_tick + 1  # Under the edgeplt.show()
+    multiply = 1.1 # Add space multiplyer
+    max_tick  = int( round( math.ceil( max_all ) ) )  # Alltime maximum
+    min_tick  = int( round( math.floor( min_all ) ) )  # Alltime minimum
+    step_tick = 1 if (max_tick-min_tick) < 20 else 2  # int( round( math.floor( abs(max_tick) - abs(min_tick) / 10 ) ) )
+    add_space = int( round( math.ceil( len(options['lst-stations']) * len(options['graph-lst-entities-types']) * multiply ) ) )
+    y_pos_txt = step_tick + max_tick + add_space # Under the edgeplt.show()
     x_pos_txt = 0
-    y_ticks = np.arange(min_tick, y_pos_txt, step_tick)  # 1-10 % ranges
-    x_ticks = lst_ymd
+    y_ticks = np.arange(min_tick, y_pos_txt, step_tick)  # 1 - 10 % ranges
+    x_ticks = np.array(lst_ymd)
+
+    print( max_tick, min_tick )
+    print( step_tick, add_space )
+    print( x_pos_txt, y_pos_txt )
+
+    # Correction archhhh... for text 
+    sub_txt = 3 * '\n' + sub_txt
 
     if sub_txt: # Add text to plot, if there
         plt.text( 
-            x_pos_txt,
-            y_pos_txt - step_tick - step_tick, # Most left and at the top
+            x_pos_txt, 
+            y_pos_txt,  # Most left and at the top
             sub_txt, 
             **cfg.plot_add_txt_font, 
-            color = '#555555',
+            color = '#555555', 
             horizontalalignment = 'left', 
             verticalalignment   = 'top' 
         )
