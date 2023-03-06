@@ -14,8 +14,9 @@ let table_tbody      =  'table#stats>tbody',
     css_click_cell   =  'cursor: cell;',  // Extra css for click cell
     separator        =  '<span></span>',  // Default separator in html files
     no_data_given    =  '.', // Default dummy value in weatherstats
-    num_max          = Number.MAX_VALUE,  // Max possible value
-    num_min          = Number.MIN_VALUE,  // Min possible value
+    empthy           =   '', // Fault value 
+    num_max          =  Number.MAX_VALUE,  // Max possible value
+    num_min          =  Number.MIN_VALUE,  // Min possible value
     descending       =  '+',   // Identifier sort direction: large to small
     ascending        =  '-',   // Identifier sort direction: small to high
     sort_num         =  'num', // Identifier sort num-based
@@ -24,27 +25,39 @@ let table_tbody      =  'table#stats>tbody',
     // Reg expression for grepping a float number from a td cell.
     // Result float is used for numeric sorting in a td cell.
     // Update here reg expression for extracting floats, if needed
-    reg_float        = /[+-]?[0-9]*[.]?[0-9]+/g,
+    reg_float        = /-?\d*\.\d+|\d+/,
+    //  TODO plus min goes wrong
+    //  /-?(\d*\.\d+|\d+),?/
+    //  /-?\d+(?:.\d+)?/
+    //  /^[-+]?[0-9]*\.?[0-9]+$/
 
     ////////////////////////////////////////////////////////////////////////////
     // Grep a float from a string. Needed for correct sorting
     grep_float = el => {
-        let fl;
-        if ( el != no_data_given )
-        {  
-            try {
-                el = el.trim() // Remove whitespace
-                // For nums
-                // if ( el.includes('.') != true && el != '0' ) // Not a float
-                //     while ( el[0] == '0' ) 
-                //         el = el.substring(1) // Remove leading zero's
-                el = el.replace(/|A-Z|a-z|°|%|\/|cm2|/gi, ''); // Replace chars
-                fl = parseFloat(el.match( reg_float ), 10); // Match a float digit
-            } catch (error) { }
-        }
-        else {
+        let fl = 0.0
+        if ( el == no_data_given || el == empthy )
+        {
             // This value will always be most extreme
             fl = col_titles.dir == ascending ? num_min : num_max;
+        }
+        else 
+        { 
+            try {
+                // let multi = el[0] == '-' ? -1.0 : 1.0
+                // Replace chars and remove whitespace
+                el = el.replace( /|A-Z|a-z|°|%|\/|cm2|^\s+|\s+$|\s+(?=\s)|/gi, '' )
+                if ( el == '0.0' || el == '0' )
+                    fl = 0.000001 // Zero goes to false? Oke, make it very close to 0
+                else
+                {
+                    fl = parseFloat( el.match( reg_float ), 10 ); // Match a float digit
+                    // fl *= multi
+                }
+            } 
+            catch (error) { 
+                console.log(error)
+            }
+            console.log(fl)
         }
         return fl;
     },
