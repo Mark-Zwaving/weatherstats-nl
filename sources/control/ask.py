@@ -127,9 +127,9 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             answ = question(tt, default, back, prev, exit, spacer)
 
             ttt = ''
-            if answer.empty(answ) and len(lst) == 0:
+            if answer.empty(answ) and len(lst_sel) == 0:
                 ttt += text.type_in # Empthy list
-            elif answer.empty(answ) and len(lst) > 0:
+            elif answer.empty(answ) and len(lst_sel) > 0:
                 break # Done
             elif answer.quit(answ) or answer.prev(answ):
                 return answ
@@ -592,7 +592,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             answ = per_2
 
         elif quest == 'file-name': # Ask for a name
-            if f_type not in text.lst_typ_cnsl:  # Add query to title if there
+            if f_type not in text.lst_output_cnsl:  # Add query to title if there
                 squery = f'-{text.query_sign_to_text(s4d)}' if s4d else '' 
                 tmp_per = f'-{per_2}' if per_2 else ''
                 tmp_name = f'{name}{squery}-{per_1}{tmp_per}-{utils.now_for_file()}' 
