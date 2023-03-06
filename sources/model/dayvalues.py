@@ -9,9 +9,9 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg, os
-import sources.model.stations as stations
 import sources.model.daydata as daydata
 import sources.model.stats as stats
+import sources.model.utils as utils
 import sources.view.html as html
 import sources.view.text as text
 import common.control.fio as fio
@@ -25,6 +25,8 @@ path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data
 def calculate(options):
     cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
     ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
+    ftyp = options['file-type']
+    input(ftyp)
 
     for station in options['lst-stations']:
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
@@ -37,17 +39,17 @@ def calculate(options):
 
         # Make base path and wmo dir
         base_dir = ''
-        if   options['file-type'] in text.typ_htm: base_dir = cfg.dir_dayvalues_htm
-        elif options['file-type'] in text.typ_txt: base_dir = cfg.dir_dayvalues_txt
+        if   ftyp in text.lst_output_htm: base_dir = cfg.dir_dayvalues_htm
+        elif ftyp in text.lst_output_txt: base_dir = cfg.dir_dayvalues_txt
         wmo_dir = fio.mk_path(base_dir, station.wmo)
 
         # Walk all dates
         for day in days.np_period_2d:
 
             # Make path. Get year, month and day
-            y, m, d = ymd.split_yyyymmdd( day[ daydata.etk('yyyymmdd') ] )
+            y, m, d = ymd.split_yyyymmdd(day[daydata.etk('yyyymmdd')])
             ym_dir = fio.mk_path(wmo_dir, f'{y}/{m}') # Make path year/month
-            path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}.{ options["file-type"] }')
+            path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}{utils.file_extension(ftyp)}')
 
             # Skip ?
             if options['write'] == 'add':
@@ -68,7 +70,7 @@ def calculate(options):
             # Make text or htm for entities given in 'lst-sel-cells'
             htm, txt = '', ''
             for cell in options['lst-sel-cells']:
-                if options['file-type'] in text.typ_htm:
+                if ftyp in text.lst_output_htm:
                     if   cell == 'tx':    htm += html.day_value_tx(tx,txh)
                     elif cell == 'tg':    htm += html.day_value_tg(tg)
                     elif cell == 'tn':    htm += html.day_value_tn(tn,tnh)
@@ -95,7 +97,7 @@ def calculate(options):
                     elif cell == 'ng':    htm += html.day_value_ng(ng)
                     elif cell == 'q':     htm += html.day_value_q(q)
                     elif cell == 'ev24':  htm += html.day_value_ev24(ev24)
-                elif options['file-type'] in text.typ_txt:
+                elif ftyp in text.lst_output_txt:
                     # TODO
                     pass
 
@@ -110,7 +112,7 @@ def calculate(options):
                 cnsl.log(f'Error make map {ym_dir}', cfg.error)
 
             # Make output
-            datestring = ymd.text(day[daydata.YYYYMMDD])
+            datestring = ymd.text(day[daydata.etk('yyyymmdd')])
             header  = f'<i class="text-info fas fa-home"></i> '
             header += f'{station.wmo} - {station.place} '
             header += f'{station.province} - {datestring} '
