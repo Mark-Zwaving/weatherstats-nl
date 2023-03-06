@@ -1,12 +1,9 @@
 *.pyc
 
+TODO.txt
 data/forecasts
-data/dayvalues/html/235
-data/dayvalues/html/260
-data/dayvalues/html/280
-data/dayvalues/html/310
-data/dayvalues/html/380
+data/statistics/
+data/dayvalues/html
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
 data/graphs
-data/statistics/2022
