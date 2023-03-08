@@ -18,16 +18,16 @@ def answer_lst_to_str(answ):
 
 # Check answer functions. Answ can be list or str
 def quit(answ): 
-    return True if answ in txt.lst_quit else False
+    return True if answ.lower() in txt.lst_quit else False
 
 def yes(answ):
-    return True if answ in txt.lst_yess else False
+    return True if answ.lower() in txt.lst_yess else False
 
 def no(answ):
-    return True if answ in txt.lst_no else False
+    return True if answ.lower() in txt.lst_no else False
 
 def empty(answ): 
     return True if not answ else False
 
 def prev(answ): 
-    return True if answ in txt.lst_prev else False
+    return True if answ.lower() in txt.lst_prev else False
