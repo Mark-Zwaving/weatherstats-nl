@@ -313,21 +313,21 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 if entity == 'place':
                     cell_txt += ctxt.padding(station.place, 'left', text.pad_place)[:text.pad_place]
                     if ftyp in text.lst_output_htm: 
-                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.place}</span></td>'
+                        cell_htm += f'<td class="font-italic text-left">{html.span(station.place, "val")}</td>'
                     elif ftyp in text.lst_output_csv_excel:
                         cell_csv += f'{station.place}{cfg.csv_sep}'
 
                 elif entity == 'province':
                     cell_txt += ctxt.padding(station.province, 'left', text.pad_province)[:text.pad_province]
                     if ftyp in text.lst_output_htm: 
-                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.province}</span></td>'
+                        cell_htm += f'<td class="font-italic text-left">{html.span(station.province, "val")}</td>'
                     elif ftyp in text.lst_output_csv_excel:
                         cell_csv += f'{station.province}{cfg.csv_sep}'
 
                 elif entity == 'country':
                     cell_txt += ctxt.padding(station.country, 'left', text.pad_country)[:text.pad_country]
                     if ftyp in text.lst_output_htm: 
-                        cell_htm += f'<td class="font-italic text-left"><span class="val">{station.country}</span></td>'
+                        cell_htm += f'<td class="font-italic text-left">{html.span(station.country, "val")}</td>'
                     elif ftyp in text.lst_output_csv_excel:
                         cell_csv += f'{station.country}{cfg.csv_sep}'
 
@@ -337,7 +337,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cell_txt += ctxt.padding(period_ymd, 'center', text.pad_period_1)[:text.pad_period_1]
                 if ftyp in text.lst_output_htm:
                     period_txt = f'{ymd.text(days1.ymd_start)} - {ymd.text(days1.ymd_end)}'
-                    cell_htm += f'<td title="{period_txt}"><span class="val">{period_ymd}</span></td>'
+                    cell_htm += f'<td title="{period_txt}">{html.span(period_ymd, "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{period_ymd}{cfg.csv_sep}'
 
@@ -347,7 +347,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 
                 cell_txt += ctxt.padding(per2, 'center', text.pad_period_2)[:text.pad_period_2]
                 if ftyp in text.lst_output_htm:
-                    cell_htm += f'<td><span class="val">{per2}</span></td>'
+                    cell_htm += f'<td>{html.span(per2, "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{per2}{cfg.csv_sep}'
 
@@ -356,7 +356,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cell_txt += ctxt.padding(cnt, 'center', text.pad_num)[:text.pad_num]
                 cnt = util.l0(cnt, 3)
                 if ftyp in text.lst_output_htm:
-                    cell_htm += f'<td title="num of day">{cnt}</td>'
+                    cell_htm += f'<td title="num of day">{html.span(cnt, "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{cnt}{cfg.csv_sep}'
 
@@ -366,7 +366,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 
                 cell_txt += ctxt.padding(ymd, 'center', text.pad_day)[:text.pad_day]
                 if ftyp in text.lst_output_htm:
-                    cell_htm += f'<td title="{ymd.text(ymd1)}">{int(ymd1)}</td>'
+                    cell_htm += f'<td title="{ymd.text(ymd1)}">{html.span(int(ymd1), "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{ymd1}{cfg.csv_sep}'
 
@@ -374,7 +374,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
             elif entity in text.lst_yyyymmdd:
                 cell_txt += ctxt.padding(entity, 'center', text.pad_day)[:text.pad_day]
                 if ftyp in text.lst_output_htm:
-                    cell_htm += f'<td title="">{entity}</td>'
+                    cell_htm += f'<td title="">{html.span(entity, "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{entity}{cfg.csv_sep}'
 
@@ -382,7 +382,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
             elif entity in text.lst_month:
                 cell_txt += ctxt.padding(entity, 'center', text.pad_month)[:text.pad_month]
                 if ftyp in text.lst_output_htm:
-                    cell_htm += f'<td>{entity}</td>'
+                    cell_htm += f'<td>{html.span(entity, "val")}</td>'
                 elif ftyp in text.lst_output_csv_excel:
                     cell_csv += f'{entity}{cfg.csv_sep}'
 
@@ -396,7 +396,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
             val = text.fix_entity(day[daydata.etk(entity)], entity)
             cell_txt += ctxt.padding(val, 'center', text.pad_day)[:text.pad_day]
             if ftyp in text.lst_output_htm:
-                cell_htm += f'<td>{val}</td>'
+                cell_htm += f'<td>{html.span(val, "val")}</td>'
             elif ftyp in text.lst_output_csv_excel:
                 cell_csv += f'{val}{cfg.csv_sep}'
 
@@ -410,9 +410,9 @@ def cells(options, days1, days2='', day='', cnt=-1):
             cell_txt += ctxt.padding(max_txt, 'center', text.pad_max)[:text.pad_max]
 
             if ftyp in text.lst_output_htm:
-                htm_val = html.extreme_values(max_day, entity)
+                value = html.extreme_values(max_day, entity)
                 table = html.table_days(days_max_2d, entity)
-                cell_htm += f'<td>{htm_val}{table}</td>'
+                cell_htm += f'<td>{value}{table}</td>'
             elif ftyp in text.lst_output_csv_excel:
                  cell_csv += f'{max_txt}{cfg.csv_sep}'
 
@@ -427,9 +427,9 @@ def cells(options, days1, days2='', day='', cnt=-1):
             cell_txt += ctxt.padding(min_txt, 'center', text.pad_min)[:text.pad_min]
  
             if ftyp in text.lst_output_htm:
-                htm_val = html.extreme_values(min_day, entity)
+                value = html.extreme_values(min_day, entity)
                 table = html.table_days(days_min_2d, entity)
-                cell_htm += f'<td>{htm_val}{table}</td>'
+                cell_htm += f'<td>{value}{table}</td>'
             elif ftyp in text.lst_output_csv_excel:
                 cell_csv += f'{min_txt}{cfg.csv_sep}'
 
@@ -518,7 +518,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
                 cnt = text.fix_entity(np.size(np_terms_2d, axis=0), typ) 
             else:
                 cell_txt += ctxt.padding(cfg.txt_no_data, 'center', text.pad_cnt)[:text.pad_cnt]
-                cell_htm += f'<td>{cfg.txt_no_data}</td>'
+                cell_htm += f'<td>{html.span(cfg.txt_no_data, "val")}</td>'
                 continue
 
             cell_txt += ctxt.padding(cnt, 'center', text.pad_cnt)[:text.pad_cnt]
@@ -552,7 +552,7 @@ def cells(options, days1, days2='', day='', cnt=-1):
 
         else:
             cell_txt += ctxt.padding(cfg.txt_no_data, 'center', text.pad_default)[:text.pad_default]
-            cell_htm += f'<td>{cfg.txt_no_data}</td>'
+            cell_htm += f'<td>{html.span(cfg.txt_no_data, "val")}</td>' 
             cell_csv += f'{cfg.txt_no_data}{cfg.csv_sep}'
 
     return cell_htm, cell_txt, cell_csv
