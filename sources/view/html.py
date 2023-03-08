@@ -369,7 +369,7 @@ def attr_title(entity, value=''):
 
 
 def extreme_values( day, entity ):
-    span = cfg.txt_no_data
+    span = f'<span class="val">{cfg.txt_no_data}</span>' 
     try:
         val_raw = day[daydata.etk(entity)]
         ymd_raw = day[daydata.etk('yyyymmdd')]
@@ -379,7 +379,7 @@ def extreme_values( day, entity ):
     else:
         span1 = f'<span class="val">{ text.fix_entity(val_raw, entity) }</span>' 
         span2 = f'<span class="dat">{ text.fix_entity(ymd_raw, "yyyymmdd") }</span>' 
-        span = f'{span1} {span2}'
+        span = f'{span1}{span2}'
 
     return span
 
@@ -514,7 +514,7 @@ def table_count(days, entity):
                 else:
                     lst.append(f'''
                     <tr>
-                        <td>{ cnt_days}</td>
+                        <td>{cnt_days}</td>
                         <td title="{ cymd.text( ymd ) }">{ text.fix_entity(ymd, 'date') }</td>
                         <td>{ text.fix_entity( act, entity ) }</td>
                         {t_td}
