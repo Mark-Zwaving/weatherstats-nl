@@ -26,7 +26,7 @@ def calculate(options):
     cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
     ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
     ftyp = options['file-type']
-    input(ftyp)
+    # input(ftyp)
 
     for station in options['lst-stations']:
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
