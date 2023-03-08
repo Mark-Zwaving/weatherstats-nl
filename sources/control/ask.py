@@ -426,9 +426,9 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ) and len(lst) == 0:
+        if answer.empty(answ) and len(lst_cells) == 0:
             ttt += text.type_in # Empthy list
-        elif answer.empty(answ) and len(lst) > 0:
+        elif answer.empty(answ) and len(lst_cells) > 0:
             break # Done
         elif answer.quit(answ) or answer.prev(answ):
             return answ
