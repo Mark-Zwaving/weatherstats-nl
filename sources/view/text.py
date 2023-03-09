@@ -24,7 +24,7 @@ extension_csv = '.csv'
 extension_excel = '.xlsx'
 
 # Output options
-lst_output_options = ['console only', 'text file', 'html file', 'csv file', 'excel file', 'all file types TODO']
+lst_output_options = ['X console TODO', 'X text file TODO', 'html', 'X csv TODO', 'X excel TODO', 'X all types TODO']
 lst_output_cnsl = ['cmd', 'console', 'command', 'command line', 'console only']
 lst_output_htm = ['html', 'htm', 'html file', 'htm file']
 lst_output_txt = ['txt', 'text', 'text file', 'txt file']
