@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 '''Main statistics object for calculating and saving statistics'''
-__author__ = "Mark Zwaving"
-__email__ = "markzwaving@gmail.com"
-__copyright__ = "Copyright (C) Mark Zwaving. All rights reserved."
-__license__ = "GNU Lesser General Public License (LGPL)"
-__version__ = "0.0.4"
-__maintainer__ = "Mark Zwaving"
-__status__ = "Development"
+__author__     =  'Mark Zwaving'
+__email__      =  'markzwaving@gmail.com'
+__copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.0.4'
+__maintainer__ =  'Mark Zwaving'
+__status__     =  'Development'
 
 import config as cfg
 import sys, numpy as np
 from cmath import nan
-import common.view.console as cnsl
+import sources.view.console as cnsl
 import sources.view.text as text
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.select as select
-import common.model.convert as cvt
+import sources.model.convert as cvt
 
 if sys.platform in ['cygwin', 'win32']:
     from asyncio.windows_events import NULL
@@ -239,9 +239,8 @@ class Days:
 
     def max(self, entity):
         '''Gets maximum value for a given entity'''
-        maxx, np_sorted_2d = cfg.np_no_data, cfg.np_no_data  # Init data failure
+        maxx, max_day, np_sorted_2d = cfg.np_no_data, cfg.np_no_data, cfg.np_no_data  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
-        max_day = ''
 
         if self.np_good_1d_has_days(): # There are good days
             np_sorted_2d, _ = self.sort( entity, descend=cfg.html_max ) # True -> high to low
@@ -252,9 +251,8 @@ class Days:
 
     def min(self, entity):
         '''Gets maximum value for a given entity'''
-        minn, np_sorted_2d = cfg.np_no_data, cfg.np_no_data  # Init data failure
+        minn, min_day, np_sorted_2d = cfg.np_no_data, cfg.np_no_data, cfg.np_no_data  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
-        min_day = ''
 
         if self.np_good_1d_has_days(): # There are good days
             np_sorted_2d, _ = self.sort( entity, descend=cfg.html_min ) # True -> high to low
@@ -402,7 +400,7 @@ class Days:
 
         return ave, Days
 
-    def climate( self, entity, option="mean", start_year=-1, end_year=-1 ): # Option mean or sum, hellman et cetera
+    def climate( self, entity, option='mean', start_year=-1, end_year=-1 ): # Option mean or sum, hellman et cetera
         # Get climate start and end year 
         isy, iey = self.ranges_climate_years(start_year, end_year)
         # print(isy, iey)
