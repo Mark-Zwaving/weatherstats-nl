@@ -1,29 +1,27 @@
 '''Library contains functions for asking questions and to deal with the input
 given by a user'''
-import sources.control.ask as ask
+__author__     =  'Mark Zwaving'
+__email__      =  'markzwaving@gmail.com'
+__copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.3.0'
+__maintainer__ =  'Mark Zwaving'
+__status__     =  'Development'
+
+import time
+import config as cfg
 import sources.model.graphs as graphs
 import sources.model.weather as weather
 import sources.model.dayvalues as dayvalues
 import sources.model.stats_tables as stats_tables
+import sources.model.animation as animation
 import sources.model.daydata as daydata
-import sources.view.text as text
-import common.control.answer as answer
-import common.view.console as cnsl
-import common.control.fio as fio
-
-__author__ = 'Mark Zwaving'
-__email__ = 'markzwaving@gmail.com'
-__copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.2.9'
-__maintainer__ = 'Mark Zwaving'
-__status__ = 'Development'
-
-import time
-import config as cfg
 import sources.model.utils as utils
-
-##########################################################################################s
+import sources.control.answer as answer
+import sources.control.ask as ask
+import sources.control.fio as fio
+import sources.view.console as cnsl
+import sources.view.text as text
 
 def select_menu_option( option ):
     # Downloads
@@ -52,6 +50,8 @@ def select_menu_option( option ):
     elif option == 'process_weather_knmi_model':          process_weather_knmi_model()
     elif option == 'process_weather_knmi_guidance':       process_weather_knmi_guidance()
     elif option == 'process_weather_knmi_current':        process_weather_knmi_current()
+    # Animations
+    elif option == 'process_download_animation':          process_download_animation()
 
 # Menu choice 1
 def process_knmi_dayvalues_all(): 
@@ -71,11 +71,10 @@ def process_knmi_dayvalues_select():
 
         daydata.process_lst(options['lst-stations'])
 
-        if answer.quit( utils.again('Do you want to download more stations ? Press a key.') ):
+        if answer.is_quit( ask.again('Do you want to download more stations ? Press a key.') ):
             break
 
     cnsl.log(text.foot('END DOWNLOAD DAYVALUES KNMI'), True)
-
 
 ##########################################################################################
 # TABLE STATISTICS
@@ -100,14 +99,13 @@ def table_stats(title, lst_questions, lst_cells=[]):
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
         if options['file-type'] in text.lst_output_files:
-            if answer.quit( utils.open_with_default_app(path, options) ):
+            if answer.is_quit( utils.open_with_default_app(path, options) ):
                 break
 
-        if answer.quit( utils.again(f'Do you want to make another <{title}> table ?') ):
+        if answer.is_quit( ask.again(f'Do you want to make another <{title}> table ?') ):
             break
 
     cnsl.log(text.foot(f'END {title.upper()}'), True)
-
 
 # Winter and summer statistics
 def table_stats_winter_summer():
@@ -115,20 +113,17 @@ def table_stats_winter_summer():
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_winter_summer)
 
-
 # Winter statistics
 def table_stats_winter():
     title = 'winter statistics'
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_winter)
 
-
 # Summer statistics
 def table_stats_summer(): 
     title = 'summer statistics'
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_summer)
-
 
 # Default statistics
 def table_stats_default_1(): 
@@ -153,25 +148,21 @@ def table_stats_counts():
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_my_counts)
 
-
 # Do it yourself
 def table_stats_diy():
     title ='diy statistics'
     lst_ask = ['lst-stations', 'period', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
     
-
 def table_stats_period_in_period():
     title = 'period statistics'
     lst_ask = ['lst-stations', 'period',  'period-2', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
 
-
 def table_stats_compare():
     title = 'compare statistics'
     lst_ask = ['lst-stations', 'period',  'period-cmp', 'lst-sel-cells', 'file-type', 'file-name']
     table_stats(title, lst_ask)
-
 
 ##########################################################################################
 # DAYVALUES
@@ -195,14 +186,13 @@ def make_dayvalues():
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
         if options['file-type'] in text.lst_output_files:
-            if answer.quit( utils.open_with_default_app(path, options) ):
+            if answer.is_quit( utils.open_with_default_app(path, options) ):
                 break
 
-        if answer.quit( utils.again('Do you want to select other period(s) or station(s) ?') ):
+        if answer.is_quit( ask.again('Do you want to select other period(s) or station(s) ?') ):
             break
 
     cnsl.log(text.foot('END MAKE OR SEE DAY VALUES'), True)
-
 
 ##########################################################################################
 # SEARCH FOR DAYS
@@ -226,14 +216,13 @@ def search_for_days():
         cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
 
         if options['file-type'] in text.lst_output_files:
-            if answer.quit( utils.open_with_default_app(path, options) ):
+            if answer.is_quit( utils.open_with_default_app(path, options) ):
                 break
         
-        if answer.quit( utils.again('Do you want to search for days again ?') ):
+        if answer.is_quit( ask.again('Do you want to search for days again ?') ):
             break
         
     cnsl.log(text.foot('END SEARCH 4 DAYS'), True)
-
 
 ##########################################################################################
 # BUIENRADAR 
@@ -254,28 +243,27 @@ def process_weather_buienradar_current():
     cnsl.log(text.foot('END WEATHERSTATIONS BUIENRADAR'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
-
 ##########################################################################################
 # KNMI
 
 def process_weather_knmi_forecast():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START FORECAST KNMI'), True)
-    weather.process_knmi(cfg.knmi_forecast_global_url, 'knmi-weather-forecast')
+    weather.process('knmi-weather')
     cnsl.log(text.foot('END FORECAST KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 def process_weather_knmi_model():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START FORECAST MODEL KNMI'), True)
-    weather.process_knmi(cfg.knmi_forecast_model_url, 'knmi-weather-model')
+    weather.process('knmi-model')
     cnsl.log(text.foot('END FORECAST MODEL KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
 def process_weather_knmi_guidance():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START FORECAST GUIDANCE KNMI'), True)
-    weather.process_knmi(cfg.knmi_forecast_guidance_url, 'knmi-weather-guidance')
+    weather.process('knmi-guidance')
     cnsl.log(text.foot('END FORECAST GUIDANCE KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
 
@@ -285,7 +273,6 @@ def process_weather_knmi_current():
     weather.process('knmi-stations')
     cnsl.log(text.foot('END WEATHERSTATIONS KNMI'), True)
     ask.back_to_main_menu(back=False, exit=True, spacer=True)
-
 
 ##########################################################################################
 # GRAPHS
@@ -309,17 +296,17 @@ def graph_period():
         path = graphs.calculate(options)
         cnsl.log( text.process_time('Total processing time is ',st), cfg.verbose )
 
-        if answer.quit( utils.open_with_default_app(path, options) ):
+        if answer.is_quit( utils.open_with_default_app(path, options) ):
             break
 
-        if answer.quit( utils.again('Do you want to make more graphs ?') ):
+        if answer.is_quit( ask.again('Do you want to make more graphs ?') ):
             break
 
     cnsl.log(text.foot('END MAKE GRAPH'), True)
 
 # def graph_period_quick_default():
 #     while True:
-#         cnsl.log(text.head('START MAKE DEFAULT GRAPH'), True)
+#         cnsl.log(txt.head('START MAKE DEFAULT GRAPH'), True)
 
 #         title = 'graph statistics'
 #         lst_ask = ['lst-stations', 'period']
@@ -329,34 +316,83 @@ def graph_period():
 
 #         st = time.time_ns()
 #         path = graphs.calculate(options)
-#         cnsl.log( text.process_time('Total processing time is ',st), cfg.verbose )
+#         cnsl.log( txt.process_time('Total processing time is ',st), cfg.verbose )
 
-#         if answer.quit( utils.open_with_default_app(path, options) ):
+#         if answer.is_quit( utils.open_with_default_app(path, options) ):
 #             break
 
-#         if answer.quit( utils.again('Do you want to make more graphs ?') ):
+#         if answer.is_quit( ask.again('Do you want to make more graphs ?') ):
 #             break
 
-#     cnsl.log(text.foot('END MAKE GRAPH'), True)
+#     cnsl.log(txt.foot('END MAKE GRAPH'), True)
 
 
 
 # def graph_period_quick_default():
 #     while True:
-#         cnsl.log(text.head('START MAKE DEFAULT GRAPH'), True)
+#         cnsl.log(txt.head('START MAKE DEFAULT GRAPH'), True)
 
 #         st = time.time_ns()
 #         path = graphs.calculate(options)
-#         cnsl.log( text.process_time('Total processing time is ',st), cfg.verbose )
+#         cnsl.log( txt.process_time('Total processing time is ',st), cfg.verbose )
 
-#         if answer.quit( utils.open_with_default_app(path, options) ):
+#         if answer.is_quit( utils.open_with_default_app(path, options) ):
 #             break
 
-#         if answer.quit( utils.again('Do you want to make more graphs ?') ):
+#         if answer.is_quit( ask.again('Do you want to make more graphs ?') ):
 #             break
 
-#     cnsl.log(text.foot('END MAKE GRAPH'), True)
+#     cnsl.log(txt.foot('END MAKE GRAPH'), True)
 
+##########################################################################################
+# ANIMATIONS
+def process_download_animation():
+    '''Function downloads images ad makes an animation'''
+    cnsl.log(text.head('START DOWNLOAD IMAGES AND MAKE AN ANIMATION'), True)
+    title = 'download and make an animation'
+    lst_ask = [
+        'image-download-url', 'start-datetime', 'end-datetime', 'interval-download', 
+        'animation-name', 'animation-time', 'remove-downloads', 'gif-compress', 'verbose'
+    ]
+    while True:
+        # Ask list with questions
+        options = ask.lst(lst_ask, title, back=True, prev=True, exit=True, spacer=True)
+        if options['quit']:
+            break
+        options['file-type'] = cfg.animation_ext
+
+        st = time.time_ns() # Set the timer
+        path = animation.download_images_and_make_animations(
+            options['image-download-url'],# Url for the files on the web
+            options['animation-name'],    # Name of animation file   
+            options['start-datetime'],    # Start time <yyyy-mm-dd HH:MM:SS>
+            options['end-datetime'],      # End datetime <yyyy-mm-dd HH:MM:SS>
+            options['interval-download'], # Interval time for downloading Images (minutes)
+            True,                         # No double downloads check
+            options['animation-time'],    # Animation interval time for gif animation
+            options['remove-downloads'],  # Remove the downloaded images
+            options['gif-compress'],      # Compress the size of the animation
+            options['verbose']            # With output to screen
+        )
+        cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
+
+        if options['file-type'] in text.lst_output_files:
+            if answer.is_quit( utils.open_with_default_app(path, options) ):
+                break
+
+        if answer.is_quit( ask.again(f'Do you want to make another <{title}> table ?') ):
+            break
+
+    cnsl.log(text.head('END DOWNLOAD IMAGES AND MAKE AN ANIMATION'), True)
+    ask.back_to_main_menu(back=False, exit=True, spacer=True)
+
+
+#TODO
+def process_download_images():
+    pass
+        
+def proces_images_from_dir():
+    pass
 
 ##########################################################################################
 # MAIN MENU 
@@ -366,7 +402,7 @@ def check_menu_options():
     web, data, lst_menu = False, False, []
 
     # Check internet
-    if fio.has_internet(verbose=cfg.verbose):
+    if fio.check_for_internet_connection():
         web = True
 
     # Check for data in map
@@ -381,9 +417,9 @@ def check_menu_options():
     if web: # Add downloadable options
         lst_menu.insert(0, text.lst_menu_download) # Add at first position
         lst_menu.append(text.lst_menu_weather) # Add at the end
+        lst_menu.append(text.lst_menu_animation)
 
     return web, data, lst_menu
-
 
 def main_menu():
     space = '    '  
@@ -421,7 +457,7 @@ def main_menu():
 
         if not answ:
             continue
-        elif answer.quit(answ):
+        elif answer.is_quit(answ):
             break
         else:
             try:
@@ -437,7 +473,6 @@ def main_menu():
             
             cnsl.log(t, True)
 
-
 def fn_exec( choice, menu ):
     n = 1
     for title in menu:
@@ -446,127 +481,7 @@ def fn_exec( choice, menu ):
                 select_menu_option( option[1] )
             n += 1
 
-
 def error_no_stations_found():
     cnsl.log(text.menu_no_weather_stations, True )
     input(' ')
 
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
-
-# def quick_graphs_io():
-#     '''Function makes a graph with a statistic for one or more stations'''
-#     while True:
-#         cnsl.log(text.head('START QUICK GRAPH'), True)
-
-#         t = 'Give a correct quick command ?\n'
-#         t += 'Format:  period -> station(s) (wmo or name) -> statistic(s)  -> width, height image \n'
-#         t += 'Example: 202106 -> 310, Eelde, De Kooy, 380 -> TX+, TG~, TN-  -> 1280, 900'
-
-#         query_io = ask.querio(t)
-#         if answer.quit(query_io):
-#             break
-
-#         st = time.time_ns()
-#         path = quickio.calculate(query_io)
-#         t = f'Results are saved in {path}\nTotal processing time is '
-#         cnsl.log(text.process_time(t, st), True)
-
-#         # Always ask for going back
-#         again = ask.again(
-#             f'Do you want to calculate more statistics ?', True)
-#         if answer.quit(again):
-#             break
-
-#         cnsl.log(text.foot('END QUICK GRAPH'), True)
-
-
-# def quick_stats_io():
-#     '''Function get statistics for one or more stations and return the statistics'''
-#     while True:
-#         cnsl.log(text.head('START QUICK STATISTICS'), True)
-
-#         t = text.menu_info_quick_calculations
-#         query_io = ask.querio(t)
-#         if answer.quit(query_io):
-#             break
-
-#         st = time.time_ns()
-#         path = quickio.calculate(query_io)
-#         t = f'Results are saved in {path}\nTotal processing time is '
-#         cnsl.log(text.process_time(t, st), True)
-
-#         # Always ask for going back
-#         again = ask.again(
-#             f'Do you want to calculate more statistics ?', True)
-#         if answer.quit(again):
-#             break
-
-#         cnsl.log(text.foot('END QUICK STATISTICS'), True)
-
-
-
-# # Menu choice 7
-# def table_heatwaves():
-#     while True:
-#         text.head('START CALCULATE HEATWAVES', True)
-#         ok, period, places, type, name = ask.period_stations_type_name(True)
-#
-#         if not ok:
-#             break
-#         else:
-#             text.head('CALCULATING HEATWAVES', True)
-#
-#             st = time.time_ns()
-#             # path = hs.alg_heatwaves(l, sd, ed, type, name)
-#             text.show_process_time(st)
-#
-#             if type != 'cmd':
-#                 fopen = ask.open_with_app(
-#                             f'\nOpen the file (type={type}) with your default application ?'
-#                             )
-#                 if fopen:
-#                     fio.open_with_app(path)
-#
-#             # Always ask for going back
-#             again = ask.again(
-#                         f'Do you want to make another heatwaves table ?',
-#                         True
-#                     )
-#             if answer.quit(again):
-#                 break
-#
-#     text.foot(f'END CALCULATE HEATWAVES', True)
-#
-# # Menu choice 7
-# def table_coldwaves():
-#     while True:
-#         text.head('START CALCULATE COLDWAVES', True)
-#         ok, period, places, type, name = ask.period_stations_type_name(True)
-#
-#         if not ok:
-#             break
-#         else:
-#             text.head('CALCULATING COLDWAVES', True)
-#
-#             st = time.time_ns()
-#             # path = hs.alg_heatwaves(l, sd, ed, type, name)
-#             text.show_process_time(st)
-#
-#             if type != 'cmd':
-#                 fopen = ask.open_with_app(
-#                             f'\nOpen the file (type={type}) with your default application ?'
-#                             )
-#                 if fopen:
-#                     fio.open_with_app(path)
-#
-#             # Always ask for going back
-#             again = ask.again(
-#                         f'Do you want to make another coldwaves table ?'
-#                         )
-#             if answer.quit(again):
-#                 break
-#
-#     text.foot(f'END CALCULATE COLDWAVES', True)
