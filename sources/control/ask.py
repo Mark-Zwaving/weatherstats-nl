@@ -1,26 +1,30 @@
 '''Library contains functions for asking questions and to deal with the input
 given by a user'''
-__author__     =  "Mark Zwaving"
-__email__      =  "markzwaving@gmail.com"
-__copyright__  =  "Copyright (C) Mark Zwaving. All rights reserved."
-__license__    =  "GNU Lesser General Public License (LGPL)"
-__version__    =  "0.2.3"
-__maintainer__ =  "Mark Zwaving"
-__status__     =  "Development"
+__author__     =  'Mark Zwaving'
+__email__      =  'markzwaving@gmail.com'
+__copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.2.3'
+__maintainer__ =  'Mark Zwaving'
+__status__     =  'Development'
 
 import sys, config as cfg
 import sources.view.text as text
-import sources.model.stations as stations
+import sources.model.weather_stations as weather_stations
 import sources.model.utils as utils
 import sources.model.daydata as daydata
 import sources.model.select as select
-import common.view.txt as txt
-import common.view.console as cnsl
-import common.control.answer as answer
-import common.control.ask as ask
-import common.model.validate as validate
-import common.model.util as util
+import sources.view.console as cnsl
+import sources.control.answer as answer
+import sources.model.validate as validate
 
+marker = '\n  ?  '
+def ln(t):  return '\n' if t else ''
+
+def txt(t): return f'{t}{marker}'
+
+def space(spacer, verbose): 
+    cnsl.log('', spacer and verbose) 
 
 def answ_to_lst(answ):
     lst = [] # Make a list with table cells
@@ -31,6 +35,12 @@ def answ_to_lst(answ):
 
     return lst
 
+def any_key(t='', spacer=False, verbose=True):
+    '''Answer can be anything'''
+    answ = text.clean(input(txt(t)))
+    space(spacer, verbose)
+
+    return answ
 
 def question(t='...', default='', back=False, prev=False, exit=False, spacer=False):
     tt =  t[:-1] if t[-1] == '\n' else t
@@ -39,7 +49,7 @@ def question(t='...', default='', back=False, prev=False, exit=False, spacer=Fal
     if back: tt += f'\n{text.enter_back_to("main")}'
     if exit: tt += f'\n{text.enter_exit}'
 
-    answ = ask.question(tt, spacer=spacer)
+    answ = any_key(tt, spacer=spacer)
 
     if answ in text.exit:
         cnsl.log('Goodbye!', True)
@@ -47,20 +57,17 @@ def question(t='...', default='', back=False, prev=False, exit=False, spacer=Fal
 
     return answ
 
-
 def back_to_main_menu(default='', back=False, prev=False, exit=True, spacer=False):
     question(text.back_main, default, back, prev, exit, spacer)
-
 
 def again(tt, default='', back=False, prev=False, exit=False, spacer=False):
     t  = f'{tt} Press a key...'
     answ = question(t, default, back, prev, exit, spacer)
 
-    if answer.quit(answ):
+    if answer.is_quit(answ):
         return answ # Return first el for quit
 
     return answ
-
 
 def y_or_n(t='Type in "y" for yess or "n" for no', default='', back=False, prev=False, exit=True, spacer=False):
 
@@ -68,16 +75,15 @@ def y_or_n(t='Type in "y" for yess or "n" for no', default='', back=False, prev=
         answ = question(t, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ):
+        if answer.is_empty(answ):
             return default
-        elif answer.quit(answ) or answer.prev(answ) or \
-             answ in txt.lst_yess or answ in txt.lst_no:
+        elif answer.is_quit(answ) or answer.is_prev(answ) or \
+             answ in text.lst_yess or answ in text.lst_no:
             return answ
         else:
             ttt += 'Type in "y" or "n"'
 
         cnsl.log(ttt, True)
-
 
 def integer(t='Give an integer', default='', back=False, prev=False, exit=True, spacer=False):
 
@@ -85,17 +91,16 @@ def integer(t='Give an integer', default='', back=False, prev=False, exit=True, 
         answ = question(t, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ):
+        if answer.is_empty(answ):
             return default
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
         elif validate.is_int(answ):
-            return answ
+            return int(answ)
         else:
             ttt += f'{answ} is not an integer'        
 
         cnsl.log(ttt, True)
-
 
 def open_with_app( tt, default='', back=False, prev=False, exit=False, spacer=False):
     t  = f'{tt}\n'
@@ -103,21 +108,20 @@ def open_with_app( tt, default='', back=False, prev=False, exit=False, spacer=Fa
     t += 'Press <enter> to skip opening the file... '
     answ = question(t, default, back, prev, exit, spacer)
 
-    if answer.yes(answ):
+    if answer.is_yes(answ):
         return True
-    if answer.quit(answ):
-        return txt.quit 
+    if answer.is_quit(answ):
+        return text.quit 
     else:
         return False
 
-
 def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst_sel = []
-    if len(stations.lst_stations_map()) > 0:
+    if len(weather_stations.lst_stations_map()) > 0:
         while True:
             tt = ''
             if cfg.info:
-                tt += text.menu_info_stations() + '\n'
+                tt += text.menu_info_stations + '\n'
 
             tt += 'To add one station, give a wmo-number or a city name\n'
             tt += 'To add more stations, give a wmo-number or a city name separated by a comma\n'
@@ -127,22 +131,22 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             answ = question(tt, default, back, prev, exit, spacer)
 
             ttt = ''
-            if answer.empty(answ) and len(lst_sel) == 0:
+            if answer.is_empty(answ) and len(lst_sel) == 0:
                 ttt += text.type_in # Empthy list
-            elif answer.empty(answ) and len(lst_sel) > 0:
+            elif answer.is_empty(answ) and len(lst_sel) > 0:
                 break # Done
-            elif answer.quit(answ) or answer.prev(answ):
+            elif answer.is_quit(answ) or answer.is_prev(answ):
                 return answ
             elif answ == '*':
-                lst_sel = stations.lst_stations_map()
+                lst_sel = weather_stations.lst_stations_map()
             else:
                 lst = answ_to_lst(answ)
 
                 # Check and add all added stations
                 for wmo_or_place in lst:
-                    if stations.wmo_or_place_in_map(wmo_or_place) :
-                        station = stations.wmo_or_place_to_station(wmo_or_place)
-                        if stations.station_in_list(station, lst_sel):
+                    if weather_stations.wmo_or_place_in_map(wmo_or_place) :
+                        station = weather_stations.wmo_or_place_to_station(wmo_or_place)
+                        if weather_stations.station_in_list(station, lst_sel):
                             ttt += f'Station: {station.wmo} {station.place} already added...\n'
                         else:
                             lst_sel.append(station) # Append station object to lst
@@ -151,12 +155,12 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
                         ttt += f'Station: {wmo_or_place} not found in list stations...\n'
 
             ttt += '\n'
-            if len(lst_sel) == len(stations.lst_stations_map()):
+            if len(lst_sel) == len(weather_stations.lst_stations_map()):
                 ttt += 'All available weatherstations are  added...\n'
                 break
             elif len(lst_sel) > 0:
                 ttt += 'All weatherstation(s) who are added are: \n'
-                ttt += txt.lst_to_col([f'{station.wmo} {station.place}' for station in lst_sel], 'left', 4)
+                ttt += text.lst_to_col([f'{station.wmo} {station.place}' for station in lst_sel], 'left', 4)
 
             cnsl.log(ttt, True)
 
@@ -165,7 +169,6 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
         cnsl.log(t, cfg.error)
 
     return lst_sel
-
 
 def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False):
 
@@ -177,11 +180,11 @@ def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        if default and answer.empty(answ):
+        if default and answer.is_empty(answ):
             return default
-        elif answer.empty(answ):
+        elif answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ 
         else:
             # Check validity date
@@ -192,7 +195,6 @@ def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False
 
         cnsl.log(ttt, cfg.error)
 
-
 def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
 
     lst = [ 'day', 'month' , 'period'
@@ -201,7 +203,7 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer).lower() 
 
-        if answer.quit(option) or answer.prev(option):
+        if answer.is_quit(option) or answer.is_prev(option):
             return option
 
         if option in 'day':
@@ -224,13 +226,12 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
             season = season_type(tt, default, back, prev, exit, spacer)
             answ = season
 
-        if answer.quit(answ): 
+        if answer.is_quit(answ): 
             return answ
-        elif answer.prev(answ):
+        elif answer.is_prev(answ):
             continue
         else:
             return answ
-
 
 def period_day_to_day( t, default, back, prev, exit, spacer):
     while True:
@@ -243,15 +244,14 @@ def period_day_to_day( t, default, back, prev, exit, spacer):
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        if answer.empty(answ):
+        if answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
         else:
             return answ
 
         cnsl.log(ttt, cfg.error)
-
 
 def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
@@ -262,11 +262,11 @@ def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        if default and answer.empty(answ):
+        if default and answer.is_empty(answ):
             return default
-        elif answer.empty(answ):
+        elif answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
         else:
             ok, ttt = utils.query_ok(answ)
@@ -276,7 +276,6 @@ def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
                 ttt = f'Error in query: "{answ}"! Check syntax.\n{ttt}'
 
         cnsl.log(ttt, cfg.error)
-
 
 def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=False):
     lst = [el.lower() for el in lst] # Make lower case
@@ -290,11 +289,11 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
         answ = question(tt, default, back, prev, exit, spacer).lower()
 
         ttt = ''
-        if default and answer.empty(answ):
+        if default and answer.is_empty(answ):
             return default
-        elif answer.empty(answ):
+        elif answer.is_empty(answ):
             ttt += text.type_in
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ # Return quit
         elif answ in lst:
             return answ
@@ -308,30 +307,25 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
 
         cnsl.log(ttt, True)
 
-
 def file_type(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst = text.lst_output_options
     return type_options(t, lst, default, back, prev, exit, spacer)
-
 
 def graph_type(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst = ['line', 'bar']
     return type_options(t, lst, default, back, prev, exit, spacer)
 
-
 def season_type(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst = ['winter', 'spring', 'summer', 'autumn']
     return type_options(t, lst, default, back, prev, exit, spacer)
 
-
 def file_name(t, default='', back=False, prev=False, exit=False, spacer=False):
     answ = question(t, default, back, prev, exit, spacer)
 
-    if answer.empty(answ):
+    if answer.is_empty(answ):
         return default
 
     return answ
-
 
 def day( t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
@@ -345,17 +339,16 @@ def day( t, default='', back=False, prev=False, exit=False, spacer=False):
         ttt = ''
         if default:
             return default
-        elif answer.empty(answ):
+        elif answer.is_empty(answ):
             ttt += text.type_in
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
-        elif answ in txt.lst_mmdd:
+        elif answ in text.lst_mmdd:
             return answ
         else:
             ttt = f'Day {answ} unknown ! Press a key to try again...'
 
         cnsl.log(ttt, cfg.error)
-
 
 def month( t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
@@ -367,23 +360,22 @@ def month( t, default='', back=False, prev=False, exit=False, spacer=False):
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ):
+        if answer.is_empty(answ):
             ttt += text.type_in 
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
-        elif txt.month_to_mm(answ) != -1:
-            return txt.month_to_mm(answ)
+        elif text.month_to_mm(answ) != -1:
+            return text.month_to_mm(answ)
         else:
             ttt = f'Month {answ} unknown ! Press a key to try again...'
 
         cnsl.log(ttt, cfg.error)
 
-
 def period_compare(t, default='', back=False, prev=False, exit=False, spacer=False):    
     lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer)
-        if answer.quit(option) or answer.prev(option):
+        if answer.is_quit(option) or answer.is_prev(option):
             return option
 
         if option in text.lst_season:
@@ -406,11 +398,10 @@ def period_compare(t, default='', back=False, prev=False, exit=False, spacer=Fal
             tt = 'Which period (from day to day) do you want to compare ?'
             answ = ('period', period_day_to_day( tt, default, back, prev, exit, spacer))
 
-        if answer.prev(answ[1]):
+        if answer.is_prev(answ[1]):
             continue # Again
         else: 
             return answ
-
 
 def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=False):
     lst_cells = []
@@ -426,11 +417,11 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ) and len(lst_cells) == 0:
+        if answer.is_empty(answ) and len(lst_cells) == 0:
             ttt += text.type_in # Empthy list
-        elif answer.empty(answ) and len(lst_cells) > 0:
+        elif answer.is_empty(answ) and len(lst_cells) > 0:
             break # Done
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ
         else:
             lst = answ_to_lst(answ)
@@ -442,12 +433,11 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
         
         if len( lst_cells ) > 0:
             ttt += 'All statistics cells which are added are: \n'
-            ttt += txt.lst_to_col( lst_cells, 'left', 4 )
+            ttt += text.lst_to_col( lst_cells, 'left', 4 )
 
         cnsl.log(ttt, True)
 
     return lst_cells
-
 
 def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst = [
@@ -474,7 +464,6 @@ def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=Fals
      
     return answ 
 
-
 def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=False):
     lst = []
 
@@ -490,12 +479,12 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
         answ = question(tt, default, back, prev, exit, spacer)
 
         ttt = ''
-        if answer.empty(answ) and len(lst) == 0:
+        if answer.is_empty(answ) and len(lst) == 0:
             ttt += text.type_in
             continue # Again
-        elif answer.empty(answ) and len(lst) > 0:
+        elif answer.is_empty(answ) and len(lst) > 0:
             break
-        elif answer.quit(answ) or answer.prev(answ):
+        elif answer.is_quit(answ) or answer.is_prev(answ):
             return answ # Return first el for quit
         else:
             l = answ.split(',') if answ.find(',') != -1 else [answ]
@@ -503,7 +492,7 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
             for entity in l:
                 ok = daydata.is_entity(entity)
                 if ok:
-                    if util.s_in_lst(lst, entity):
+                    if utils.s_in_lst(lst, entity):
                         ttt += f'Entity {entity} is already added...\n'
                     else:
                         lst.append(entity)
@@ -513,20 +502,113 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 
             if len(lst) > 0:
                 ttt += '\nAll weather entities who are added are: \n'
-                ttt += txt.lst_to_col(lst, align='left', col=5, width=3)
+                ttt += text.lst_to_col(lst, align='left', col=5, width=3)
 
         cnsl.log(ttt, True)
 
     return lst
 
+def image_download_url():
+    lst_num = []
+    t = 'Select a download image url\n'
+    for ndx, url in enumerate(cfg.lst_weather_images_url):
+        num = f'{ndx+1}'
+        t += f'  {num} {url}\n'
+        lst_num.append(num)
+
+    while True:
+        answ = question(t, False, True, False, True, True)
+
+        tt = ''
+        if answer.is_empty(answ):
+            tt += text.type_in # Empthy list
+        elif answer.is_quit(answ) or answer.is_prev(answ):
+            return answ
+        elif answ in lst_num:
+            return cfg.lst_weather_images_url[int(answ)-1]
+        else:
+            tt = f'Answer given {answ} is unknown'
+    
+        cnsl.log(tt, True)
+
+def date_time(t):
+    t = f'Give a {t} datetime -> format [yyyy-mm-dd HH:MM:SS]'
+    answ = question(t, '', True, True, True, True)
+    return answ
+
+def interval_download():
+    t = 'Give the interval download time in minutes'
+    answ = integer(t, 10, back=True, prev=True, exit=True, spacer=True)
+    
+    return answ
+
+def animation_name():
+    t = f'Give a name for the animation file or press enter for default'
+    answ = question(t, '', True, True, True, True)
+    return answ 
+
+def animation_time():
+    t = f'Give a animation time for the animation <float>'
+    answ = question(t, cfg.animation_time, True, True, True, True)
+    
+    if answer.is_empty(answ):
+        return cfg.animation_time
+    else:
+        return float(answ)
+
+def remove_downloads():
+    while True:
+        t  = 'Do you want to remove the downloaded images?\n'
+        t += 'Type in "y" for yess or "n" for no'
+        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
+
+        if answ in text.lst_yess:
+            return True 
+        elif answ in text.lst_no:
+            return False
+        elif answer.is_quit(answ) or answer.is_prev(answ):
+            return answ
+        
+        cnsl.log(f'Wrong answer {answ} given ?', True)
+
+def gif_compress():
+    while True:
+        t  = 'Do you want compress the animation file ?\n'
+        t += 'gifsicle is needed on your OS\n'
+        t += 'Type in "y" for yess or "n" for no'
+        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
+
+        if answ in text.lst_yess:
+            return True 
+        elif answ in text.lst_no:
+            return False
+        elif answer.is_quit(answ) or answer.is_prev(answ):
+            return answ
+        
+        cnsl.log(f'Wrong answer {answ} given ?', True)
+
+def animation_verbose():
+    while True:
+        t  = 'Do you want to use the verbose option ?\n'
+        t += 'With verbose enabled the programm cannot do something else.\n'
+        t += 'Although wsstats can be started in another console.\n'
+        t += 'Type in "y" for yess or "n" for no'
+        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
+
+        if answ in text.lst_yess:
+            return True 
+        elif answ in text.lst_no:
+            return False
+        elif answer.is_quit(answ) or answer.is_prev(answ):
+            return answ
+
+        cnsl.log(f'Wrong answer {answ} given ?', True)
 
 def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=False):
-
     # Max options to aks in this function
     lst_stations, lst_sel_cel, lst_entity, quit = [], [], [], False
     s4d, per_1, per_2, per_cmp, f_type, f_name = '', '', '', '', '', name
     write = ''
-
     # Make option default list
     graph_title, graph_y_label = '', '' 
     graph_default = cfg.plot_default
@@ -537,12 +619,59 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
     graph_dpi = cfg.plot_dpi
     graph_lst_entities_options = []
 
+    # Animations
+    anim_image_download_url = ''
+    anim_start_datetime = ''
+    anim_end_datetime = ''
+    anim_interval_download = ''
+    anim_animation_name = ''
+    anim_animation_time = ''
+    anim_remove_downloads = ''
+    anim_gif_compress = ''
+    anim_verbose = ''
+
     i, max = 0, len(lst_ask)
     while i < max:
         prev_act = False if i == 0 else prev # Can go to prev or not
         answ, quest = '', lst_ask[i]
 
-        if quest == 'lst-stations': # Ask for one or more stations
+        if quest == 'image-download-url': 
+            anim_image_download_url = image_download_url()
+            answ = anim_image_download_url
+            
+        elif quest == 'start-datetime': 
+            anim_start_datetime = date_time('start')
+            answ = anim_start_datetime
+
+        elif quest == 'end-datetime': 
+            anim_end_datetime = date_time('end')
+            answ = anim_end_datetime
+        
+        elif quest == 'interval-download': 
+            anim_interval_download = interval_download()
+            answ = anim_interval_download
+
+        elif quest == 'animation-name': 
+            anim_animation_name = animation_name()
+            answ = anim_animation_name
+
+        elif quest == 'animation-time': 
+            anim_animation_time = animation_time()
+            answ = anim_animation_time
+        
+        elif quest == 'remove-downloads': 
+            anim_remove_downloads = remove_downloads()
+            answ = anim_remove_downloads
+        
+        elif quest == 'gif-compress': 
+            anim_gif_compress = gif_compress()
+            answ = anim_gif_compress
+        
+        elif quest == 'verbose': 
+            anim_verbose = animation_verbose()
+            answ = anim_verbose
+
+        elif quest == 'lst-stations': # Ask for one or more stations
             t = 'Select one (or more) weather station(s) ?'
             lst_stations = lst_places(t, default, back, prev_act, exit, spacer)
             answ = lst_stations
@@ -624,27 +753,27 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             graph_default = y_or_n(t, cfg.plot_default, back, prev_act, exit, spacer)
             answ = graph_default
 
-        elif answer.no(graph_default) and quest == 'graph-width':
+        elif answer.is_no(graph_default) and quest == 'graph-width':
             t = 'Give the width (in pixels) for the graph ?'
             graph_width = integer(t, cfg.plot_width, back, prev_act, exit, spacer)
             answ = graph_width
 
-        elif answer.no(graph_default) and quest == 'graph-height':
+        elif answer.is_no(graph_default) and quest == 'graph-height':
             t = 'Give the height (in pixels) for the graph ?'
             graph_height = integer(t, cfg.plot_height, back, prev_act, exit, spacer)
             answ = graph_height
 
-        elif answer.no(graph_default) and quest == 'graph-cummul-val':
+        elif answer.is_no(graph_default) and quest == 'graph-cummul-val':
             t = 'Do you want cummulative values for the graph ?'
             graph_cummul_val = y_or_n(t, cfg.plot_cummul_val, back, prev_act, exit, spacer)
             answ = graph_cummul_val
 
-        elif answer.no(graph_default) and quest == 'graph-type':
+        elif answer.is_no(graph_default) and quest == 'graph-type':
             t, lst_ext = 'What type of image ? ', ['png', 'jpg', 'ps', 'pdf', 'svg']
             graph_type = type_options(t, lst_ext, cfg.plot_image_type, back, prev_act, exit, spacer)
             answ = graph_type
 
-        elif answer.no(graph_default) and quest == 'graph-dpi':
+        elif answer.is_no(graph_default) and quest == 'graph-dpi':
             t = 'Give the dpi ?'
             graph_dpi = integer(t, cfg.plot_dpi, back, prev_act, exit, spacer)
             answ = graph_dpi
@@ -694,27 +823,27 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                         climate_ave = y_or_n(t, cfg.plot_climate_ave, back, prev_act, exit, spacer)
                         answ = climate_ave
 
-                    elif answer.yes(climate_ave) and quest == 'climate-ave-marker-txt':
+                    elif answer.is_yes(climate_ave) and quest == 'climate-ave-marker-txt':
                         t = f'Values next to the markers for climate averages for {entity} ?'
                         climate_ave_marker_txt = y_or_n(t, cfg.plot_climate_marker_txt, back, prev_act, exit, spacer)
                         answ = climate_ave_marker_txt
 
-                    elif answer.yes(climate_ave) and quest == 'climate-yyyy-start':
+                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-start':
                         sy, ey = cfg.climate_period.split('-')
                         t = f'Give a start year for the calculation of climate averages <yyyy> for {entity} ?'
                         climate_yyyy_start = integer(t, sy, back, prev_act, exit, spacer)
                         answ = climate_yyyy_start
 
-                    elif answer.yes(climate_ave) and quest == 'climate-yyyy-end':                
+                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-end':                
                         t = f'Give an end year for the calculation of climate average <yyyy> for {entity} ?'
                         climate_yyyy_end = integer(t, ey, back, prev_act, exit, spacer)
                         answ = climate_yyyy_end
                         climate_periode = f'{climate_yyyy_start}-{climate_yyyy_end}'
 
-                    if answer.quit(answ):
+                    if answer.is_quit(answ):
                         quit = True
                         break; break; break
-                    elif answer.prev(answ):
+                    elif answer.is_prev(answ):
                         k -= 1
                         if k < 0:
                             break 
@@ -735,20 +864,20 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     'climate-periode': climate_periode
                 } )
 
-                if answer.quit(answ):
+                if answer.is_quit(answ):
                     quit = True
                     break; break
-                elif answer.prev(answ):
+                elif answer.is_prev(answ):
                     j -= 1
                     if j < 0:
                         break
                 else: # Next question
                     j += 1
 
-        if answer.quit(answ):
+        if answer.is_quit(answ):
             quit = True
             break
-        elif answer.prev(answ):
+        elif answer.is_prev(answ):
             i = i - 1 if i > 0 else 0 
         else:
             i += 1 # Next question
@@ -765,6 +894,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         'write': write, 
         'file-type': f_type,
         'file-name': f_name,
+        # Graphs
         'graph-title': graph_title,
         'graph-y-label': graph_y_label, 
         'graph-default': graph_default,
@@ -774,157 +904,16 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         'graph-type': graph_type,
         'graph-dpi': graph_dpi, 
         'graph-lst-entities-types': graph_lst_entities_options,
+
+        # Animation
+        'image-download-url': anim_image_download_url,
+        'start-datetime': anim_start_datetime,
+        'end-datetime': anim_end_datetime,
+        'interval-download': anim_interval_download,
+        'animation-name': anim_animation_name,
+        'animation-time': anim_animation_time,
+        'remove-downloads': anim_remove_downloads,
+        'gif-compress': anim_gif_compress,
+        'verbose': anim_verbose,
         'quit': quit
     } 
-
-
-###################################################################################################
-###################################################################################################
-###################################################################################################
-
-# def query( tt, default='', back=False, exit=False, spacer=False):
-    
-#     while True:
-#         t  = f'{tt}\n'
-#         if cfg.info:
-#             t += text.menu_info_queries
-    
-#         answ = question(t, default, back, prev, exit, spacer)
-#         # TODO MAKE ADVANCED CHECKS
-
-#         if answer.empty(answ):
-#             cnsl.log(type_in, True)
-#         elif answer.quit(answ) or answer.prev(answ):
-#             return answ # Return first el for quit
-#         # TODO
-#         # elif validate.query(answ): # TODO
-#         #     return answ
-#         else:
-#             return utils.make_query_txt_only( answ )
-
-
-# def date_with_check_data( stat, tt, default='', back=False, prev=False, exit=False, spacer=False):
-#     cnsl.log(f'Loading data {stat.place} ...')
-#     ok, data = daydata.read( stat )
-#     if not ok:
-#         input(f'Error reading data! {stat.place}')
-#         return text.quit, np.array([])
-
-#     sd = int( data[ 0, daydata.etk('yyyymmdd')])
-#     ed = int( data[-1, daydata.etk('yyyymmdd')])
-
-#     t = f'{tt}\n'
-#     t += f'Available range data for - {stat.place} - is from {sd} untill {ed}'
-#     while True:
-#         answ = yyyymmdd(t, spacer)
-
-#         if default and answer.empty(answ):
-#             return default
-#         elif answer.empty(answ):
-#             cnsl.log(type_in, True)
-#         elif answer.quit(answ) or answer.prev(answ):
-#             return answ # Return first el for quit, np.array([])
-#         else:
-#             try:
-#                 ymd = int(answ)
-#             except Exception as e:
-#                 pass
-#             else:
-#                 if ymd < sd or ymd > ed:
-#                     cnsl.log(f'Date {ymd} is out of range for {stat.place}')
-#                 else:
-#                     return answ, data
-
-# def year( t, default='', back=False, prev=False, exit=False, spacer=False):
-#     yyyy = utils.loc_date_now().strftime('%Y')
-#     answ = integer(t, yyyy, default, back, prev, exit, spacer)
-
-#     return answ
-
-# def yyyymmdd( t, default='', back=False, prev=False, exit=False, spacer=False):
-#     while True:
-#         answ = question(t, default, back, prev, exit, spacer)
-
-#         if default and answer.empty(answ):
-#             return default
-#         elif answer.empty(answ):
-#             ttt = type_in
-#         elif answer.quit(answ) or answer.prev(answ):
-#             return answ
-#         elif validate.yyyymmdd(answ):
-#             return answ
-#         else:
-#             ttt = f'Error in date: {answ}\n'
-
-#         cnsl.log(ttt, cfg.error)
-
-# def years(t, default='', back=False, prev=False, exit=False, spacer=False):
-#     result = []
-#     l_all = range(cfg.data_min_year,int(datetime.datetime.now().strftime('%Y'))+1)
-
-#     def mk_yyyy_lst(years):
-#         res = []
-#         lk = years.split('-')
-#         if len(lk) == 2:
-#             y1, y2 = lk[0], lk[1]
-#             if f'{y1}{y2}'.is_digit():
-#                 iys, iye = int(y1), int(y2)
-#                 if iys > iye:
-#                     imem = iye; iye = iys; iys = imem
-#                 res += range(iys, iye+1)
-#         else:
-#             if lk[0].isdigit():
-#                 res = int(lk[0])
-#         return res
-
-#     while True:
-#         res_cnt = len(result)
-#         tt  = f'{t}\n'
-#         tt += 'To add a years type in the years separated with a comma. ie. 1993,1963,2019\n'
-#         tt += 'To add a range of years type yyyy-yyyy. ie. 1950-1960 or 1970, 1990-2000\n'
-#         tt += f"Press '{all}' to use all available years"
-#         tt += next_n if len(result) > 0 else ''
-
-#         answ = question( tt, default, back, prev, exit, spacer)
-#         input(answ)
-
-#         if default and answer.empty(answ):
-#             return default
-#         elif answer.empty(answ):
-#             cnsl.log(type_in, True)
-#         elif answer.quit(answ) or answer.prev(answ):
-#             return answ # Return first el for quit
-#             break
-#         elif answ == all:
-#             result = l_all
-#             break
-#         elif answ == 'n' and len(result) > 0:
-#             break
-#         else:
-#             answ = answ.replace(' ','')
-#             if answ.find(',') != -1:
-#                 lc = answ.split(',') # Make a list with years
-#                 # Check list
-#                 for y in lc:
-#                     if y.find('-') != -1:
-#                         result += mk_yyyy_lst(y)
-#                     elif y.isdigit():
-#                         result.append(int(y))
-#             elif answ.find('-') != -1:
-#                 result += mk_yyyy_lst(y)
-
-#             result = sorted(list(set(result))) # Remove doubles and sort
-
-#             if len(result) == len(l_all):
-#                 cnsl.log('\nAll possible years added...', True)
-#                 break
-#             elif len(result) > 0:
-#                 cnsl.log('\nAll years who are added are: ', True)
-#                 t, kol = '', 10
-#                 for i, y in enumerate(result):
-#                     t += f'{y}'
-#                     if (i+1) != len(result):
-#                         t += '\n' if (i+1) % 10 == 0 else ', '
-#                 cnsl.log(t,  True)
-
-#     return result
