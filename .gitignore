@@ -2,7 +2,9 @@
 
 TODO.txt
 data/forecasts
-data/statistics/
+data/statistics
+data/downloads
+data/animations
 data/dayvalues/html
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
