@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __version__    =  '0.1.3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -12,10 +12,12 @@ import numpy as np, config as cfg, stations
 import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
+import sources.model.validate as validate
 import sources.view.html as vhtml
 import sources.view.icon as icon
-import sources.view.txt as vt
-import common.control.fio as fio
+import sources.view.text as text
+import sources.control.fio as fio
+import sources.view.console as cnsl
 
 def query_simple( data, query ):
     ent, op, val = query.split(' ')
@@ -123,12 +125,45 @@ def query_advanced( data, query ):
     # All selected (unique)  days
     return sel
 
+def query_ok(query):
+    # Check the query
+    ok, ttt, p = True, '', query.split(' ')
+    max = len(p)
+
+    if max < 3 or not (max-3) % 4 == 0:
+        ttt = 'Query (possible) incomplete !'
+        ok = False
+    else:
+        i = 0
+        while i < max:
+            ent, op, val = p[i], p[i+1].lower(), p[i+2]
+            if not daydata.is_entity( ent ):            # Must be an entity
+                ok, ttt = False, f'Error in "{ent}"! Must be an entity.'
+            elif op.lower() not in text.lst_op_relat:   # Must be a relational operator
+                ok = False
+                ttt  = f'Error in "{op}"! Must be a relational operator!\n'
+                ttt += f'Choose one of: {", ".join(text.lst_op_relat)}.'
+            elif not validate.is_int(val) or \
+                    not validate.is_float(val):       # Must be an number
+                ok = False
+                ttt  = f'Error in "{val}"! Value "{val}" must be a number.'
+            if i+3 < max:
+                and_or = p[i+3].lower()
+                if and_or not in text.lst_op_logic: # Must be a logical operator
+                    ok = False
+                    ttt  = f'Error in "{and_or}"! Must be a logical operator!\n'
+                    ttt += f'Choose one of: {", ".join(text.lst_op_logic)}.'
+
+            i += 4 # Next set
+
+    return ok, ttt
+
 def process( places, period, query, t ):
     # Read all data stations in a given period
     data = daydata.read_stations_period( places, period, t ) #= numpy array
 
     # Get all the days to search for
-    console.log(f'Executing query: {query}', True)
+    cnsl.log(f'Executing query: {query}', True)
     if query.find('and') == -1 and query.find('or') == -1:
         return query_simple( data, query ) # Process only one simple query
     else:
@@ -166,31 +201,31 @@ def calculate(places, period, query, type, fname):
                     <th> state {icon.flag(size='fa-sm')}</th>
                     <th> periode {icon.cal_period(size='fa-sm')}</th>
                     <th> day {icon.cal_day(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("tx")}> TX{icon.temp_full(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("tg")}> TG{icon.temp_half(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("tn")}>  TN{icon.temp_empty(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("t10n")}> T10N{icon.temp_empty(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("sq")}> SQ{icon.sun(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("sp")}> SP{icon.sun(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("rh")}> RH{icon.shower_heavy(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("rhx")}> RHX{icon.shower_heavy(size='fa-sm')} </th>
-                    <th {vt.ent_to_txt("dr")}> DR{icon.shower_heavy(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("pg")}> PG{icon.compress_alt(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("px")}> PX{icon.compress_alt(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("pn")}> PN{icon.compress_alt(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("ug")}> UG{icon.drop_tint(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("ux")}> UX{icon.drop_tint(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("un")}> UN{icon.drop_tint(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("ng")}> NG{icon.cloud(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("ddvec")}> DDVEC{icon.arrow_loc(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("fhvec")}> FHVEC{icon.wind(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("fg")}> FG{icon.wind(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("fhx")}> FHX{icon.wind(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("fhn")}> FHN{icon.wind(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("fxx")}> FXX{icon.wind(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("vvx")}> VVX{icon.eye(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("vvn")}> VVN{icon.eye(size='fa-sm')}</th>
-                    <th {vt.ent_to_txt("q")}> Q{icon.radiation(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("tx")}> TX{icon.temp_full(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("tg")}> TG{icon.temp_half(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("tn")}>  TN{icon.temp_empty(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("t10n")}> T10N{icon.temp_empty(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("sq")}> SQ{icon.sun(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("sp")}> SP{icon.sun(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("rh")}> RH{icon.shower_heavy(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("rhx")}> RHX{icon.shower_heavy(size='fa-sm')} </th>
+                    <th {text.ent_to_txt("dr")}> DR{icon.shower_heavy(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("pg")}> PG{icon.compress_alt(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("px")}> PX{icon.compress_alt(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("pn")}> PN{icon.compress_alt(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("ug")}> UG{icon.drop_tint(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("ux")}> UX{icon.drop_tint(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("un")}> UN{icon.drop_tint(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("ng")}> NG{icon.cloud(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("ddvec")}> DDVEC{icon.arrow_loc(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("fhvec")}> FHVEC{icon.wind(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("fg")}> FG{icon.wind(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("fhx")}> FHX{icon.wind(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("fhn")}> FHN{icon.wind(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("fxx")}> FXX{icon.wind(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("vvx")}> VVX{icon.eye(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("vvn")}> VVN{icon.eye(size='fa-sm')}</th>
+                    <th {text.ent_to_txt("q")}> Q{icon.radiation(size='fa-sm')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -274,7 +309,7 @@ def calculate(places, period, query, type, fname):
         '''
 
         path_to_root = './../../' # Path to html root
-        console.log('\nWrite/print results... ', True)
+        cnsl.log('\nWrite/print results... ', True)
 
         # Write to html, screen, console
         page           =  vhtml.Template()
@@ -301,4 +336,3 @@ def calculate(places, period, query, type, fname):
         pass
 
     return path
-#
