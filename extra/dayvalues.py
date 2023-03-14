@@ -15,19 +15,19 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirna
 
 # Import weatherstats libraries
 import config as cfg
-import sources.model.stations as stations 
+import sources.model.weather_stations as weather_stations 
 import sources.model.dayvalues as dayvalues 
-import common.model.ymd as ymd 
+import sources.model.ymd as ymd 
 
 cfg.verbose = True # See all the files made or checked
 
 # Stations list to update
 lst_stations = [
-    stations.wmo_to_station('260'),
-    stations.wmo_to_station('280'),
-    stations.wmo_to_station('235'),
-    stations.wmo_to_station('310'),
-    stations.wmo_to_station('380')
+    weather_stations.wmo_to_station('260'),
+    weather_stations.wmo_to_station('280'),
+    weather_stations.wmo_to_station('235'),
+    weather_stations.wmo_to_station('310'),
+    weather_stations.wmo_to_station('380')
 ]
 
 # Option list to make dayvalues
