@@ -3,49 +3,55 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __version__    =  '0.1.1'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
-import datetime, os, re, math
+import sources.model.validate as validate
+import sources.model.ymd as ymd
+import sources.control.answer as answer
+import sources.control.fio as fio
+import sources.control.ask as ask
+import sources.view.console as cnsl
+import datetime, time, math, os, sys, random, math, shutil, webbrowser, subprocess
 import numpy as np
 from datetime import datetime
 from dateutil import rrule
 from pytz import timezone
-import sources.model.daydata as daydata
-import sources.view.text as text
-import common.model.validate as validate
-import common.model.ymd as ymd
-import common.control.answer as answer
-import common.control.fio as fio
-import common.view.console as cnsl
-import common.model.util as util
-import sources.control.ask as ask
+from urllib.parse import urlparse
 
-def fl_to_s( fl ):
-    return str(int(round(fl)))
+l0          = lambda s, n=1: f'{s:0>{n}}' # Add leading zeros
+add_l0      = lambda s, n=1: l0(s,n)
+var_dump    = lambda v: print( f'Dump {id(v)} {type(v)} {v}' )
+url_name    = lambda url: urlparse(url).netloc.split('.')[-2].lower()
+name_ext    = lambda path: os.path.splitext(os.path.basename(path))
+lst_unique  = lambda lst: list(set(lst))
+lst_shuffle = lambda lst, lev=3: lst_fisher_yates_shuffle(lst, lev)
+lst_to_s    = lambda lst, sep=', ': sep.join(lst)
+rnd_digit   = lambda min, max: random.randint(min, max)
+abspath     = lambda path: os.path.abspath(path)
+mk_path     = lambda dir, f: abspath(os.path.join(dir, f))
 
-def file_extension( typ ):
-    if   typ in text.lst_output_htm: return text.extension_htm
-    elif typ in text.lst_output_txt: return text.extension_txt
-    elif typ in text.lst_output_csv: return text.extension_csv 
-    elif typ in text.lst_output_excel: return text.extension_excel
-    else: return typ
+def name_with_act_date(base_name, ext='txt'):
+    H, M, S = ymd.hh_mm_ss_now()
+    return f'{base_name}-{H}-{M}-{S}.{ext}'
 
-def again(t):
-    return ask.again(t, default='', back=True, exit=True, spacer=True)
+def dir_with_act_date(base_dir):
+    y, m, d = ymd.yyyy_mm_dd_now()
+    return mk_path(base_dir, f'{y}/{m}/{d}')
 
-def open_with_default_app(path, options):
-    t = f'\nOpen the file <type={ options["file-type"] }> with your default application ?'
-    fopen = ask.open_with_app(t, default='', back=True, exit=True, spacer=True)
-    if answer.quit(fopen):
-        return fopen
-    elif fopen:
-        fio.open_with_app(path)
-        
-    return True
+def path_with_act_date(base_dir, base_name):
+    return mk_path(dir_with_act_date(base_dir), name_with_act_date(base_name))
+
+def max_chars_in_lst(lst):
+    maxx = 0
+    for el in lst:
+        cnt = len(str(el))
+        if cnt > maxx:
+            maxx = cnt
+    return maxx
 
 def mk_path_with_dates(base_dir, fname):
     yyyy, mm, dd = ymd.yyyy_mm_dd_now()
@@ -54,39 +60,6 @@ def mk_path_with_dates(base_dir, fname):
     path = fio.mk_path( dir, name )
 
     return path, dir, name
-
-def query_ok(query):
-    # Check the query
-    ok, ttt, p = True, '', query.split(' ')
-    max = len(p)
-
-    if max < 3 or not (max-3) % 4 == 0:
-        ttt = 'Query (possible) incomplete !'
-        ok = False
-    else:
-        i = 0
-        while i < max:
-            ent, op, val = p[i], p[i+1].lower(), p[i+2]
-            if not daydata.is_entity( ent ):            # Must be an entity
-                ok, ttt = False, f'Error in "{ent}"! Must be an entity.'
-            elif op.lower() not in text.lst_op_relat:   # Must be a relational operator
-                ok = False
-                ttt  = f'Error in "{op}"! Must be a relational operator!\n'
-                ttt += f'Choose one of: {", ".join(text.lst_op_relat)}.'
-            elif not validate.is_int(val) or \
-                    not validate.is_float(val):       # Must be an number
-                ok = False
-                ttt  = f'Error in "{val}"! Value "{val}" must be a number.'
-            if i+3 < max:
-                and_or = p[i+3].lower()
-                if and_or not in text.lst_op_logic: # Must be a logical operator
-                    ok = False
-                    ttt  = f'Error in "{and_or}"! Must be a logical operator!\n'
-                    ttt += f'Choose one of: {", ".join(text.lst_op_logic)}.'
-
-            i += 4 # Next set
-
-    return ok, ttt
 
 def remove_chars(s, l):
     if type(l) != list:
@@ -162,14 +135,13 @@ def unique_list(l):
             unique.append(el)
     return unique
 
-# Fisher Yates Algorithm
 def shuffle_list(l, level=1):
     max = len(l) - 1
     if max > 0:
         while level > 0:
             i = 0
             while i <= max:
-                rnd = util.rnd_digit(0, max)  # Get random key
+                rnd = rnd_digit(0, max)  # Get random key
 
                 # Swap values elements
                 mem    = l[i]
@@ -183,45 +155,8 @@ def shuffle_list(l, level=1):
 
 def rnd_from_list( l ):
     l = shuffle_list(l)  # Shuffle list
-    rnd = util.rnd_digit( 0, len(l)-1 ) # Get a random number from list
+    rnd = rnd_digit( 0, len(l)-1 ) # Get a random number from list
     return l[rnd]
-
-def s_to_bytes( s, charset, errors ):
-    try:
-        b = s.encode(encoding=charset, errors=errors)
-    except Exception as e:
-        cnsl.log(f'Fail convert to bytes with charset {charset}\nError {e}', True)
-    else:
-        return b
-    return s
-
-def bytes_to_s( b, charset, errors ):
-    try:
-        s =  b.decode(encoding=charset, errors=errors)
-    except Exception as e:
-        cnsl.log(f'Fail convert to string with charset {charset}.\nError:{e}', True)
-    else:
-        return s
-    return b
-
-def b_ascii_to_s( b ):
-    s = bytes_to_s(b, 'ascii', 'ignore')
-    return s
-
-def b_utf8_to_s( b ):
-    s = bytes_to_s(b, 'utf-8', 'ignore')
-    return s
-
-def download_and_read_file(url, file):
-    ok, t = False, ''
-    if fio.has_internet():
-        ok = fio.download( url, file )
-        if ok:
-            ok, t = fio.read(file)
-    else:
-        cnsl.log('No internet connection...', True)
-
-    return ok, t
 
 def loc_date_now():
     dt = datetime.now() # UTC ?
@@ -232,10 +167,6 @@ def loc_date_now():
 def now_for_file():
     t =  loc_date_now().strftime('%Y%m%d%H%M%S')
     return t
-
-def now_created_notification():
-    ds = loc_date_now().strftime('%A, %d %B %Y %H:%M')
-    return cfg.created_by_notification % ds
 
 def ymd_to_txt( yyyymmdd ):
     yyyymmdd = yyyymmdd if type(yyyymmdd) is str else fl_to_s(yyyymmdd)
@@ -251,40 +182,6 @@ def mk_name( base='x', period='x', places=[], entities=[] ):
 
 def mk_name_type( base='x', period='x', places=[], entities=[], type='txt' ):
     return mk_name( base, period, places, entities ) + f'.{type}'
-
-# Check and sanitize input
-def clear( s ):
-    s = re.sub('\n|\r|\t', '', s)
-    s = re.sub('\s+', ' ', s)
-    s = s.strip()
-    return s
-
-def clean(s): return clear(s)
-
-def make_query_txt_only(query):
-    q = query.lower()
-    q = q.replace('ge',  ' ge ')
-    q = q.replace('le',  ' le ')
-    q = q.replace('eq',  ' eq ')
-    q = q.replace('ne',  ' ne ')
-    q = q.replace('gt',  ' gt ')
-    q = q.replace('lt',  ' lt ')
-    q = q.replace('or',  ' or ')
-    q = q.replace('and', ' and ')
-    q = q.replace('>=',  ' ge ')
-    q = q.replace('≥',   ' ge ')
-    q = q.replace('<=',  ' le ')
-    q = q.replace('≤',   ' le ')
-    q = q.replace('==',  ' eq ')
-    q = q.replace('!=',  ' ne ')
-    q = q.replace('<>',  ' ne ')
-    q = q.replace('!=',  ' ne ')
-    q = q.replace('>',   ' gt ')
-    q = q.replace('<',   ' lt ')
-    q = q.replace('||',  ' or ')
-    q = q.replace('&&',  ' and ')
-
-    return clear(q)
 
 # TODO testing
 def add_zero_less_x(d, x):
@@ -317,3 +214,243 @@ def list_dates_range( sd, ed ):
         l.append( date.strftime('%Y%m%d') )
 
     return l
+
+def compress_gif(
+        path, # Name of image to compress
+        verbose=cfg.verbose
+    ):
+    '''Function compressess a gif image.
+       Python libraries used: pygifsicle, imageio
+       Install command imageio: python3 -m pip install imageio
+       Install command: python3 -m pip install pygifsicle
+       Application gifsicle is needed for the compression of a gif-image
+       Instal gifsicle on your OS too
+       Example linux debian: install command: sudo apt-get install gifsicle
+    '''
+    ok = False
+    cnsl.log(f'Start compress file {ymd.now()}', verbose)
+
+    if os.path.isfile(path):
+        cnsl.log(f'Filename is {path}')
+        try: # Check for pygifsicle
+            import pygifsicle
+        except:
+            cnsl.log('Python library pygifsicle is not installed', cfg.error)
+            cnsl.log('Install library with command: python3 -m pip install pygifsicle', cfg.error)
+            cnsl.log('Install on your os the following programm: gifsicle', cfg.error)
+            cnsl.log('Example install debian: sudo apt-get install gifsicle', cfg.error)
+        else:
+            fcopy = f'{path}.bck'
+            shutil.copyfile(path, fcopy)
+            try:
+                pygifsicle.optimize(path)
+            except Exception as e:
+                cnsl.log(f'Error compressing \n{e}', cfg.error)
+                shutil.copyfile(fcopy, path) # Put original file back
+            else:
+                ok = True
+                cnsl.log('Compress successfull', verbose)
+            fio.delete(fcopy, False) # Always remove the copy
+    else:
+        cnsl.log(f'Path - {path} - is not a file', verbose)
+
+    cnsl.log('End compress file', verbose)
+    return ok
+
+def rm_l0(s):
+    while s[0] == '0': 
+        s = s[1:]
+    return s
+
+def key_from_lst(lst, val):
+    for i, el in enumerate(lst):
+        if val == el:
+            return i 
+    return -1
+
+def s_in_lst(lst, s, case_insensitive=True):
+    if case_insensitive: 
+        s = str(s).lower()
+        lst = [ str(el).lower() for el in lst ]
+
+    for el in lst:
+        if el == s:
+            return True
+    return False
+
+def pause(
+        end_time, # Time with format <HH:MM:SS> or <HHMMSS> to pause untill to.
+                  # Minutes and seconds can be omitted then 00 wiil be used
+        end_date, # <optional> Date to start. Format <yyyymmdd> or <yyyy-mm-dd>
+                  # If omitted current date will be used.
+        output = 'programm will continue at', # <optional> Output text second substring
+        verbose = cfg.verbose 
+    ):
+    '''Functions pauses untill a certain date and time is reached and then
+       continues the executing of programm.'''
+    cnsl.log('Start pause programm', verbose)
+    # Check if there is a time anyway
+    if not end_time: 
+        return # We dont need to wait
+
+    # Get start date time
+    ok, hhmmss = validate.hhmmss(end_time) # Fill in the possible missing parts
+    ok, yymmdd = validate.yyyymmdd_1(end_date) # Fill in the missing part with the current date
+
+    if not ok:
+        return 
+    
+    end_ymdhms = int(f'{yymmdd}{hhmmss}')
+    act_ymdhms = int(ymd.ymdhms_now())
+
+    # Make a nice output
+    y, m, d, H, M, S = ymd.split_yyyymmdd_hhmmss(yymmdd, hhmmss)
+    t = f'{output} {y}-{m}-{d} {H}:{M}:{S}'
+    cnsl.log_r(f'[{ymd.now()}] {t}', verbose)   
+
+    while act_ymdhms < end_ymdhms:
+        time.sleep(1) # Wait a second
+        cnsl.log_r(f'[{ymd.now()}] {t}', verbose)       
+        act_ymdhms = int(ymd.ymdhms_now()) # New time act
+
+    cnsl.log_r(f'[{ymd.now()}] {t}\n', verbose)
+    cnsl.log('End pause programm\n', verbose)
+
+def process_time_ext(t='', delta_sec = 0):
+    '''Function gives a time string from nano seconds till days '''
+    # Calculate from seconds
+    rest, total_sec = math.modf( delta_sec )
+    rest, milli_sec = math.modf( rest * 1000 )
+    rest, micro_sec = math.modf( rest * 1000 )
+    rest, nano_sec  = math.modf( rest * 1000 )
+    mill, micr, nano = int(milli_sec), int(micro_sec), int(nano_sec)
+    # Calculate from seconds
+    d = int(total_sec // cfg.sec_day) # Calculate days
+    r = total_sec % cfg.sec_day       # Leftover seconds
+    h = int(r // cfg.sec_hour)        # Calculate hours
+    r = r % cfg.sec_hour              # Leftover seconds
+    m = int(r // cfg.sec_minute)      # Calculate minutes
+    r = r % cfg.sec_minute            # Leftover seconds
+    s = int(r)                        # Calculate seconds
+    # Make a nice output. Give emthpy string if 0
+    # Only print to screen when counted amount > 0
+    if d > 0: t += f"{d} {'days'    if d > 1 else 'day'} "
+    if h > 0: t += f"{h} {'hours'   if h > 1 else 'hour'} "
+    if m > 0: t += f"{m} {'minutes' if m > 1 else 'minute'} "
+    t += f'{s}.{str(mill):0>3} seconds' # 3 dec with leading zeros
+    
+    return t
+
+def process_time(t='', st=time.time_ns(), ln='\n'):
+    delta = time.time_ns() - st
+    t = process_time_ext(t, delta)
+    return t + ln
+
+def time_passed(
+        start_time,
+        t = 'Time passed',
+        verbose = cfg.verbose
+    ):
+    ts = process_time(delta_sec=time.time()-start_time)
+    cnsl.log(f'{t} {ts}', verbose)
+
+def app_time( verbose = cfg.verbose ):
+    '''Function shows total time app is active from the start'''
+    time_passed( cfg.app_start_time, 'Total time app active is', verbose )
+
+def lst_rnd_el(lst, start=0, end=-1):
+    '''Function returns a random element from a list. Using both
+       normal and fisher-yates shuffle'''
+    end = len(lst) if end == -1 else end # Check ranges
+    lst = lst[start:end] # Get part of list
+    lst = lst_shuffle(lst,3) # Shuffle list
+    rnd = random.randrange(start, end) # Get random int (from part)
+
+    return lst[rnd] # Random element from list
+
+def lst_fisher_yates_shuffle(lst, level=1):
+    '''Function shuffles normal and with a Fisher Yates Algorithm'''
+    lst, max = list(lst), len(lst)
+    if max > 0:
+        while level > 0: # Repeat level times
+            random.shuffle(lst) # Normal shuffle
+            for i in range(max): # Walkthrough all elements
+                rnd = random.randrange(max) # Get a random key
+                mem = lst[i]; lst[i] = lst[rnd]; lst[rnd] = mem # Swap values elements
+            level -= 1
+
+    return lst
+
+def exec_with_app(fname, verbose=cfg.verbose):
+    '''Function opens a file with an default application'''
+    ok, err = False, ''
+    cnsl.log(f'Start open file with an app {ymd.now()}', verbose)
+
+    if fio.check(fname, verbose):
+        cnsl.log(f'File {fname}', verbose)
+
+        # Linux
+        if sys.platform.startswith('linux'):
+            try:
+                subprocess.call( ['xdg-open', fname] )
+            except Exception as e:
+                err += f'{e}\n'
+                try:
+                    os.system(f'start {fname}')
+                except Exception as e:
+                    err += f'{e}\n'
+                else:
+                    ok = True
+            else:
+                ok = True
+
+        # OS X
+        elif sys.platform.startswith('darwin'): # ?
+            try: 
+                os.system( f'open "{fname}"' )
+            except Exception as e: 
+                err += f'{e}\n'
+            else: 
+                ok = True
+
+        # Windows
+        elif sys.platform in ['cygwin', 'win32']:
+            try: # Should work on Windows
+                os.startfile(fname)
+            except Exception as e:
+                err += f'{e}\n'
+                try:
+                    os.system( f'start "{fname}"' )
+                except Exception as e:
+                    err += f'{e}\n'
+                else:
+                    ok = True
+            else:
+                ok = True
+
+        # Possible fallback, use the webbrowser
+        if not ok:
+            try: webbrowser.open(fname, new=2, autoraise=True)
+            except Exception as e: err += e
+            else: 
+                ok = True
+
+    else:
+        cnsl.log(f'File not found', cfg.error)
+
+    if ok: 
+        cnsl.log('Open file with an app successfull', verbose)
+    else: 
+        cnsl.log(f'Error open file with an app\n{err}', cfg.error)
+
+    return ok
+
+def open_with_default_app(path, options):
+    t = f'\nOpen the file <type={ options["file-type"] }> with your default application ?'
+    fopen = ask.open_with_app(t, default='', back=True, exit=True, spacer=True)
+    if answer.is_quit(fopen):
+        return fopen
+    elif fopen:
+        exec_with_app(path)
+        
+    return True
