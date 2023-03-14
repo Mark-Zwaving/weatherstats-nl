@@ -3,8 +3,8 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
-__version__    =  '0.1.1'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.1.2'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -14,9 +14,9 @@ import sources.model.stats as stats
 import sources.model.utils as utils
 import sources.view.html as html
 import sources.view.text as text
-import common.control.fio as fio
-import common.view.console as cnsl
-import common.model.ymd as ymd
+import sources.control.fio as fio
+import sources.view.console as cnsl
+import sources.model.ymd as ymd
 
 # Relative from the made html station dayvalues files 
 # Example: /280/2024/04/dayvalues-280-2024-01-01.html
@@ -46,10 +46,14 @@ def calculate(options):
         # Walk all dates
         for day in days.np_period_2d:
 
+            # print(f'day -> {day}')
+
             # Make path. Get year, month and day
             y, m, d = ymd.split_yyyymmdd(day[daydata.etk('yyyymmdd')])
             ym_dir = fio.mk_path(wmo_dir, f'{y}/{m}') # Make path year/month
-            path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}{utils.file_extension(ftyp)}')
+            path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}{text.file_extension(ftyp)}')
+
+            # input(path)
 
             # Skip ?
             if options['write'] == 'add':
@@ -59,13 +63,14 @@ def calculate(options):
                     continue # If already there skip 
     
             t  = f'[{ymd.now()}] Write {options["file-type"]} dayvalues for {station.place} ...{path[-57:]}'
-            
             cnsl.log_r(t, True)
 
             # Get all data elements from a dayc
             stn, yyyymmdd, ddvec, fhvec, fg, fhx, fhxh, fhn, fhnh, fxx, fxxh, tg, tn,\
             tnh, tx, txh, t10n, t10nh, sq, sp, q, dr, rh, rhx, rhxh, pg, px, pxh,\
-            pn, pnh, vvn, vvnh, vvx, vvxh, ng, ug, ux, uxh, un, unh, ev24 = daydata.entities(day)
+            pn, pnh, vvn, vvnh, vvx, vvxh, ng, ug, ux, uxh, un, unh, ev24 = daydata.ents(day)
+
+            # input(stn)
 
             # Make text or htm for entities given in 'lst-sel-cells'
             htm, txt = '', ''
@@ -140,4 +145,3 @@ def calculate(options):
         cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', True)
 
     return ndx_html            # Make link html only. NOPE
-            
