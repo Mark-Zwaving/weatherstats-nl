@@ -1046,7 +1046,6 @@ days_t10n_lt__20  = lambda s='cap': style('days with a ground minimum temperatur
 days_t10n_lt__25  = lambda s='cap': style('days with a ground minimum temperature below -25 degrees celsius', s)
 days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperature below -30 degrees celsius', s)
 
-
 ave_tg    = lambda s='cap': style('average temperature', s)
 ave_tx    = lambda s='cap': style('average maximum temperature', s)
 ave_tn    = lambda s='cap': style('average minumum temperature', s)
