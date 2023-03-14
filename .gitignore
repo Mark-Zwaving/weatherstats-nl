@@ -17,3 +17,5 @@ common/__pycache__
 common/sources/model/__pycache__
 common/sources/view/__pycache__
 common/sources/control/__pycache__
+
+venv/
