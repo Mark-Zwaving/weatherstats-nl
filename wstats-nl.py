@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __version__    =  '0.1.5'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -16,12 +16,9 @@ if cfg.dir_app not in sys.path:
     sys.path.append(cfg.dir_app)
 
 # Import libraries
-import stations
 import sources.control.menu as menu
-import common.view.console as cnsl
-
-# Make all maps if not there
-# utils.make_dirs_app()
+import sources.view.console as cnsl
+import stations
 
 # Main programm
 if __name__== '__main__':
