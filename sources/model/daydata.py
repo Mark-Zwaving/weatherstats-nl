@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 '''Processes data dayvalues from the knmi'''
-__author__     =  "Mark Zwaving"
-__email__      =  "markzwaving@gmail.com"
-__copyright__  =  "Copyright (C) Mark Zwaving. All rights reserved."
-__version__    =  "0.1.3"
-__license__    =  "GNU Lesser General Public License (LGPL)"
-__maintainer__ =  "Mark Zwaving"
-__status__     =  "Development"
+__author__     =  'Mark Zwaving'
+__email__      =  'markzwaving@gmail.com'
+__copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.1.3'
+__maintainer__ =  'Mark Zwaving'
+__status__     =  'Development'
 
 import config as cfg, stations
 import threading, time, numpy as np
 import sources.view.text as text
 import sources.model.select as select
 import sources.model.utils as utils
-import common.view.console as cnsl
-import common.control.fio as fio
-import common.model.validate as validate
-import common.model.ymd as ymd
-import common.model.convert as convert
+import sources.view.console as cnsl
+import sources.control.fio as fio
+import sources.model.validate as validate
+import sources.model.ymd as ymd
+import sources.model.convert as convert
 
 # Dayvalues data KNMI / Keys for dayvalues
 STN      =  0 # WMO number for nl weatherstation
@@ -70,7 +70,6 @@ knmi_entities = [
     'EV24'
 ]
 
-
 def correct(value, entity, format='knmi'):
     '''Old fn: df'''
     f, e = float(value), entity.upper()
@@ -102,7 +101,6 @@ def entity_to_t_entity(entity):
 
     return t_entity.lower()
 
-
 def check(val):
     ok = True
     if not utils.is_float(val):
@@ -110,59 +108,6 @@ def check(val):
     elif val == cfg.knmi_dayvalues_dummy_val:
         ok = False
     return ok
-
-
-def entities( day ):
-    stn   = convert.fl_to_s( day[STN] )
-    ymd   = convert.fl_to_s( day[YYYYMMDD] )
-    ddvec = text.fix_entity(day[DDVEC], key_to_entity(DDVEC))
-    fhvec = text.fix_entity(day[FHVEC], key_to_entity(FHVEC))
-    fg    = text.fix_entity(day[FG],  key_to_entity(FG))
-    fhx   = text.fix_entity(day[FHX], key_to_entity(FHX))
-    fhxh  = text.fix_entity(day[FHXH], key_to_entity(FHXH))
-    fhn   = text.fix_entity(day[FHN], key_to_entity(FHN))
-    fhnh  = text.fix_entity(day[FHNH], key_to_entity(FHNH))
-    fxx   = text.fix_entity(day[FXX], key_to_entity(FXX))
-    fxxh  = text.fix_entity(day[FXXH], key_to_entity(FXXH))
-    tg    = text.fix_entity(day[TG], key_to_entity(TG))
-    tn    = text.fix_entity(day[TN], key_to_entity(TN))
-    tnh   = text.fix_entity(day[TNH], key_to_entity(TNH))
-    tx    = text.fix_entity(day[TX], key_to_entity(TX))
-    txh   = text.fix_entity(day[TXH], key_to_entity(TXH))
-    t10n  = text.fix_entity(day[T10N], key_to_entity(T10N))
-    t10nh = text.fix_entity(day[T10NH], key_to_entity(T10NH))
-    sq    = text.fix_entity(day[SQ], key_to_entity(SQ))
-    sp    = text.fix_entity(day[SP], key_to_entity(SP))
-    q     = text.fix_entity(day[Q], key_to_entity(Q))
-    dr    = text.fix_entity(day[DR], key_to_entity(DR))
-    rh    = text.fix_entity(day[RH], key_to_entity(RH))
-    rhx   = text.fix_entity(day[RHX], key_to_entity(RHX))
-    rhxh  = text.fix_entity(day[RHXH], key_to_entity(RHXH))
-    pg    = text.fix_entity(day[PG], key_to_entity(PG))
-    px    = text.fix_entity(day[PX], key_to_entity(PX))
-    pxh   = text.fix_entity(day[PXH], key_to_entity(PXH))
-    pn    = text.fix_entity(day[PN], key_to_entity(PN))
-    pnh   = text.fix_entity(day[PNH], key_to_entity(PNH))
-    vvn   = text.fix_entity(day[VVN], key_to_entity(VVN))
-    vvnh  = text.fix_entity(day[VVNH], key_to_entity(VVNH))
-    vvx   = text.fix_entity(day[VVX], key_to_entity(VVX))
-    vvxh  = text.fix_entity(day[VVXH], key_to_entity(VVXH))
-    ng    = text.fix_entity(day[NG], key_to_entity(NG))
-    ug    = text.fix_entity(day[UG], key_to_entity(UG))
-    ux    = text.fix_entity(day[UX], key_to_entity(UX))
-    uxh   = text.fix_entity(day[UXH], key_to_entity(UXH))
-    un    = text.fix_entity(day[UN], key_to_entity(UN))
-    unh   = text.fix_entity(day[UNH], key_to_entity(UNH))
-    ev24  = text.fix_entity(day[EV24], key_to_entity(EV24))
-
-    return ( stn, ymd, ddvec, fhvec, fg, fhx,
-             fhxh, fhn, fhnh, fxx, fxxh, tg,
-             tn, tnh, tx, txh, t10n, t10nh,
-             sq, sp, q, dr, rh, rhx,
-             rhxh, pg, px, pxh, pn, pnh,
-             vvn, vvnh, vvx, vvxh, ng, ug,
-             ux, uxh, un, unh, ev24 )
-
 
 def process_value(val, entity):
     '''Function turns data from etmgeg into the real values'''
@@ -234,7 +179,6 @@ def process_value(val, entity):
 
     return f  # Happens for dummy values
 
-
 def rounding(val, entity):
     '''Function turns data from etmgeg into the real values'''
     if check(val) == False:
@@ -299,10 +243,8 @@ def rounding(val, entity):
 
     return f  # No need to correct
 
-
 def is_operator(op):
     return op.lower() in text.lst_op 
-
 
 def is_entity( entity, format='knmi'):
     '''Check if a value is a dayvalue entity'''
@@ -312,12 +254,11 @@ def is_entity( entity, format='knmi'):
 
     return entity.upper() in lst
 
-
 def key_to_entity(key, format='knmi'):
-    if format.lower() == 'knmi': lst = knmi_entities
+    if format.lower() == 'knmi': 
+        lst = knmi_entities
 
     return lst[key]
-
 
 def entity_to_key(entity, format='knmi'):
     '''Get index by text from the array entities'''
@@ -335,16 +276,64 @@ def entity_to_key(entity, format='knmi'):
 def etk(entity, format='knmi'):
     return entity_to_key(entity, format)
 
-
 def key( entity, format='knmi' ):
     '''Function short for ndx_ent '''
     return entity_to_key( entity, format )
-
 
 def list_ent( data, ent ):
     ndx = entity_to_key(ent)
     return data[:,ndx]
 
+def ents( day, format='knmi' ):
+    stn   = convert.fl_to_s( day[STN] )
+    ymd   = convert.fl_to_s( day[YYYYMMDD] )
+    ddvec = text.fix_ent(day[DDVEC], key_to_entity(DDVEC))
+    fhvec = text.fix_ent(day[FHVEC], key_to_entity(FHVEC))
+    fg    = text.fix_ent(day[FG],  key_to_entity(FG))
+    fhx   = text.fix_ent(day[FHX], key_to_entity(FHX))
+    fhxh  = text.fix_ent(day[FHXH], key_to_entity(FHXH))
+    fhn   = text.fix_ent(day[FHN], key_to_entity(FHN))
+    fhnh  = text.fix_ent(day[FHNH], key_to_entity(FHNH))
+    fxx   = text.fix_ent(day[FXX], key_to_entity(FXX))
+    fxxh  = text.fix_ent(day[FXXH], key_to_entity(FXXH))
+    tg    = text.fix_ent(day[TG], key_to_entity(TG))
+    tn    = text.fix_ent(day[TN], key_to_entity(TN))
+    tnh   = text.fix_ent(day[TNH], key_to_entity(TNH))
+    tx    = text.fix_ent(day[TX], key_to_entity(TX))
+    txh   = text.fix_ent(day[TXH], key_to_entity(TXH))
+    t10n  = text.fix_ent(day[T10N], key_to_entity(T10N))
+    t10nh = text.fix_ent(day[T10NH], key_to_entity(T10NH))
+    sq    = text.fix_ent(day[SQ], key_to_entity(SQ))
+    sp    = text.fix_ent(day[SP], key_to_entity(SP))
+    q     = text.fix_ent(day[Q], key_to_entity(Q))
+    dr    = text.fix_ent(day[DR], key_to_entity(DR))
+    rh    = text.fix_ent(day[RH], key_to_entity(RH))
+    rhx   = text.fix_ent(day[RHX], key_to_entity(RHX))
+    rhxh  = text.fix_ent(day[RHXH], key_to_entity(RHXH))
+    pg    = text.fix_ent(day[PG], key_to_entity(PG))
+    px    = text.fix_ent(day[PX], key_to_entity(PX))
+    pxh   = text.fix_ent(day[PXH], key_to_entity(PXH))
+    pn    = text.fix_ent(day[PN], key_to_entity(PN))
+    pnh   = text.fix_ent(day[PNH], key_to_entity(PNH))
+    vvn   = text.fix_ent(day[VVN], key_to_entity(VVN))
+    vvnh  = text.fix_ent(day[VVNH], key_to_entity(VVNH))
+    vvx   = text.fix_ent(day[VVX], key_to_entity(VVX))
+    vvxh  = text.fix_ent(day[VVXH], key_to_entity(VVXH))
+    ng    = text.fix_ent(day[NG], key_to_entity(NG))
+    ug    = text.fix_ent(day[UG], key_to_entity(UG))
+    ux    = text.fix_ent(day[UX], key_to_entity(UX))
+    uxh   = text.fix_ent(day[UXH], key_to_entity(UXH))
+    un    = text.fix_ent(day[UN], key_to_entity(UN))
+    unh   = text.fix_ent(day[UNH], key_to_entity(UNH))
+    ev24  = text.fix_ent(day[EV24], key_to_entity(EV24))
+
+    return ( stn, ymd, ddvec, fhvec, fg, fhx,
+             fhxh, fhn, fhnh, fxx, fxxh, tg,
+             tn, tnh, tx, txh, t10n, t10nh,
+             sq, sp, q, dr, rh, rhx,
+             rhxh, pg, px, pxh, pn, pnh,
+             vvn, vvnh, vvx, vvxh, ng, ug,
+             ux, uxh, un, unh, ev24 )
 
 def date_by_val(data, val, ent):
     ymd, row, col, key_ent = '', 0, 1, etk(ent)
@@ -356,7 +345,6 @@ def date_by_val(data, val, ent):
                 break
 
     return ymd
-
 
 def day( station, yyyymmdd ):
     '''Function return a list of the dayvalues'''
@@ -379,7 +367,6 @@ def day( station, yyyymmdd ):
 
     return ok, data[0]
 
-
 def update_minus_1( data ):
     spec_val, repl_val = -1.0, cfg.knmi_dayvalues_low_measure_val
     lkey = [etk('RH'), etk('RHX'), etk('SQ')]
@@ -394,13 +381,11 @@ def update_minus_1( data ):
 
     return data
 
-
 def sel_period( data, period ):
     '''Function selects days by start and end dates'''
     data, lst_period = select.days_period( data, period ) # Get the data for a period
     data = update_minus_1( data ) # Update/correct values -1
     return data
-
 
 def read( station, verbose=cfg.verbose ):
     '''Reads data dayvalues from the knmi into a list'''
@@ -427,15 +412,13 @@ def read( station, verbose=cfg.verbose ):
             cnsl.log(text.succes('Read'), verbose)
             ok = True
 
-    return ok, data
-
+    return ok, data  # OK
 
 def read_period(station, period):
     ok, data = read(station)
     if ok: 
         data, _ = select.days_period(data, period)
     return ok, data
-
 
 def read_stations_period( stations, period, t='Process data station:', verbose=cfg.verbose ):
     result = np.array([])
@@ -446,7 +429,6 @@ def read_stations_period( stations, period, t='Process data station:', verbose=c
             result = npl if result.size == 0 else np.concatenate( (result, npl), axis=0 )
 
     return result # convert to numpy array
-
 
 def process_data( station, verbose=cfg.verbose ):
     '''Function processes (downloading en unzipping) a data file'''
@@ -463,11 +445,11 @@ def process_data( station, verbose=cfg.verbose ):
             txt = station.data_txt_path
             ok = fio.download( url, zip, check=False, verbose=False )
             if ok:
-                cnsl.log(text.process_time('Download in ', st), verbose)
+                cnsl.log(utils.process_time('Download in ', st), verbose)
                 st = time.time_ns()
                 ok = fio.unzip(zip, txt, verbose)
                 if ok:
-                    cnsl.log(text.process_time('Unzip in ', st), verbose)
+                    cnsl.log(utils.process_time('Unzip in ', st), verbose)
                 else:
                     cnsl.log(f'Failed to unzip {zip}', cfg.error)
             else:
@@ -491,63 +473,8 @@ def process_lst(lst_stations, verbose=cfg.verbose):
     st = time.time_ns()
     for station in lst_stations: 
         process_data(station, verbose)
-    cnsl.log(text.process_time('Total processing time is ', st, ''), cfg.verbose)
-
+    cnsl.log(utils.process_time('Total processing time is ', st, ''), cfg.verbose)
 
 def process_all(verbose=cfg.verbose):
     '''Function processes (downloading en unzipping) files from the selected stations'''
     process_lst( stations.lst, verbose )
-
-
-def ents( day ):
-    stn   = convert.fl_to_s( day[STN] )
-    ymd   = convert.fl_to_s( day[YYYYMMDD] )
-    ddvec = text.fix_entity(day[DDVEC], etk(DDVEC))
-    fhvec = text.fix_entity(day[FHVEC], etk(FHVEC))
-    fg    = text.fix_entity(day[FG],  etk(FG))
-    fhx   = text.fix_entity(day[FHX], etk(FHX))
-    fhxh  = text.fix_entity(day[FHXH], etk(FHXH))
-    fhn   = text.fix_entity(day[FHN], etk(FHN))
-    fhnh  = text.fix_entity(day[FHNH], etk(FHNH))
-    fxx   = text.fix_entity(day[FXX], etk(FXX))
-    fxxh  = text.fix_entity(day[FXXH], etk(FXXH))
-    tg    = text.fix_entity(day[TG], etk(TG))
-    tn    = text.fix_entity(day[TN], etk(TN))
-    tnh   = text.fix_entity(day[TNH], etk(TNH))
-    tx    = text.fix_entity(day[TX], etk(TX))
-    txh   = text.fix_entity(day[TXH], etk(TXH))
-    t10n  = text.fix_entity(day[T10N], etk(T10N))
-    t10nh = text.fix_entity(day[T10NH], etk(T10NH))
-    sq    = text.fix_entity(day[SQ], etk(SQ))
-    sp    = text.fix_entity(day[SP], etk(SP))
-    q     = text.fix_entity(day[Q], etk(Q))
-    dr    = text.fix_entity(day[DR], etk(DR))
-    rh    = text.fix_entity(day[RH], etk(RH))
-    rhx   = text.fix_entity(day[RHX], etk(RHX))
-    rhxh  = text.fix_entity(day[RHXH], etk(RHXH))
-    pg    = text.fix_entity(day[PG], etk(PG))
-    px    = text.fix_entity(day[PX], etk(PX))
-    pxh   = text.fix_entity(day[PXH], etk(PXH))
-    pn    = text.fix_entity(day[PN], etk(PN))
-    pnh   = text.fix_entity(day[PNH], etk(PNH))
-    vvn   = text.fix_entity(day[VVN], etk(VVN))
-    vvnh  = text.fix_entity(day[VVNH], etk(VVNH))
-    vvx   = text.fix_entity(day[VVX], etk(VVX))
-    vvxh  = text.fix_entity(day[VVXH], etk(VVXH))
-    ng    = text.fix_entity(day[NG], etk(NG))
-    ug    = text.fix_entity(day[UG], etk(UG))
-    ux    = text.fix_entity(day[UX], etk(UX))
-    uxh   = text.fix_entity(day[UXH], etk(UXH))
-    un    = text.fix_entity(day[UN], etk(UN))
-    unh   = text.fix_entity(day[UNH], etk(UNH))
-    ev24  = text.fix_entity(day[EV24], etk(EV24))
-
-    return (
-        stn, ymd, ddvec, fhvec, fg, fhx,
-        fhxh, fhn, fhnh, fxx, fxxh, tg,
-        tn, tnh, tx, txh, t10n, t10nh,
-        sq, sp, q, dr, rh, rhx,
-        rhxh, pg, px, pxh, pn, pnh,
-        vvn, vvnh, vvx, vvxh, ng, ug,
-        ux, uxh, un, unh, ev24 
-    )
