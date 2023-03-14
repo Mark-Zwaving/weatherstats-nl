@@ -3,12 +3,12 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __version__    =  '0.0.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import common.model.util as util
+import sources.model.utils as utils
 
 # Initialisation of color list, will be overwritten with correct values at the bottom
 lst = []
@@ -33,7 +33,6 @@ sort_hexas = lambda : lst_hexas.sort()
 sort_rgbs  = lambda : lst_rgbs.sort()
 sort_hsl   = lambda : lst_hsls.sort()
 
-
 def get_key_row(id=NAME, color=''):
     key = -1
     if check_name(color):
@@ -46,7 +45,6 @@ def get_key_row(id=NAME, color=''):
 
     return key
 
-
 def sort(type='name'):
     l = []
     if   type == 'name': l = sort_names()
@@ -55,30 +53,25 @@ def sort(type='name'):
     elif type ==  'rgb': l = sort_hsl()
     return l
 
-
 def name_to_rgb(name):
     key = get_key_row(NAME, name)
     rgb = lst[key][RGB] if key != -1 else (False,False,False)
     return rgb
-
 
 def name_to_hexa(name):
     key = get_key_row(NAME, name)
     hex = lst[key][HEXA] if key != -1 else False
     return hex
 
-
 def name_to_hsl(name):
     key = get_key_row(NAME, name)
     hsl = lst[key][HSL] if key != -1 else (False,False,False)
     return hsl
 
-
 def hexa_to_name(hexa):
     key = get_key_row(HEXA, hexa)
     name = lst[key][NAME] if key != -1 else False
     return name
-
 
 def hexa_to_rgb(hexa):
     rgb = (False, False, False)
@@ -101,7 +94,6 @@ def hexa_to_rgb(hexa):
 
     return rgb
 
-
 def hexa_to_hsl(hexa):
     hsl = (False, False, False)
     key = get_key_row(HEXA, hexa)
@@ -116,14 +108,13 @@ def hexa_to_hsl(hexa):
 
     return hsl
 
-
 def rnd_color(type='name'):
     l = []
     if   type == 'name': l = lst_names
     elif type == 'hexa': l = lst_hexas
     elif type ==  'rgb': l = lst_rgbs
     elif type ==  'hsl': l = lst_hsls
-    rnd = util.lst_rnd_el( l )
+    rnd = utils.lst_rnd_el( l )
 
     return rnd
 
@@ -132,21 +123,17 @@ def rnd_color_hexas(): return rnd_color('hexa')
 def rnd_color_rgbs():  return rnd_color('rgb')
 def rnd_color_hsls():  return rnd_color('hsl')
 
-
 def rnd_savecolor():
-    rnd = util.lst_rnd_el( save_colors )
+    rnd = utils.lst_rnd_el( save_colors )
     return rnd
-
 
 # Source: https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
 def rgb_to_l( rgb ):
     return round( ( max(rgb) + min(rgb) ) / 2.0 / 255.0, 2 )
 
-
 # Source: https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
 def rgb_to_v(rgb):
     return round( max(rgb) / 255.0, 2 )
-
 
 # Source: https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
 def rgb_to_saturation(rgb):
@@ -162,7 +149,6 @@ def rgb_to_saturation(rgb):
             sat = (mx-mn) / (2-(mx+mn))
 
     return round(sat, 2)
-
 
 # Source: https://stackoverflow.com/questions/23090019/fastest-formula-to-get-hue-from-rgb#23094494
 # Source: https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
@@ -190,7 +176,6 @@ def rgb_to_hue(rgb):
     # Hue from ∈ [0°, 360°] to ∈ [0,1]
     return round(hue/360, 2)
 
-
 def hexa_to_dec(hexa):
     ''' Function calculates a hexa value into a decimal value'''
     # Make a string, replace '#' with '', reverse chars and make uppercase
@@ -213,7 +198,6 @@ def hexa_to_dec(hexa):
         pos += 1 # Next position
 
     return total
-
 
 def entity_to_color(entity):
     e = entity.strip().upper()
@@ -244,7 +228,6 @@ def entity_to_color(entity):
     elif e == 'EV24':  return  'green'
     return rnd_savecolor()
 
-
 # Tested / selected
 save_colors = [
     '#0000FF','#D2691E','#8B008B','#556B2F','#E9967A','#2F4F4F','#00CED1',
@@ -252,7 +235,6 @@ save_colors = [
     '#66CDAA','#9370DB','#191970','#808000','#DA70D6','#DB7093','#663399',
     '#FF0000','#BC8F8F','#2E8B57','#A0522D','#4682B4','#008080'
 ]
-
 
 # Real color lst
 lst = [
