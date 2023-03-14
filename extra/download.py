@@ -13,25 +13,25 @@ import sys, os
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
 
 # Import weatherstats libraries
-import common.model.ymd as ymd 
-import common.view.console as cnsl
+import sources.model.ymd as ymd 
+import sources.view.console as cnsl
 import sources.model.daydata as daydata
-import sources.model.stations as stations
+import sources.model.weather_stations as weather_stations
 
 ################################################################################
 # Stations lists
 
 # List with stations for download
 lst_sel_stations = [
-    stations.wmo_to_station('260'),
-    stations.wmo_to_station('280'),
-    stations.wmo_to_station('235'),
-    stations.wmo_to_station('310'),
-    stations.wmo_to_station('380')
+    weather_stations.wmo_to_station('260'),
+    weather_stations.wmo_to_station('280'),
+    weather_stations.wmo_to_station('235'),
+    weather_stations.wmo_to_station('310'),
+    weather_stations.wmo_to_station('380')
 ]
 
 # All available weather stations
-lst_all_stations = stations.lst 
+lst_all_stations = weather_stations.lst 
 
 
 ################################################################################
