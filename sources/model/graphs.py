@@ -2,32 +2,31 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __version__    =  '0.1.5'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
+import statistics
 import math, sys, numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
 import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
+import sources.model.utils as util
+import sources.model.convert as cvt
+import sources.model.ymd as ymd
+import sources.control.answer as answer
+import sources.control.fio as fio
 import sources.view.text as text
 import sources.view.color as col
-import common.model.util as util
-import common.model.convert as cvt
-import common.model.ymd as ymd
-import common.control.answer as answer
-import common.control.fio as fio
-import common.view.console as cnsl
-from datetime import datetime
-import statistics
+import sources.view.console as cnsl
 
 def text_diff( l ):
     mp, mm = max(l), min(l)
     return (mp - mm) / 15.0
-
 
 def calculate( options ):
     # { 
@@ -106,7 +105,7 @@ def calculate( options ):
             np_entity_1d = days.np_period_2d[:, daydata.etk(entity)] # Get the values needed for the graph
 
             # Cumulative sum of values, if chosen
-            if answer.yes(options['graph-cummul-val']): 
+            if answer.is_yes(options['graph-cummul-val']): 
                 np_entity_1d = np.cumsum(np_entity_1d)
 
             # Label, colors and lst_val
@@ -119,7 +118,7 @@ def calculate( options ):
             if min_act < min_all: min_all = min_act
             if max_act > max_all: max_all = max_act
 
-            if answer.yes(graph['min-max-ave-period']):
+            if answer.is_yes(graph['min-max-ave-period']):
                 # Calculate extremes and make correct output    
                 min_act, min_day, _ = days.min(entity)
                 max_act, max_day, _ = days.max(entity)        
@@ -138,7 +137,7 @@ def calculate( options ):
                 cnsl.log(ttt, cfg.verbose)
                 sub_txt += ttt + '\n'
  
-            if answer.yes( graph['climate-ave'] ):
+            if answer.is_yes( graph['climate-ave'] ):
                 label_clima = f'Day climate {station.place} {text.entity_to_text(entity)}'
                 ttt = f'Calculate climate value {entity} for {station.place}...'
                 cnsl.log(ttt, True)
@@ -195,7 +194,7 @@ def calculate( options ):
                 )
 
             # Climate averages always dotted lines
-            if answer.yes(graph['climate-ave']):
+            if answer.is_yes(graph['climate-ave']):
                 plt.plot(
                     lst_ymd, 
                     lst_clima,
@@ -210,7 +209,7 @@ def calculate( options ):
 
             # Marker texts
             diff = 0.2 if graph['line-bar'] == 'line' else 0.1
-            if answer.yes( graph['marker-text'] ):
+            if answer.is_yes( graph['marker-text'] ):
                 # TODO No negative values for when graph is a bar
 
                 for lst_yyyymmdd, lst_values, lst_txt in zip( lst_ymd, lst_val, lst_val ):
@@ -221,7 +220,7 @@ def calculate( options ):
                         alpha = cfg.plot_marker_alpha 
                     )
 
-            if answer.yes( graph['climate-ave-marker-txt'] ):
+            if answer.is_yes( graph['climate-ave-marker-txt'] ):
                 for lst_yyyymmdd, lst_values, lst_txt in zip( lst_ymd, lst_clima, lst_clima ):
                     plt.text(
                         lst_yyyymmdd, lst_values+diff, lst_txt,
@@ -311,7 +310,7 @@ def calculate( options ):
             linewidth = cfg.plot_grid_linewidth 
         )
 
-    if answer.yes(cfg.plot_tight_layout):
+    if answer.is_yes(cfg.plot_tight_layout):
         plt.tight_layout()
 
     # Make path and save image
@@ -322,8 +321,7 @@ def calculate( options ):
 
     plt.savefig(path, dpi = options['graph-dpi'], format = options['graph-type'] )
 
-    if answer.yes(cfg.plot_show): 
+    if answer.is_yes(cfg.plot_show): 
         plt.show()
 
     return path
- 
