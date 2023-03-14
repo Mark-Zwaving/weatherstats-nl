@@ -16,9 +16,9 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirna
 
 # Import weatherstats libraries
 import config as cfg
-import sources.model.stations as stations 
+import sources.model.weather_stations as weather_stations 
 import sources.model.stats_tables as stats_tables
-import common.model.ymd as ymd 
+import sources.model.ymd as ymd 
 
 # See all the files made
 cfg.verbose = True 
@@ -34,7 +34,7 @@ options = {
     # Title for table Januari 01 
     'title': f'day extremes {mmdd}',
     # List with the stations to add in the table 
-    'lst-stations': stations.lst,
+    'lst-stations': weather_stations.lst,
     # Global period: * for all
     'period': '*',                    
     # This is the period string for the calculation of one day
@@ -58,7 +58,7 @@ options = {
 def extremes_for_a_day(mmdd):
     options = {
         'title': f'dayextremes {mmdd}',
-        'lst-stations': stations.lst,
+        'lst-stations': weather_stations.lst,
         'period': '*',                    
         'period-2': f'****{mmdd}*',              
         'lst-sel-cells': cfg.lst_cells_my_extremes, 
@@ -80,7 +80,7 @@ def yesterday_extremes():
     period_2 = f'****{mmdd}*'
     options = { 
         'title': f'dayextremes {mmdd}',
-        'lst-stations': stations.lst, 
+        'lst-stations': weather_stations.lst, 
         'period': period_1,
         'period-2': period_2, 
         'period-cmp': '',
