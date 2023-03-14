@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 '''HTML awesome icons'''
-__author__     =  "Mark Zwaving"
-__email__      =  "markzwaving@gmail.com"
-__copyright__  =  "Copyright (C) Mark Zwaving. All rights reserved."
-__license__    =  "GNU Lesser General Public License (LGPL)"
-__version__    =  "0.0.5"
-__maintainer__ =  "Mark Zwaving"
-__status__     =  "Development"
+__author__     =  'Mark Zwaving'
+__email__      =  'markzwaving@gmail.com'
+__copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.0.5'
+__maintainer__ =  'Mark Zwaving'
+__status__     =  'Development'
 
 def i(icon='', color='', extra='', size=''):
     klass  = icon
