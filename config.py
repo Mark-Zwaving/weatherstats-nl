@@ -3,19 +3,21 @@
 __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    = 'GNU Lesser General Public License (LGPL)'
-__version__    = '0.9.7'
+__license__    = 'GNU General Public License version 3 - GPLv3'
+__version__    = '0.9.8' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
+
 ################################################################################
-import common.control.fio as fio  # Import the common lib from the common map
-import os, sys, numpy as np       # Python modules
+import os, sys, time, numpy as np  # Python modules
 ################################################################################
 
 verbose = False  # Print more(all) to screen
 error   = True   # Print exceptions and errors to screen
 info    = True   # Show examples and help info in menu by default
 console = True   # Show always the calculated tables in the console 
+log     = False  # Log to file 
+debug   = False  # Debug mode
 
 # To save the current weather and forecasts in the data/forecasts map,
 # set save_forecasts to true
@@ -38,6 +40,9 @@ timezone = 'Europe/Amsterdam'
 # csv separator
 csv_sep = ';'
 
+# Line width for #
+txt_line_width = 80
+
 ################################################################################
 # For HTML pages
 # Add popup tables in html tables. True for yess, False for no
@@ -49,31 +54,36 @@ html_strip = True
 
 ################################################################################
 # Config base maps
-dir_app        = fio.abspath(os.path.dirname(__file__))
-dir_www        = fio.abspath('/var/www/html')
-dir_data       = fio.mk_path(dir_app, 'data')
-dir_statistics = fio.mk_path(dir_data, 'statistics')
-dir_templates  = fio.mk_path(dir_data, 'templates')
-dir_forecasts  = fio.mk_path(dir_data, 'forecasts')    # Downloaded forecasts
-dir_thirdparty = fio.mk_path(dir_data, 'thirdparty')
-dir_graphs     = fio.mk_path(dir_data, 'graphs')
+dir_app        = os.path.abspath(os.path.dirname(__file__))
+dir_www        = os.path.abspath('/var/www/html')  # For a webserver
+dir_data       = os.path.join(dir_app,  'data')
+dir_statistics = os.path.join(dir_data, 'statistics')
+dir_templates  = os.path.join(dir_data, 'templates')
+dir_forecasts  = os.path.join(dir_data, 'forecasts')    # Downloaded forecasts
+dir_thirdparty = os.path.join(dir_data, 'thirdparty')
+dir_graphs     = os.path.join(dir_data, 'graphs')
+dir_download   = os.path.join(dir_data, 'downloads')
+dir_animation  = os.path.join(dir_data, 'animations')
 
-# Dayvalues
-dir_dayvalues     = fio.mk_path(dir_data, 'dayvalues')
-dir_dayvalues_zip = fio.mk_path(dir_dayvalues, 'zip')  # knmi zip files
-dir_dayvalues_txt = fio.mk_path(dir_dayvalues, 'txt')  # knmi text files
-dir_dayvalues_htm = fio.mk_path(dir_dayvalues, 'html') # knmi html files from text
+dir_dayvalues     = os.path.join(dir_data, 'dayvalues') # Dayvalues
+dir_dayvalues_zip = os.path.join(dir_dayvalues, 'zip')  # knmi zip files
+dir_dayvalues_txt = os.path.join(dir_dayvalues, 'txt')  # knmi text files
+dir_dayvalues_htm = os.path.join(dir_dayvalues, 'html') # knmi html files from text
 
-dir_stats_txt   = fio.mk_path(dir_statistics, 'text')
-dir_stats_htm   = fio.mk_path(dir_statistics, 'html')
-dir_stats_csv   = fio.mk_path(dir_statistics, 'csv')
-dir_stats_excel = fio.mk_path(dir_statistics, 'excel')
+dir_stats_txt   = os.path.join(dir_statistics, 'text')
+dir_stats_htm   = os.path.join(dir_statistics, 'html')
+dir_stats_csv   = os.path.join(dir_statistics, 'csv')
+dir_stats_excel = os.path.join(dir_statistics, 'excel')
+
+# Paths templates
+html_template_dayvalues  = os.path.join(dir_templates, 'dayvalues.html')
+html_template_statistics = os.path.join(dir_templates, 'statistics.html')
 
 ################################################################################
 # KNMI Weather
 knmi_ftp_pub = 'ftp://ftp.knmi.nl/pub_weerberichten/'
-knmi_forecast_global_url = f'{knmi_ftp_pub}basisverwachting.txt'
-knmi_forecast_model_url = f'{knmi_ftp_pub}guidance_meerdaagse.txt'
+knmi_forecast_global_url   = f'{knmi_ftp_pub}basisverwachting.txt'
+knmi_forecast_model_url    = f'{knmi_ftp_pub}guidance_meerdaagse.txt'
 knmi_forecast_guidance_url = f'{knmi_ftp_pub}guidance_modelbeoordeling.txt'
 
 # JSON url 10 minute values.
@@ -94,7 +104,7 @@ knmi_json_places = [
 knmi_json_cols = 4  # Colums for the data
 
 # Dayvalues knmi
-knmi_dayvalues_url = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
+knmi_dayvalues_url = 'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
 knmi_dayvalues_notification = 'SOURCE DATA: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)'
 knmi_dayvalues_skip_header = 52
 knmi_dayvalues_skip_footer = 0
@@ -106,7 +116,6 @@ knmi_dayvalues_info_txt = 'data/dayvalues/txt/dayvalues.txt'
 # Give replacement value for -1 here
 knmi_dayvalues_low_measure_val = 0.025
 knmi_data_format = 'knmi'  # used for data format
-
 
 ################################################################################
 # Buienradar JSON data url
@@ -265,6 +274,48 @@ lst_cells_dayvalues = [
 ]
 
 ################################################################################
+# Download base urls for images 
+# Base knmi download url for 10 min images 
+knmi_base_url_act_img  = 'https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/'
+# Base Weerplaza download url for 10 min images 
+plaza_url_base_act_img = 'https://oud.weerplaza.nl/gdata/10min'
+
+# KNMI download image urls 
+knmi_url_windforce     = f'{knmi_base_url_act_img}windkracht.png'
+knmi_url_windspeed     = f'{knmi_base_url_act_img}windsnelheid.png'
+knmi_url_windmax       = f'{knmi_base_url_act_img}maxwindkm.png'
+knmi_url_temperature   = f'{knmi_base_url_act_img}temperatuur.png'
+knmi_url_rel_moist     = f'{knmi_base_url_act_img}relvocht.png'
+knmi_url_view          = f'{knmi_base_url_act_img}zicht.png'
+# Weerplaza download image urls 
+plaza_url_temp_10cm    = f'{plaza_url_base_act_img}/GMT_T10C_latest.png'  # Temp 10cm
+plaza_url_weerbeeld    = f'{plaza_url_base_act_img}/nl_10min.jpg'         # Weerbeeld
+plaza_url_temp_2meter  = f'{plaza_url_base_act_img }/GMT_TTTT_latest.png' # Temp 2 meter
+
+# Dowload url list
+lst_weather_images_url = [
+    knmi_url_windforce,
+    knmi_url_windspeed,
+    knmi_url_windmax,
+    knmi_url_temperature,
+    knmi_url_rel_moist,
+    knmi_url_view, 
+    plaza_url_temp_10cm, 
+    plaza_url_weerbeeld, 
+    plaza_url_temp_2meter
+]
+
+################################################################################
+# Animation config
+animation_time  = 0.5         # Default animation time zip for animations
+animation_ext   = 'gif'       # Default Extension for animation. Do not change.
+animation_name  = 'animation' # Default base-name for the animation file
+# To use compress: programm gifsicle needs to be installed on your system
+gif_compress    = True # Compress output animation gifs
+# Delete the dowloaded images after the aniamtion is made 
+remove_download = False
+
+################################################################################
 # Plotting default values
 # Use of default values (below) ? Or add values at runtime ?
 plot_default = 'y'
@@ -404,13 +455,37 @@ fl_min = sys.float_info.max  # Maximum possible value
 
 # Give language for app. Under contruction. TODO
 # 'NL' for Netherlands/Dutch, 'EN' for English, Default is English
-# TODO
 lang = 'EN' # Select language. Only english
 translate = False # Translation active or not
 
-# Paths templates
-html_template_dayvalues = fio.mk_path(dir_templates, 'dayvalues.html')
-html_template_statistics = fio.mk_path(dir_templates, 'statistics.html')
+# No download flooding from a server.
+# Time to wait after downloading a file. Always min = 0.2 seconds
+download_interval_time = 0.3 # Seconds.
+download_max_num = 10000 # Max number downloads, flood protection
+
+# The webpage/ip for checking an internet connection
+check_ip_1 = '42.251.36.14' # google.com
+check_ip_2 = '95.101.74.93' # NU.nl
+check_ip_3 = '1.1.1.1' 
+check_ip_4 = '8.8.8.8' 
+check_port_80  = 80
+check_port_ssl = 443
+check_port_dns = 53
+check_timeout = 500 # Milli secs
+
+################################################################################
+# Vars below do not change
+hour_day     =  24
+day_week     =   7
+sec_minute   =  60
+sec_hour     =  sec_minute * sec_minute
+sec_day      =  hour_day * sec_hour
+sec_week     =  day_week * sec_day
+hour_minute  =  sec_minute
+day_minute   =  hour_day * hour_minute
+
+# Startup time for running this app (!more or less)
+app_start_time = time.time() 
 
 # Copyright notification weatherstats 
-created_by_notification = 'Created by weatherstats-nl at %s'
+created_by_notification = 'Created by weatherstats-nl at %s' 
