@@ -3,19 +3,99 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
-__version__    =  '0.1.4'
+__license__    =  'GNU General Public License version 3 - GPLv3'
+__version__    =  '0.1.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import config as cfg
+import config as cfg, stations
 import numpy as np, math, time, re
-import sources.control.menu as ctrl_menu
 import sources.model.daydata as daydata
 import sources.model.utils as utils
-import sources.model.stations as stations
-import common.model.convert as common_cvt
-import common.view.txt as common_txt
+import sources.model.weather_stations as weather_stations
+import sources.model.convert as convert
+
+line_hashtag = '#' * cfg.txt_line_width
+line_hyphen  = '-' * cfg.txt_line_width
+
+def A0(d):
+    return '0{d}' if d < 10 else str(d) # Add zero < 10
+
+def lst_to_col(lst, align='left', col=5, width=2, ln='\n'):
+    # Overrule width if its too short
+    for el in lst:
+        if len(el) >= width:
+            width = len(el) + 1 # Make width bigger, add one space 
+
+    t, cnt = '', len(lst) 
+    if cnt > 0:
+        for ndx, el in enumerate(lst):
+            if   align ==   'left': t += f'{el:{width}}'
+            elif align ==  'right': t += f'{el:>{width}}'
+            elif align == 'center': t += f'{el:^{width}}'
+
+            ndx += 1
+            if ndx % col == 0 and ndx != cnt:
+                t += ln
+
+    return t
+
+def head(t='Header'): 
+    return f'{line_hashtag}\n##  {t}\n{line_hashtag}'
+
+def foot(t='Footer'):
+    return f'{line_hashtag}\n##  {t}\n{line_hashtag}'
+
+type_in = 'Type in something...'
+next_n  = "Press 'n' to move to the next..."
+next_press_enter = "Press <enter> to move to the next..."
+back_main = "Press a 'key' to go back to the main menu..."
+
+type_in = 'Type in something...'
+next_n  = "Press 'n' to move to the next..."
+next_press_enter = "Press <enter> to move to the next..."
+back_main = "Press a 'key' to go back to the main menu..."
+
+# Answers option lists
+lst_quit = ['q','quit','stop','ho']
+lst_yess = ['y','yes','yess','j','ja','ok','oke','oké','yee','jee', 'yep', 'yup', 'oui']
+lst_no   = ['n','no','nope','not','nee','nada','nein','non','neet','njet','neen']
+yes, no, quit = lst_yess[0], lst_no[0], lst_quit[0]
+lst_prev = ['p', 'last', 'prev', 'previous']
+
+# Quick txt lists
+lst_m = ['1','2','3','4','5','6','7','8','9','10','11','12']
+lst_mm = ['01','02','03','04','05','06','07','08','09','10','11','12']
+lst_mmm = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','dec']
+lst_mmmm = ['january','februari','march','april','mai','june','july',
+            'august','september','oktober','november','december']
+lst_months_all = lst_m + lst_mm + lst_mmm + lst_mmmm
+
+dd_01, dd_02, dd_03, dd_04, dd_05, dd_06 = 31, 29, 31, 30, 31, 30
+dd_07, dd_08, dd_09, dd_10, dd_11, dd_12 = 31, 31, 30, 31, 30, 31
+lst_dd_01 = [ f'01{A0(d)}' for d in range(1,dd_01+1) ]
+lst_dd_02 = [ f'01{A0(d)}' for d in range(1,dd_02+1) ]
+lst_dd_03 = [ f'01{A0(d)}' for d in range(1,dd_03+1) ]
+lst_dd_04 = [ f'01{A0(d)}' for d in range(1,dd_04+1) ]
+lst_dd_05 = [ f'01{A0(d)}' for d in range(1,dd_05+1) ]
+lst_dd_06 = [ f'01{A0(d)}' for d in range(1,dd_06+1) ]
+lst_dd_07 = [ f'01{A0(d)}' for d in range(1,dd_07+1) ]
+lst_dd_08 = [ f'01{A0(d)}' for d in range(1,dd_08+1) ]
+lst_dd_09 = [ f'01{A0(d)}' for d in range(1,dd_09+1) ]
+lst_dd_10 = [ f'01{A0(d)}' for d in range(1,dd_10+1) ]
+lst_dd_11 = [ f'01{A0(d)}' for d in range(1,dd_11+1) ]
+lst_dd_12 = [ f'01{A0(d)}' for d in range(1,dd_12+1) ]
+
+lst_dd   = [ '31', '29', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31' ]
+
+lst_mmdd  = lst_dd_01 + lst_dd_02 + lst_dd_03 + lst_dd_04 + lst_dd_05 + lst_dd_06
+lst_mmdd += lst_dd_07 + lst_dd_08 + lst_dd_09 + lst_dd_10 + lst_dd_11 + lst_dd_12
+
+# Answers option lists
+answer_quit = ['q','quit','stop']
+answer_yes  = ['y','yes','yess','j','ja','ok','oke','oké','yee','jee']
+answer_no   = ['n','no','nope','nee','nada','nein','non','neet']
+exit        = ['x','X','exit','get out','stop']
 
 # File extensions
 extension_htm = '.html'
@@ -47,6 +127,12 @@ title_menu_default_counts = 'Default counts (see config.py)'
 lst_menu_download = [ 'DOWNLOAD', [ 
     [ 'Download all dayvalues knmi stations', 'process_knmi_dayvalues_all' ],
     [ 'Download selected dayvalues knmi stations', 'process_knmi_dayvalues_select' ]
+] ]
+
+lst_menu_animation = [ 'ANIMATIONS TODO', [ 
+    [ 'Download images only', 'process_download_images' ],
+    [ 'Download and make an animation', 'process_download_animation' ],
+    [ 'Animation from images in map', 'process_animation_from_dir' ]
 ] ]
 
 lst_menu_statistics = [ 'STATISTICS TABLES', [  
@@ -86,17 +172,6 @@ lst_menu_weather = [ 'WEATHER (dutch)', [
 #     ]
 # ],
 
-line = common_txt.line_hashtag
-def head(t='Header'): return f'{line}\n##  {t}\n{line}'
-def foot(t='Footer'): return f'{line}\n##  {t}\n{line}'
-
-type_in = 'Type in something...'
-next_n  = "Press 'n' to move to the next..."
-next_press_enter = "Press <enter> to move to the next..."
-back_main = "Press a 'key' to go back to the main menu..."
-
-exit = ['x','X','exit','get out','stop']
-
 # Menu texts
 menu_no_weather_stations = f'''
 No weatherstations found in configuration file !
@@ -116,7 +191,6 @@ CALCULATION INFO
 Default format: ENT(STATISTIC) 
 Options ENT: TX, RH, SQ, TN et cetera 
 Options STATISTIC: MIN -, MAX +, mean ~, SUM Σ, hellmann hmann, frostsum fsum, ijnsen, heatndx hndx
-
 EXAMPLES: 
 TX+ (=maximum temperature TX)  TG~ (=average temperature TG)  TN- (=minimum temperature TN)
 RHΣ (=total rain sum)          RH+ (=maximum rain in a day)   HELLMANN (=hellmann winter score)
@@ -126,7 +200,6 @@ FSUM (=frostsum winter score)  IJNSEN (=ijnsen winter score)  HNDX (=sum heat in
 menu_info_periods = '''
 PERIOD INFO
 Format:  yyyymmdd-yyyymmdd     ie. 20200510-20200520
-
 Examples with a wild card * (--- in development ---) 
 *                   selects all the available data (=1x*)
 **                  selects (current) month (=2x*)
@@ -138,7 +211,6 @@ yyyymm**            selects the month mm in the year yyyy
 yyyy****-yyyy****   selects a full year from yyyy untill yyyy 
 yyyymmdd-yyyymmdd*  selects a day mmdd in a year from start day to endyear
 yyyymmdd-yyyy*mmdd* selects a certain period from mmdd=mmdd* in a year from yyyy to yyyy
-
 2015**** or 2015    selects the year 2015 
 201101**-202001**   selects all januarys from 2011 unto 2020 
 ****07**            selects all julys from avalaible data 
@@ -147,12 +219,12 @@ yyyymmdd-yyyy*mmdd* selects a certain period from mmdd=mmdd* in a year from yyyy
 
 menu_info_select_a_day = f'''
 DAY INFO
-{common_txt.lst_to_col(common_txt.lst_mmdd, 'left', 16)}
+{lst_to_col(lst_mmdd, 'left', 16)}
 '''
 
 menu_info_select_a_month = f'''
 MONTH INFO
-{common_txt.lst_to_col(common_txt.lst_months_all, 'left', 6)}
+{lst_to_col(lst_months_all, 'left', 6)}
 '''
 
 menu_info_queries = '''
@@ -160,14 +232,12 @@ QUERY INFO
 Use only simple queries without parenthesis ()
 Always put spaces between the elements
 Example for a wet and warm day is: TX > 28 and RH > 20
-
 gt, >          = greater than             ie. TG >  20  Warm nights
 ge, >=,  ≥     = greater than and equal   ie. TX >= 30  Tropical days
 lt, <          = less than                ie. TN <   0  Frosty days
 le, <=,  ≤     = less than equal          ie. TX <   0  Icy days
 eq, ==         = equal                    ie. DDVEC == 90  A day with a wind from the east
 ne, !=, <>     = not equal                ie. RH !=  0  A day with rain
-
 or,  ||  or    ie. SQ > 10  or TX >= 25   Sunny and warm days
 and, &&  and   ie. RH > 10 and TX <  0    Most propably a day with snow
 '''
@@ -196,22 +266,17 @@ menu_info_td_cells = '''
 CELL STATISTICS
 INFO - format: inf_<option>
 Examples: inf_place, inf_province, inf_country, inf_period, inf_num, inf_period-2
-
 STATISTICS - format: <ave|sum>_<entity>
 Examples: ave_tg, sum_sq, sum_rh
-
 EXTREMES - format: <max|min>_<entity>
 Examples: max_tx, min_tn, min_t10n, max_rh, max_sq, max_rhx,
 max_px, min_px, min_pn, max_ux, max_ug, min_un
-
 INDEXES - format: ndx_<name>
 Examples: ndx_hellmann, ndx_frost-sum, ndx_heat-ndx, ndx_ijnsen
-
 COUNT DAYS - format: cnt_<entity>_<operator>_<value>
 Examples: cnt_tx_ge_25, cnt_tx_ge_30, cnt_tg_ge_20, cnt_sq_ge_10, 
 cnt_rh_ge_10, cnt_tx_lt_0, cnt_tn_lt_0, cnt_tn_lt_-5, 
 cnt_tn_lt_-20 
-
 Example: average temperature, maximum temperature, minimum temperature, total sum rain, 
 the tropical and the ice days: 
 inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>_30, cnt_tx_<_0
@@ -223,23 +288,82 @@ Example short:
 inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>=_20, cnt_tn_<_0
 '''
 
-def menu_info_stations():
-    l = [f'{s.wmo} {s.place}' for s in stations.lst_stations_map()]
-    return  f'''
-STATIONS INFO
-{common_txt.lst_to_col(l, 'left', 4)}
+quick_calc_inf = '''
+CALCULATION INFO
+Default format: ENT(STATISTIC)
+Options ENT: TX, RH, SQ, TN et cetera
+Options STATISTIC: MIN -, MAX +, mean ~, SUM Σ, hellmann hmann, frostsum fsum, ijnsen, heatndx hndx
+EXAMPLES:
+TX+ (=maximum temperature TX)  TG~ (=average temperature TG)  TN- (=minimum temperature TN)
+RHΣ (=total rain sum)          RH+ (=maximum rain in a day)   HELLMANN (=hellmann winter score)
+FSUM (=frostsum winter score)  IJNSEN (=ijnsen winter score)  HNDX (=sum heat index score)
 '''
+
+period_inf = '''
+PERIOD INFO
+Format yyyymmdd-yyyymmdd     ie. 20200510-20200520 
+Examples with a wild card * (--- in development ---)
+  ********            selects all the available data (=8x*)
+  ****                selects (current) year (=4x*)
+  **                  selects (current) month (=2x*)
+  yyyy****            selects the whole year yyyy
+  yyyymm**            selects the month mm in the year yyyy
+  ****mm**            selects a month mm for every year
+  ****mmdd            selects a monthday mmdd for every year
+  yyyy****-yyyy****   selects a full year from yyyy untill yyyy
+  yyyymmdd-yyyymmdd*  selects a day mmdd in a year from start day to endyear
+  yyyymmdd-yyyy*mmdd* selects a certain period from mmdd=mmdd* in a year from yyyy to yyyy
+  2015**** or 2015    selects the year 2015
+  201101**-202001**   selects all januarys from 2011 unto 2020
+  ****07**            selects all julys from avalaible data
+  ****1225            selects all 25 decembers from avalaible data
+''' 
+
+ent_inf = '''
+ENTITIES INFO\n'
+DDVEC = Vector mean wind direction (degrees)      FHVEC = Vector mean windspeed (m/s)
+FG    = Daily mean windspeed (in 0.1 m/s)         FHX   = Maximum hourly mean windspeed (m/s)
+FHN   = Minimum hourly mean windspeed (m/s)       FXX   = Maximum wind gust (m/s)
+TG    = Daily mean temperature in (°C)            TN    = Minimum temperature (°C)
+TX    = Maximum temperature (°C)                  T10N  = Minimum temperature at 10 cm (°C)
+SQ    = Sunshine duration (hour)                  SP    = % of maximum sunshine duration
+Q     = Global radiation (J/cm2)                  DR    = Precipitation duration (hour)
+RH    = Daily precipitation amount (mm)           RHX   = Maximum hourly precipitation (mm)
+PG    = Daily mean sea level pressure (hPa)       PX    = Maximum hourly sea level pressure (hPa)
+PN    = Minimum hourly sea level pressure (hPa)   EV24  = Potential evapotranspiration (mm)
+NG    = Mean daily cloud cover (octants)          UG    = Daily mean relative atmospheric humidity (%)
+UX    = Maximum atmospheric humidity (%)          UN    = Minimum relative atmospheric humidity (%)
+VVN   = Minimum visibility 0: <100m, 1:100-200m, 2:200-300m,..., 49:4900-5000m, 50:5-6 km,
+        56:6-7km, 57:7-8km,..., 79:29-30km, 80:30-35km, 81:35-40km,..., 89: >70km)
+VVX   = Maximum visibility 0: <100 m, 1:100-200 m, 2:200-300 m,..., 49:4900-5000 m, 50:5-6 km, 
+        56:6-7km, 57:7-8km,..., 79:29-30km, 80:30-35km, 81:35-40km,..., 89: >70km)
+'''
+
+query_inf = '''
+QUERY INFO
+' gt', '> '         = greater than             ie. TG >  20  Warm nights
+' ge', '>=', ' ≥'   = greater than and equal   ie. TX >= 30  Tropical days
+' lt', '< '         = less than                ie. TN <   0  Frosty days
+' le', '<=', ' ≤'   = less than equal          ie. TX <=  0  Icy days
+' eq', '=='         = equal                    ie. DDVEC == 90  A day with a wind from the east
+' ne', '!=', '<>'   = not equal                ie. RH !=  0  A day with rain
+' or', '||'  'or '  ie SQ > 10  or TX >= 25    Sunny and warm days
+'and', '&&'  'and'  ie RH > 10 and TX <  0     Most propably a day with snow
+'''
+
+menu_info_stations =  f'''
+STATIONS INFO
+{lst_to_col([f'{s.wmo} {s.place}' for s in weather_stations.lst_stations_map()], 'left', 4)}
+'''
+
+quick_stats_all_inf = period_inf + '\n\n' + menu_info_stations + '\n\n' + ent_inf + '\n\n' + quick_calc_inf + '\n'
 
 menu_allAvailable_info = f'''
 { menu_info_periods }
-
-{ menu_info_stations() }
-
+{ menu_info_stations }
 { menu_info_entities }
-
 { menu_info_quick_calculations }
 '''
-
 
 ##########################################################################################
 # Quick txt lists
@@ -295,153 +419,6 @@ lst_day = ['day', 'mmdd']
 lst_month = ['month','mm', 'm', 'mmm', 'mmmm']
 lst_year = ['yyyy', 'year', 'yy']
 lst_season = ['season']
-
-# TXT strings
-enter_default = lambda default: f'Press <enter> for default (={default})...'
-enter_back_to = lambda t: f"Press 'q' to go back to the {t} menu... "
-enter_previous_question = lambda s='':f"Press 'p' to go to the previous question..."
-enter_exit = "Press 'x' to exit the program..."
-type_more_info = lambda i: f"Type '{i}' for more info..."
-
-
-def query_sign_to_text(query):
-    '''Replce wrong chars for use in file name'''
-    q = query.replace('>','gt')
-    q = q.replace('>=|≥','ge')
-    q = q.replace('<','lt')
-    q = q.replace('==','eq')
-    q = q.replace('ne|!=|<>','not')
-    q = q.replace('\|\|','or')
-    q = q.replace('&&','and')
-    
-    return q
-
-def error(t, err):
-    t = f'{t} failed.\nError {err}'
-    return t
-
-def succes(t):
-    t = f'{t} success.'
-    return t
-
-def strip_all(s):
-    t = re.sub('\t|\r|\n| |\s', '', t)
-    return t
-
-def clean_up( t ):
-    t = t.strip()
-    t = re.sub(r'(\n\n)\n+', '\n\n', t)
-    t = re.sub('\t|  ', ' ', t)
-    return t
-
-def padding(t, align='center', spaces=35):
-    spaces -= len(str(t))
-    spaces = 2 if spaces < 0 else spaces
-    if   align == 'center': t = f'{t:^{spaces}}'
-    elif align == 'left':   t = f'{t:<{spaces}}'
-    elif align == 'right':  t = f'{t:>{spaces}}'
-
-    return t
-
-
-def style(t='', style='none'):
-    t = tr( t.strip().replace('  ', ' '))
-    if   style in ['cap','capitalize']: t = t.capitalize()
-    elif style in ['up','upper']: t = t.upper()
-    elif style in ['low','lower']: t = t.lower()
-    elif style in ['tit', 'title']: t = t.title()
-
-    return t
-
-def max(entity): 
-    return f'highest {entity_to_text(entity)}'
-
-def min(entity):
-    return f'lowest {entity_to_text(entity)}'
-
-def ave(entity):
-    return f'average {entity_to_text(entity)}'
-
-def sum(entity):
-    return f'sum {entity_to_text(entity)}'
-    
-def hellmann():
-    return f'hellmann'
-
-def ijnsen():
-    return 'ijnsen'
-
-def frostsum():
-    return 'frost_sum'
-
-def heat_ndx():
-    return 'heat_ndx'
-
-def climate(txt=''):
-    return f'climate {txt}'
-
-def title(entity, sign, val):
-    return 'title'
-
-def title_mean(txt=''):
-    return f'title mean {txt}'
-
-ave_tg    = lambda s='cap': style('average temperature', s)
-ave_tx    = lambda s='cap': style('average maximum temperature', s)
-ave_tn    = lambda s='cap': style('average minumum temperature', s)
-ave_sq    = lambda s='cap': style('average sunshine duration', s)
-ave_rh    = lambda s='cap': style('average rain precipiation', s)
-max_tx    = lambda s='cap': style('highest maximum temperatur, warmest day', s)
-max_tg    = lambda s='cap': style('highest mean temperature', s)
-max_tn    = lambda s='cap': style('highest minimum temperature. warmest night', s)
-min_tx    = lambda s='cap': style('lowest maximum temperature, coldest day', s)
-min_tg    = lambda s='cap': style('lowest mean temperature', s)
-min_tn    = lambda s='cap': style('lowest minumum temperature, coldest night', s)
-max_t10n  = lambda s='cap': style('highest ground minimum temperature', s)
-min_t10n  = lambda s='cap': style('lowest ground minimum temperature', s)
-max_sq    = lambda s='cap': style('highest sunshine duration, most sunny day', s)
-max_rh    = lambda s='cap': style('highest rain, most wet day', s)
-
-tot_hour_sun    = lambda s='cap': style('total hours of sunshine', s)
-tot_rain_sum    = lambda s='cap': style('total rain sum in mm', s)
-sum_rh          = lambda s='cap': tot_rain_sum()
-sum_sq          = lambda s='cap': tot_hour_sun()
-
-days_tg_gt_18   = lambda s='cap': style('days mean temperature higher than 18 degrees celsius (heat index)' , s)
-days_tg_gte_18  = lambda s='cap': style('days mean temperature higher and equal to 18 degrees celsius (heat index)' , s)
-days_tg_gte_20  = lambda s='cap': style('days mean temperature higher and equal to 20 degrees celsius (heat index)' , s)
-days_tn_gte_20  = lambda s='cap': style('tropical nights minium temperature higher and equal to 20 degrees celsius' , s)
-days_tx_gte_20  = lambda s='cap': style('warm days maximum temperature higher and equal to 20 degrees celsius' , s)
-days_tx_gte_25  = lambda s='cap': style('summer days maximum temperature higher and equal to 25 degrees celsius' , s)
-days_tx_gte_30  = lambda s='cap': style('tropical days maximum temperature higher and equal to 30 degrees celsius' , s)
-days_tx_gte_35  = lambda s='cap': style('tropical days maximum temperature higher and equal to 35 degrees celsius' , s)
-days_tx_gte_40  = lambda s='cap': style('tropical days maximum temperature higher and equal to 40 degrees celsius' , s)
-days_sq_gte_10  = lambda s='cap': style('sunny days with more than 10 hours of sunshine', s)
-days_rh_gte_10  = lambda s='cap': style('days with more than 10 mm of rain' , s)
-days_hellman    = lambda s='cap': style('hellmann days mean temperature less than 0 degress celsius', s)
-
-hellmann        = lambda s='cap': style('hellmann cold number', s)
-ijnsen          = lambda s='cap': style('ijnsen cold number', s)
-frostsum        = lambda s='cap': style('frostsum cold number', s)
-heat_ndx        = lambda s='cap': style('heat number', s)
-
-days_tx_lt_0    = lambda s='cap': style('days with a maximum temperature below 0 degrees celsius' , s)
-days_tg_lt_0    = lambda s='cap': style('days with an mean temperature below 0 degrees celsius', s)
-days_tn_lt_0    = lambda s='cap': style('days with a minimum temperature below 0 degrees celsius' , s)
-days_tn_lt__5   = lambda s='cap': style('days with a minimum temperature below -5 degrees celsius', s)
-days_tn_lt__10  = lambda s='cap': style('days with a minimum temperature below -10 degrees celsius', s)
-days_tn_lt__15  = lambda s='cap': style('days with a minimum temperature below -15 degrees celsius', s)
-days_tn_lt__20  = lambda s='cap': style('days with a minimum temperature below -20 degrees celsius', s)
-days_tn_lt__25  = lambda s='cap': style('days with a minimum temperature below -25 degrees celsius', s)
-days_tn_lt__30  = lambda s='cap': style('days with a minimum temperature below -30 degrees celsius', s)
-
-days_t10n_lt_0    = lambda s='cap': style('days with a ground minimum temperature below 0 degrees celsius' , s)
-days_t10n_lt__5   = lambda s='cap': style('days with a ground minimum temperature below -5 degrees celsius', s)
-days_t10n_lt__10  = lambda s='cap': style('days with a ground minimum temperature below -10 degrees celsius', s)
-days_t10n_lt__15  = lambda s='cap': style('days with a ground minimum temperature below -15 degrees celsius', s)
-days_t10n_lt__20  = lambda s='cap': style('days with a ground minimum temperature below -20 degrees celsius', s)
-days_t10n_lt__25  = lambda s='cap': style('days with a ground minimum temperature below -25 degrees celsius', s)
-days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperature below -30 degrees celsius', s)
 
 # Padding text values for text output
 pad_default = 10
@@ -504,69 +481,156 @@ pad_clima = 10
 pad_view = 4 
 pad_evaporation = 4 
 
-def entity_to_text(entity):
-    e = entity.lower()
-    if   e == 'tx':    return tr('maximum temperature')
-    elif e == 'tg':    return tr('mean temperature')
-    elif e == 'tn':    return tr('minimum temperature')
-    elif e == 't10n':  return tr('minimum temperature (10cm)')
-    elif e == 'ddvec': return tr('wind direction')
-    elif e == 'fg':    return tr('mean windspeed (daily)')
-    elif e == 'rh':    return tr('precipitation amount')
-    elif e == 'sq':    return tr('sunshine duration (hourly)')
-    elif e == 'pg':    return tr('mean pressure')
-    elif e == 'ug':    return tr('mean atmospheric humidity')
-    elif e == 'fxx':   return tr('maximum wind (gust)')
-    elif e == 'fhvec': return tr('mean windspeed (vector)')
-    elif e == 'fhx':   return tr('maximum mean windspeed (hourly)')
-    elif e == 'fhn':   return tr('minimum mean windspeed (hourly)')
-    elif e == 'sp':    return tr('sunshine duration (maximum potential)')
-    elif e == 'q':     return tr('radiation (global)')
-    elif e == 'dr':    return tr('precipitation duration')
-    elif e == 'rhx':   return tr('maximum precipitation (hourly)')
-    elif e == 'px':    return tr('maximum pressure (hourly)')
-    elif e == 'pn':    return tr('minimum pressure (hourly)')
-    elif e == 'vvn':   return tr('minimum visibility')
-    elif e == 'vvx':   return tr('maximum visibility')
-    elif e == 'ng':    return tr('mean cloud cover')
-    elif e == 'ux':    return tr('maximum humidity')
-    elif e == 'un':    return tr('minimum humidity')
-    elif e == 'ev24':  return tr('evapotranspiration (potential)')
-    return tr(e)
+def clear(s):
+    '''Remove double whitespaces'''
+    s = str(s).strip()
+    s = re.sub(r'\t+',' ', s)
+    s = re.sub(' +',' ', s)
+    return s.strip()
 
-# def home(color='', extra='', size=''): return i('fas fa-home', color, extra, size)
-# def flag(color='', extra='', size=''): return i('fab fa-font-awesome-flag', color, extra, size)
-# def : return i('fas fa-fire-alt', color, extra, size)
-# def cal_period(color='', extra='', size=''): return i('far fa-calendar-alt', color, extra, size)
-# def cal_day(color='', extra='', size=''): return i('fas fa-calendar-day', color, extra, size)
-# def sun(color='', extra='', size=''): return i('fas fa-sun', color, extra, size)
-# def temp_full(color='', extra='', size=''): return i('fas fa-thermometer-full', color, extra, size)
-# def temp_half(color='', extra='', size=''): return i('fas fa-thermometer-half', color, extra, size)
-# def temp_empty(color='', extra='', size=''): return i('fas fa-thermometer-empty', color, extra, size)
-# def wind(color='', extra='', size=''): return i('fas fa-wind', color, extra, size)
-# def wind_dir(color='', extra='', size=''): return i('fas fa-location-arrow', color, extra, size)
-# def shower_heavy(color='', extra='', size=''): return i('fas fa-cloud-showers-heavy', color, extra, size)
-# def compress(color='', extra='', size=''): return i('fas fa-compress', color, extra, size)
-# def compress_alt(color='', extra='', size=''): return i('fas fa-compress-arrows-alt', color, extra, size)
-# def cloud(color='', extra='', size=''): return i('fas fa-cloud', color, extra, size)
-# def drop_tint(color='', extra='', size=''): return i('fas fa-tint', color, extra, size)
-# def eye(color='', extra='', size=''): return i('fas fa-eye', color, extra, size)
-# def radiation(color='', extra='', size=''): return i('fas fa-radiation-alt', color, extra, size)
-# def sweat(color='', extra='', size=''): return i('far fa-grin-beam-sweat', color, extra, size)
-# def icicles(color='', extra='', size=''): return i('fas fa-icicles', color, extra, size)
-# def calculator(color='', extra='', size=''): return i('fas fa-calculator', color, extra, size)
-# def weather_all(color='', extra='', size=''): return i('fas fa-cloud-sun-rain', color, extra, size)
-# def arrow_loc(color='', extra='', size=''): return i('fas fa-location-arrow', color, extra, size)
-# def arrow_up(color='', extra='', size=''): return i('fas fa-arrow-up', color, extra, size)
-# def arrow_left(color='', extra='', size=''): return i('fas fa-arrow-left', color, extra, size)
-# def arrow_down(color='', extra='', size=''): return i('fas fa-arrow-down', color, extra, size)
-# def arrow_right(color='', extra='', size=''): return i('fas fas fa-arrow-right', color, extra, size)
-# def binoculars(color='', extra='', size=''): return i('fas fa-binoculars', color, extra, size)
-# def minus(color='', extra='', size=''): return i('fas fa-minus', color, extra, size)
-# def plus(color='', extra='', size=''): return i('fas fa-plus', color, extra, size)
-# def wave_square(color='', extra='', size=''): return i('fas fa-wave-square', color, extra, size)
-# def copy_light(color='', extra='', size=''): return i('far fa-copyright', color, extra, size)
+def clean(s):
+    s = clear(s)
+    s = re.sub(r'\n|\r', ' ', s )
+    s = clear(s)        
+    return s.strip()  # No whitespace at start and end
 
+def clean_html(s):
+    s = clean(s)
+    s = re.sub( '>\s*<', '><', s) # Remove whitespace between html tags
+    return s.strip()
+
+def sanitize(s):
+    s = clear(s)
+    s = re.sub(r'(\n)\n+', '\n\n', s)
+    return s.strip()
+
+def strip_all(s):
+    s = re.sub('\t|\r|\n| |\s', '', s)
+    return s.strip()
+
+def month_num_to_name( m, lang='en' ):
+    lst, key = [], 0
+    if lang == 'en': key = 0
+    if lang == 'nl': key = 1
+
+    if    m in ['01','1', 1]: lst = ['january','januari']
+    elif  m in ['02','2', 2]: lst = ['february','februari']
+    elif  m in ['03','3', 3]: lst = ['march','maart']
+    elif  m in ['04','4', 4]: lst = ['april','april']
+    elif  m in ['05','5', 5]: lst = ['mai','mei']
+    elif  m in ['06','6', 6]: lst = ['june','juni']
+    elif  m in ['07','7', 7]: lst = ['july','juli']
+    elif  m in ['08','8', 8]: lst = ['august','augustus']
+    elif  m in ['09','9', 9]: lst = ['september','september']
+    elif  m in ['10', 10]:    lst = ['october','october']
+    elif  m in ['11', 11]:    lst = ['nobemver','november']
+    elif  m in ['12', 12]:    lst = ['december','december']
+
+    return  lst[key]
+
+def month_num_to_mmmm( n ):
+    return lst_mmmm[int(n)-1]
+
+def month_to_num( mm ):
+    if mm in [ '1', '01', 'january',  'jan']:  return '01'
+    if mm in [ '2', '02', 'februari', 'feb']:  return '02'
+    if mm in [ '3', '03', 'march',    'mar']:  return '03'
+    if mm in [ '4', '04', 'april',    'apr']:  return '04'
+    if mm in [ '5', '05', 'mai',      'may']:  return '05'
+    if mm in [ '6', '06', 'june',     'jun']:  return '06'
+    if mm in [ '7', '07', 'july',     'jul']:  return '07'
+    if mm in [ '8', '08', 'august',   'aug']:  return '08'
+    if mm in [ '9', '09', 'september','sep']:  return '09'
+    if mm in [ '10',      'oktober',  'okt']:  return '10'
+    if mm in [ '11',      'november', 'nov']:  return '11'
+    if mm in [ '12',      'december', 'dec']:  return '12'
+    return '??'
+
+def month_name_to_num ( name ):
+    ndx = 0
+    for mmm, mmmm in zip(lst_mmm, lst_mmmm):
+        if name in [mmm,mmmm]:
+            return ndx
+        ndx += 1
+    else:
+        return -1 # Name not found
+
+def m_to_mmmm ( m ):
+    return lst_mmmm[int(m)-1] if str(m) in lst_m else -1
+
+def m_to_mmm ( m ):
+    return lst_mmm[ int(m)-1] if str(m) in lst_m else -1
+
+def mm_to_mmmm( mm ): 
+    return lst_mmmm[int(mm)-1] if mm in lst_mm else -1
+
+def mm_to_mmm( mm ): 
+    return lst_mmm[ int(mm)-1] if mm in lst_mm else -1
+
+def mmm_to_m( mmm ): 
+    return str(month_name_to_num(mmm))
+
+def mmm_to_mm( mmm ): 
+    return f'{month_name_to_num(mmm):0>2}'
+
+def separator( cnt=0 ):
+    t = ' '
+    while cnt > 0:
+        t += '\n'
+        cnt -= 1
+
+    return t
+
+def error(t, err):
+    t = f'{t} failed.\nError {err}'
+    return t
+
+def succes(t):
+    t = f'{t} success.'
+    return t
+
+def padding(t, align='center', spaces=35):
+    s = (str(t))
+    if   align == 'center': s = f'{s:^{spaces}}'
+    elif align == 'left':   s = f'{s:<{spaces}}'
+    elif align == 'right':  s = f'{s:>{spaces}}'
+
+    return s
+
+def lst_el_maxwidth(l):
+    max = 0
+    for el in l:
+        if len(el) > max:
+            max = len(el)
+    return max
+
+def query_sign_to_text(query):
+    '''Replce wrong chars for use in file name'''
+    q = query.replace('>','gt')
+    q = q.replace('>=|≥','ge')
+    q = q.replace('<','lt')
+    q = q.replace('==','eq')
+    q = q.replace('ne|!=|<>','not')
+    q = q.replace('\|\|','or')
+    q = q.replace('&&','and')
+    
+    return q
+
+def style(t='', style='none'):
+    t = tr( t.strip().replace('  ', ' '))
+    if   style in ['cap','capitalize']: t = t.capitalize()
+    elif style in ['up','upper']: t = t.upper()
+    elif style in ['low','lower']: t = t.lower()
+    elif style in ['tit', 'title']: t = t.title()
+
+    return t
+
+def file_extension( typ ):
+    if   typ in lst_output_htm:   return extension_htm
+    elif typ in lst_output_txt:   return extension_txt
+    elif typ in lst_output_csv:   return extension_csv 
+    elif typ in lst_output_excel: return extension_excel
+    else: return typ
 
 def option_lst( npl, sep=',', col_cnt = False, col_spaces = False ):
     # Possible update none values
@@ -581,17 +645,17 @@ def option_lst( npl, sep=',', col_cnt = False, col_spaces = False ):
     if col_spaces == False or col_spaces < max_len: col_spaces = max_len
 
     # Make txt list with colls en newlines
-    t, n, max = '', 1, npl.size
+    txt, n, max = '', 1, npl.size
     for e in npl:
-        t += f'{e:{col_spaces}}'
-        t += f'{sep} ' if n % col_cnt != 0 and n != max else '\n' # comma or newline
+        txt += f'{e:{col_spaces}}'
+        txt += f'{sep} ' if n % col_cnt != 0 and n != max else '\n' # comma or newline
         n   += 1
 
-    return t
+    return txt
 
 def day_ent_lst(sep=',', kol = False, kol_width = False):
     '''Functions prints a list with available entities'''
-    l = daydata.entities
+    l = daydata.knmi_entities
     for rem in np.array( [ 'FHXH', 'FHNH', 'FXXH', 'TNH', 'TXH', 'T10NH',\
                            'RHXH', 'PXH',  'PNH', 'VVNH', 'VVXH',  'UXH',\
                            'UNH' ] ):
@@ -611,32 +675,34 @@ def txt_main( day ):
 
     t, title1, title2, title3, main1, main2, main3 = '', '', '', '', '', '', ''
 
-    title1 += entity_to_text('TX') if tx else ''
-    title1 += entity_to_text('TG') if tg else ''
-    title1 += entity_to_text('TN') if tn else ''
-    title1 += entity_to_text('T10N') if t10n else ''
-    title1 += entity_to_text('DDVEC') if ddvec else ''
-    title1 += entity_to_text('FG') if fg else ''
-    title1 += entity_to_text('RH') if rh else ''
-    title1 += entity_to_text('SQ') if sq else ''
-    title1 += entity_to_text('PG') if pg else ''
-    title1 += entity_to_text('UG') if ug else ''
-    title2 += entity_to_text('FXX') if fxx else ''
-    title2 += entity_to_text('FHX') if fhx else ''
-    title2 += entity_to_text('FHN') if fhn else ''
-    title2 += entity_to_text('FHVEC') if fhvec else ''
-    title2 += entity_to_text('DR') if dr else ''
-    title2 += entity_to_text('SP') if sp else ''
-    title2 += entity_to_text('Q') if q else ''
-    title2 += entity_to_text('RHX') if rhx else ''
-    title2 += entity_to_text('PX') if px else ''
-    title2 += entity_to_text('PN') if pn else ''
-    title3 += entity_to_text('VVX') if vvx else ''
-    title3 += entity_to_text('VVN') if vvn else ''
-    title3 += entity_to_text('NG') if ng else ''
-    title3 += entity_to_text('UX') if ux else ''
-    title3 += entity_to_text('UN') if un else ''
-    title3 += entity_to_text('EV24') if ev24  else ''
+    title1 += ent_to_txt('TX') if tx else ''
+    title1 += ent_to_txt('TG') if tg else ''
+    title1 += ent_to_txt('TN') if tn else ''
+    title1 += ent_to_txt('T10N') if t10n else ''
+    title1 += ent_to_txt('DDVEC') if ddvec else ''
+    title1 += ent_to_txt('FG') if fg else ''
+    title1 += ent_to_txt('RH') if rh else ''
+    title1 += ent_to_txt('SQ') if sq else ''
+    title1 += ent_to_txt('PG') if pg else ''
+    title1 += ent_to_txt('UG') if ug else ''
+
+    title2 += ent_to_txt('FXX') if fxx else ''
+    title2 += ent_to_txt('FHX') if fhx else ''
+    title2 += ent_to_txt('FHN') if fhn else ''
+    title2 += ent_to_txt('FHVEC') if fhvec else ''
+    title2 += ent_to_txt('DR') if dr else ''
+    title2 += ent_to_txt('SP') if sp else ''
+    title2 += ent_to_txt('Q') if q else ''
+    title2 += ent_to_txt('RHX') if rhx else ''
+    title2 += ent_to_txt('PX') if px else ''
+    title2 += ent_to_txt('PN') if pn else ''
+
+    title3 += ent_to_txt('VVX') if vvx else ''
+    title3 += ent_to_txt('VVN') if vvn else ''
+    title3 += ent_to_txt('NG') if ng else ''
+    title3 += ent_to_txt('UX') if ux else ''
+    title3 += ent_to_txt('UN') if un else ''
+    title3 += ent_to_txt('EV24') if ev24  else ''
 
     main1 = ''
     main1 += tx if tx else ''
@@ -674,7 +740,82 @@ def txt_main( day ):
 
     return f'{t}\n'
 
-def fix_entity(val, entity):
+def process_time_ext(t='', delta_ns=0):
+    '''Function gives a time string from nano seconds till days'''
+    dag_sec, uur_sec, min_sec = 86400, 3600, 60
+    delta_sec = delta_ns / 1000000000
+
+    rest, total_sec = math.modf( delta_sec )
+    rest, milli_sec = math.modf( rest * 1000 )
+    rest, micro_sec = math.modf( rest * 1000 )
+    rest, nano_sec  = math.modf( rest * 1000 )
+    mill, micr, nano = int(milli_sec), int(micro_sec), int(nano_sec)
+
+    # Calculate from seconds
+    dag  = int(total_sec // dag_sec) # Calculate days
+    rest = total_sec  % dag_sec      # Leftover seconds
+    uur  = int(rest // uur_sec)      # Calculate hours
+    rest = rest  % uur_sec           # Leftover seconds
+    min  = int(rest // min_sec)      # Calculate minutes
+    rest = rest  % min_sec           # Leftover seconds
+    sec  = int(rest)                 # Calculate seconds
+
+    # Make nice output. Give emthpy string if 0
+    # Only print to screen when counted amount > 0
+    if dag > 0: t += str(dag) + ( ' days '    if dag > 1 else ' day ' )
+    if uur > 0: t += str(uur) + ( ' hours '   if uur > 1 else ' hour ' )
+    if min > 0: t += str(min) + ( ' minutes ' if min > 1 else ' minute ' )
+
+    smile = utils.add_zero_less_1000(mill)
+    if sec > 0:
+        t += f'{sec}.{smile} ' + ( ' second ' if sec == 1 else ' seconds ' )
+    else:
+        t += f'0.{smile} second '
+
+    # if micr > 0: txt += f'{micr} {"microseconds" if micr>1 else "microsecond"} '
+    # if nano > 0: txt += f'{nano} {"nanoseconds" if nano>1 else "nanosecond"} '
+
+    return t
+
+def process_time(t='', st=time.time_ns()):
+    delta = time.time_ns() - st
+    t = process_time_ext(t, delta)
+    return t
+
+def remove_dumb_whitespace( t ):    
+    '''Function removes excessive whitespaces from a text string'''
+    t = re.sub('\n|\r|\t', '', str(t))
+    t = re.sub('\s+', ' ', t)
+    return t.strip()
+
+def strip_all_whitespace(t):
+    '''Function removes all whitespace from a text string'''
+    return re.sub( '\t|\r|\n| |\s', '', str(t) )
+
+def cleanup_whitespaces( t ):
+    '''Function civilizes long text output with too much enters e.g.'''
+    t = re.sub(r'\n+', '\n\n', t)
+    t = re.sub('\t+|\s+', ' ', t)
+    return t.strip()
+
+def line_spacer( cnt=1 ):
+    '''Function print enters to the screen'''
+    t = ''
+    while cnt >= 0: t += '\n'; cnt -= 1
+    return t
+
+def day_ent_lst(sep=',', kol = False, kol_width = False):
+    '''Functions prints a list with available entities'''
+    l = daydata.entities
+    for rem in np.array( [ 'FHXH', 'FHNH', 'FXXH', 'TNH', 'TXH', 'T10NH',\
+                           'RHXH', 'PXH',  'PNH', 'VVNH', 'VVXH',  'UXH',\
+                           'UNH' ] ):
+        l = l[l != rem] # Remove time ent
+
+    t = option_lst( l, '', kol, kol_width )
+    return t
+
+def fix_ent(val, entity):
     '''Function adds correct post/prefixes for weather entities'''
     # No measurement or false measurement
     if not daydata.check(val):
@@ -733,7 +874,7 @@ def fix_entity(val, entity):
 
     # Wind
     elif e in lst_wind:
-        bft = common_cvt.ms_to_bft(val)
+        bft = convert.ms_to_bft(val)
         return f'{f:.1f}m/s {bft}bft'
 
     # Evapotranspiration
@@ -781,50 +922,233 @@ def fix_entity(val, entity):
 
     return f  # Without string casting will give an error with unknowm data entity
 
+def ent_to_txt(entity):
+    e = entity.lower()
+    if   e == 'tx':    return tr('maximum temperature')
+    elif e == 'tg':    return tr('mean temperature')
+    elif e == 'tn':    return tr('minimum temperature')
+    elif e == 't10n':  return tr('minimum temperature (10cm)')
+    elif e == 'ddvec': return tr('wind direction')
+    elif e == 'fg':    return tr('mean windspeed (daily)')
+    elif e == 'rh':    return tr('precipitation amount')
+    elif e == 'sq':    return tr('sunshine duration (hourly)')
+    elif e == 'pg':    return tr('mean pressure')
+    elif e == 'ug':    return tr('mean atmospheric humidity')
+    elif e == 'fxx':   return tr('maximum wind (gust)')
+    elif e == 'fhvec': return tr('mean windspeed (vector)')
+    elif e == 'fhx':   return tr('maximum mean windspeed (hourly)')
+    elif e == 'fhn':   return tr('minimum mean windspeed (hourly)')
+    elif e == 'sp':    return tr('sunshine duration (maximum potential)')
+    elif e == 'q':     return tr('radiation (global)')
+    elif e == 'dr':    return tr('precipitation duration')
+    elif e == 'rhx':   return tr('maximum precipitation (hourly)')
+    elif e == 'px':    return tr('maximum pressure (hourly)')
+    elif e == 'pn':    return tr('minimum pressure (hourly)')
+    elif e == 'vvn':   return tr('minimum visibility')
+    elif e == 'vvx':   return tr('maximum visibility')
+    elif e == 'ng':    return tr('mean cloud cover')
+    elif e == 'ux':    return tr('maximum humidity')
+    elif e == 'un':    return tr('minimum humidity')
+    elif e == 'ev24':  return tr('evapotranspiration (potential)')
+    return tr(e)
 
-def process_time_ext(t='', delta_ns=0):
-    '''Function gives a time string from nano seconds till days '''
-    dag_sec, uur_sec, min_sec = 86400, 3600, 60
-    delta_sec = delta_ns / 1000000000
+def now_created_notification():
+    ds = utils.loc_date_now().strftime('%A, %d %B %Y %H:%M')
+    return cfg.created_by_notification % ds
 
-    rest, total_sec = math.modf( delta_sec )
-    rest, milli_sec = math.modf( rest * 1000 )
-    rest, micro_sec = math.modf( rest * 1000 )
-    rest, nano_sec  = math.modf( rest * 1000 )
-    mill, micr, nano = int(milli_sec), int(micro_sec), int(nano_sec)
+def make_query_txt_only(query):
+    q = query.lower()
+    q = q.replace('ge',  ' ge ')
+    q = q.replace('le',  ' le ')
+    q = q.replace('eq',  ' eq ')
+    q = q.replace('ne',  ' ne ')
+    q = q.replace('gt',  ' gt ')
+    q = q.replace('lt',  ' lt ')
+    q = q.replace('or',  ' or ')
+    q = q.replace('and', ' and ')
+    q = q.replace('>=',  ' ge ')
+    q = q.replace('≥',   ' ge ')
+    q = q.replace('<=',  ' le ')
+    q = q.replace('≤',   ' le ')
+    q = q.replace('==',  ' eq ')
+    q = q.replace('!=',  ' ne ')
+    q = q.replace('<>',  ' ne ')
+    q = q.replace('!=',  ' ne ')
+    q = q.replace('>',   ' gt ')
+    q = q.replace('<',   ' lt ')
+    q = q.replace('||',  ' or ')
+    q = q.replace('&&',  ' and ')
 
-    # Calculate from seconds
-    dag  = int(total_sec // dag_sec) # Calculate days
-    rest = total_sec  % dag_sec      # Leftover seconds
-    uur  = int(rest // uur_sec)      # Calculate hours
-    rest = rest  % uur_sec           # Leftover seconds
-    min  = int(rest // min_sec)      # Calculate minutes
-    rest = rest  % min_sec           # Leftover seconds
-    sec  = int(rest)                 # Calculate seconds
+    return clear(q)
 
-    # Make nice output. Give emthpy string if 0
-    # Only print to screen when counted amount > 0
-    if dag > 0: t += str(dag) + ( f' {tr("days")} '    if dag > 1 else f' {tr("day")} ' )
-    if uur > 0: t += str(uur) + ( f' {tr("hours")} '   if uur > 1 else f' {tr("hour")} ' )
-    if min > 0: t += str(min) + ( f' {tr("minutes")} ' if min > 1 else f' {tr("minute")} ' )
+lst_wmo = lambda: [el.wmo for el in stations.lst]
+lst_name = lambda: [el.place for el in stations.lst]
+lst_wmo_name = lambda: [ f'{el[0]} {el[1]}' for el in zip( lst_wmo(), lst_name() ) ]
 
-    smile = utils.add_zero_less_1000(mill)
-    if sec > 0:
-        t += f'{sec}.{smile} ' + ( f'{tr("second")} ' if sec == 1 else f'{tr("seconds")} ' )
-    else:
-        t += f'0.{smile} {tr("second")} '
+enter_default  = lambda default: f'Press <enter> for default (={default})...'
+enter_back_to  = lambda t: f"Press 'q' to go back to the {t} menu... "
+type_more_info = lambda i: f"Type '{i}' for more info..."
 
-    # if micr > 0: t += f'{micr} {"microseconds" if micr>1 else "microsecond"} '
-    # if nano > 0: t += f'{nano} {"nanoseconds" if nano>1 else "nanosecond"} '
+ave_tg    = lambda s='cap': style('average temperature', s)
+ave_tx    = lambda s='cap': style('average maximum temperature', s)
+ave_tn    = lambda s='cap': style('average minumum temperature', s)
+ave_sq    = lambda s='cap': style('average sunshine duration', s)
+ave_rh    = lambda s='cap': style('average rain precipiation', s)
+max_tx    = lambda s='cap': style('highest maximum temperatur, warmest day', s)
+max_tg    = lambda s='cap': style('highest mean temperature', s)
+max_tn    = lambda s='cap': style('highest minimum temperature. warmest night', s)
+min_tx    = lambda s='cap': style('lowest maximum temperature, coldest day', s)
+min_tg    = lambda s='cap': style('lowest mean temperature', s)
+min_tn    = lambda s='cap': style('lowest minumum temperature, coldest night', s)
+max_t10n  = lambda s='cap': style('highest ground minimum temperature', s)
+min_t10n  = lambda s='cap': style('lowest ground minimum temperature', s)
+max_sq    = lambda s='cap': style('highest sunshine duration, most sunny day', s)
+max_rh    = lambda s='cap': style('highest rain, most wet day', s)
 
-    return t
+tot_hour_sun    = lambda s='cap': style('total hours of sunshine', s)
+tot_rain_sum    = lambda s='cap': style('total rain sum in mm', s)
+sum_rh          = lambda s='cap': tot_rain_sum()
+sum_sq          = lambda s='cap': tot_hour_sun()
 
-def process_time(t='', st=time.time_ns(), ln='\n'):
-    delta = time.time_ns() - st
-    t = process_time_ext(t, delta)
-    return t + ln
+days_tg_gt_18   = lambda s='cap': style('days mean temperature higher than 18 degrees celsius (heat index)' , s)
+days_tg_gte_18  = lambda s='cap': style('days mean temperature higher and equal to 18 degrees celsius (heat index)' , s)
+days_tg_gte_20  = lambda s='cap': style('days mean temperature higher and equal to 20 degrees celsius (heat index)' , s)
+days_tn_gte_20  = lambda s='cap': style('tropical nights minium temperature higher and equal to 20 degrees celsius' , s)
+days_tx_gte_20  = lambda s='cap': style('warm days maximum temperature higher and equal to 20 degrees celsius' , s)
+days_tx_gte_25  = lambda s='cap': style('summer days maximum temperature higher and equal to 25 degrees celsius' , s)
+days_tx_gte_30  = lambda s='cap': style('tropical days maximum temperature higher and equal to 30 degrees celsius' , s)
+days_tx_gte_35  = lambda s='cap': style('tropical days maximum temperature higher and equal to 35 degrees celsius' , s)
+days_tx_gte_40  = lambda s='cap': style('tropical days maximum temperature higher and equal to 40 degrees celsius' , s)
+days_sq_gte_10  = lambda s='cap': style('sunny days with more than 10 hours of sunshine', s)
+days_rh_gte_10  = lambda s='cap': style('days with more than 10 mm of rain' , s)
+days_hellman    = lambda s='cap': style('hellmann days mean temperature less than 0 degress celsius', s)
+
+hellmann        = lambda s='cap': style('hellmann cold number', s)
+ijnsen          = lambda s='cap': style('ijnsen cold number', s)
+frostsum        = lambda s='cap': style('frostsum cold number', s)
+heat_ndx        = lambda s='cap': style('heat number', s)
+
+days_tx_lt_0    = lambda s='cap': style('days with a maximum temperature below 0 degrees celsius' , s)
+days_tg_lt_0    = lambda s='cap': style('days with an mean temperature below 0 degrees celsius', s)
+days_tn_lt_0    = lambda s='cap': style('days with a minimum temperature below 0 degrees celsius' , s)
+days_tn_lt__5   = lambda s='cap': style('days with a minimum temperature below -5 degrees celsius', s)
+days_tn_lt__10  = lambda s='cap': style('days with a minimum temperature below -10 degrees celsius', s)
+days_tn_lt__15  = lambda s='cap': style('days with a minimum temperature below -15 degrees celsius', s)
+days_tn_lt__20  = lambda s='cap': style('days with a minimum temperature below -20 degrees celsius', s)
+days_tn_lt__25  = lambda s='cap': style('days with a minimum temperature below -25 degrees celsius', s)
+days_tn_lt__30  = lambda s='cap': style('days with a minimum temperature below -30 degrees celsius', s)
+
+days_t10n_lt_0    = lambda s='cap': style('days with a ground minimum temperature below 0 degrees celsius' , s)
+days_t10n_lt__5   = lambda s='cap': style('days with a ground minimum temperature below -5 degrees celsius', s)
+days_t10n_lt__10  = lambda s='cap': style('days with a ground minimum temperature below -10 degrees celsius', s)
+days_t10n_lt__15  = lambda s='cap': style('days with a ground minimum temperature below -15 degrees celsius', s)
+days_t10n_lt__20  = lambda s='cap': style('days with a ground minimum temperature below -20 degrees celsius', s)
+days_t10n_lt__25  = lambda s='cap': style('days with a ground minimum temperature below -25 degrees celsius', s)
+days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperature below -30 degrees celsius', s)
 
 
+ave_tg    = lambda s='cap': style('average temperature', s)
+ave_tx    = lambda s='cap': style('average maximum temperature', s)
+ave_tn    = lambda s='cap': style('average minumum temperature', s)
+ave_sq    = lambda s='cap': style('average sunshine duration', s)
+ave_rh    = lambda s='cap': style('average rain precipiation', s)
+max_tx    = lambda s='cap': style('highest maximum temperatur, warmest day', s)
+max_tg    = lambda s='cap': style('highest mean temperature', s)
+max_tn    = lambda s='cap': style('highest minimum temperature. warmest night', s)
+min_tx    = lambda s='cap': style('lowest maximum temperature, coldest day', s)
+min_tg    = lambda s='cap': style('lowest mean temperature', s)
+min_tn    = lambda s='cap': style('lowest minumum temperature, coldest night', s)
+max_t10n  = lambda s='cap': style('highest ground minimum temperature', s)
+min_t10n  = lambda s='cap': style('lowest ground minimum temperature', s)
+max_sq    = lambda s='cap': style('highest sunshine duration, most sunny day', s)
+max_rh    = lambda s='cap': style('highest rain, most wet day', s)
+
+tot_hour_sun    = lambda s='cap': style('total hours of sunshine', s)
+tot_rain_sum    = lambda s='cap': style('total rain sum in mm', s)
+sum_rh          = lambda s='cap': tot_rain_sum()
+sum_sq          = lambda s='cap': tot_hour_sun()
+
+days_tg_gt_18   = lambda s='cap': style('days mean temperature higher than 18 degrees celsius (heat index)' , s)
+days_tg_gte_18  = lambda s='cap': style('days mean temperature higher and equal to 18 degrees celsius (heat index)' , s)
+days_tg_gte_20  = lambda s='cap': style('days mean temperature higher and equal to 20 degrees celsius (heat index)' , s)
+days_tn_gte_20  = lambda s='cap': style('tropical nights minium temperature higher and equal to 20 degrees celsius' , s)
+days_tx_gte_20  = lambda s='cap': style('warm days maximum temperature higher and equal to 20 degrees celsius' , s)
+days_tx_gte_25  = lambda s='cap': style('summer days maximum temperature higher and equal to 25 degrees celsius' , s)
+days_tx_gte_30  = lambda s='cap': style('tropical days maximum temperature higher and equal to 30 degrees celsius' , s)
+days_tx_gte_35  = lambda s='cap': style('tropical days maximum temperature higher and equal to 35 degrees celsius' , s)
+days_tx_gte_40  = lambda s='cap': style('tropical days maximum temperature higher and equal to 40 degrees celsius' , s)
+days_sq_gte_10  = lambda s='cap': style('sunny days with more than 10 hours of sunshine', s)
+days_rh_gte_10  = lambda s='cap': style('days with more than 10 mm of rain' , s)
+days_hellman    = lambda s='cap': style('hellmann days mean temperature less than 0 degress celsius', s)
+
+hellmann        = lambda s='cap': style('hellmann cold number', s)
+ijnsen          = lambda s='cap': style('ijnsen cold number', s)
+frostsum        = lambda s='cap': style('frostsum cold number', s)
+heat_ndx        = lambda s='cap': style('heat number', s)
+
+days_tx_lt_0    = lambda s='cap': style('days with a maximum temperature below 0 degrees celsius' , s)
+days_tg_lt_0    = lambda s='cap': style('days with an mean temperature below 0 degrees celsius', s)
+days_tn_lt_0    = lambda s='cap': style('days with a minimum temperature below 0 degrees celsius' , s)
+days_tn_lt__5   = lambda s='cap': style('days with a minimum temperature below -5 degrees celsius', s)
+days_tn_lt__10  = lambda s='cap': style('days with a minimum temperature below -10 degrees celsius', s)
+days_tn_lt__15  = lambda s='cap': style('days with a minimum temperature below -15 degrees celsius', s)
+days_tn_lt__20  = lambda s='cap': style('days with a minimum temperature below -20 degrees celsius', s)
+days_tn_lt__25  = lambda s='cap': style('days with a minimum temperature below -25 degrees celsius', s)
+days_tn_lt__30  = lambda s='cap': style('days with a minimum temperature below -30 degrees celsius', s)
+
+days_t10n_lt_0    = lambda s='cap': style('days with a ground minimum temperature below 0 degrees celsius' , s)
+days_t10n_lt__5   = lambda s='cap': style('days with a ground minimum temperature below -5 degrees celsius', s)
+days_t10n_lt__10  = lambda s='cap': style('days with a ground minimum temperature below -10 degrees celsius', s)
+days_t10n_lt__15  = lambda s='cap': style('days with a ground minimum temperature below -15 degrees celsius', s)
+days_t10n_lt__20  = lambda s='cap': style('days with a ground minimum temperature below -20 degrees celsius', s)
+days_t10n_lt__25  = lambda s='cap': style('days with a ground minimum temperature below -25 degrees celsius', s)
+days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperature below -30 degrees celsius', s)
+
+# TXT strings
+enter_default = lambda default: f'Press <enter> for default (={default})...'
+enter_back_to = lambda t: f"Press 'q' to go back to the {t} menu... "
+enter_previous_question = lambda s='':f"Press 'p' to go to the previous question..."
+enter_exit = "Press 'x' to exit the program..."
+type_more_info = lambda i: f"Type '{i}' for more info..."
+
+error     = lambda t, err: f'{t} failed.\nError {err}'
+succes    = lambda t: f'{t} success.'
+
+def climate(t=''): 
+    return f'climate {t}'
+
+def max(entity): 
+    return f'highest {ent_to_txt(entity)}'
+
+def min(entity):
+    return f'lowest {ent_to_txt(entity)}'
+
+def ave(entity):
+    return f'average {ent_to_txt(entity)}'
+
+def sum(entity):
+    return f'sum {ent_to_txt(entity)}'
+    
+def hellmann():
+    return f'hellmann'
+
+def ijnsen():
+    return 'ijnsen'
+
+def frostsum():
+    return 'frost_sum'
+
+def heat_ndx():
+    return 'heat_ndx'
+
+def climate(t=''):
+    return f'climate {t}'
+
+def title(entity, sign, val):
+    return f'{ent_to_txt(entity)} {sign} {val}'
+
+def title_mean(t=''):
+    return f'title mean {t}'
 
 ##########################################################################################
 # TRANSLATIONS TODO
