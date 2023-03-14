@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __version__    =  '0.0.6'
-__license__    =  'GNU Lesser General Public License (LGPL)'
+__license__    =  'GNU General Public License version 3 - GPLv3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -12,8 +12,8 @@ import config as cfg
 import calendar, numpy as np, datetime
 import sources.model.utils as utils
 import sources.model.daydata as daydata
-import common.model.convert as convert
-import common.model.util as util
+import sources.model.convert as convert
+import sources.model.utils as util
 
 # # Init wildcards
 x1, x2, x3, x4 = '*', '*'*2, '*'*3, '*'*4
@@ -468,7 +468,6 @@ def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
         return ok
     else:
         return result, lst_periods
-
 
 def day_only( data, period, mmdd ):
     '''Function selects a day over multiple years'''
