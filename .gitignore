@@ -10,10 +10,6 @@ data/dayvalues/html/280
 data/dayvalues/html/310
 data/dayvalues/html/380
 
-data/statistics/html/*.html
-data/statistics/csv/*.csv
-data/statistics/excel/*.excel
-
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
 data/graphs
