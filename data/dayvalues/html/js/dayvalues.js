@@ -23,10 +23,10 @@
 // Init vars
 let jan=1, febr=2, march=3, april=4, mai=5, june=6, july=7, 
     aug=8, sept=9, oct=10,  nov=11,  dec=12, 
-    id_menu = 'dayvalues_menu', 
-    id_iframe = 'dayvalues_page', 
-    id_option_lst = 'options_form_id', 
-    id_datepicker = 'date_form_id',
+    id_menu = 'dayvalues-menu', 
+    id_iframe = 'iframe-dayvalues-page', 
+    id_option_lst = 'options-form-id', 
+    id_datepicker = 'date-form-id',
     update_hour = 901, // No daily updates before 9
     // Make global 
     wmo_act = '', 
@@ -113,7 +113,6 @@ let get_object_post_url = () =>
     }
     return post_get
 }
-
 
 // Date handling functions
 let get_yyyymmdd_now = () =>
@@ -382,7 +381,7 @@ window.addEventListener( 'DOMContentLoaded', (event) =>
     });
 
     // Add event to option lst
-    docid('options_form_id').addEventListener('click', function(event) 
+    docid('options-form-id').addEventListener('click', function(event) 
     {
         event.preventDefault()
         onchange_wmo_or_date()
@@ -390,14 +389,14 @@ window.addEventListener( 'DOMContentLoaded', (event) =>
     });
 
     // Add event to datepicker
-    docid('date_form_id').addEventListener('change', function(event) 
+    docid('date-form-id').addEventListener('change', function(event) 
     {
         event.preventDefault()
         onchange_wmo_or_date()
     });
 
     // Set max date
-    docid('date_form_id').setAttribute("max", (function()
+    docid('date-form-id').setAttribute("max", (function()
     {
         let lst = split_date(get_max_date_for_menu()),
             yy = lst[0], mm = lst[1], dd = lst[2];
