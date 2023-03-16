@@ -65,6 +65,7 @@ def calculate( options ):
     # 'climate-periode': climate_periode
     # }
 
+    ok = True 
     t = f'[{ymd.now()}] Create <{options["title"]}>'
     cnsl.log(t, True)
 
@@ -324,4 +325,4 @@ def calculate( options ):
     if answer.is_yes(cfg.plot_show): 
         plt.show()
 
-    return path
+    return ok, path
