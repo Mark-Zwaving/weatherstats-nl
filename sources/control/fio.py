@@ -226,9 +226,13 @@ def download(
                     ok = True
             else:
                 cnsl.log(f'Url {url} does not exist', True)
-        # Do not flood server protection
-        wait = cfg.download_interval_time
-        time.sleep(0.2 if wait < 0.2 else wait)
+
+        # Flood server protection
+        if cfg.download_flood_protection_active:
+            wait = cfg.download_interval_time
+            if wait < 0.2: wait = 0.2
+            time.sleep(wait)
+
     return ok
 
 def download_read_file(url, file, verbose=cfg.verbose):
