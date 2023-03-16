@@ -154,7 +154,7 @@ def buienradar_weather_json(verbose=cfg.verbose):
         t += text.sanitize(tt) + '\n\n'
         t += 'Auteur: ' + report['author'] + '\n\n'
         t += 'Vooruitzichten:\n'
-        t += buienradar_table_forecast(js['forecast']['fivedayforecast']) + '\n\n'
+        t += buienradar_table_forecast(js['forecast']['fivedayforecast']) + '\n'
         t += js['buienradar']['copyright'] + '\n\n'
 
     return ok, t
