@@ -75,7 +75,7 @@ def table_stats(title, lst_questions, lst_cells=[]):
                 ):
                     break
 
-        if answer.is_yes(
+        if ask.is_yes(
             f'Do you want to make another <{title}> table ?', 
             default='y', back=False, prev=False, exit=True, spacer=True
         ):
