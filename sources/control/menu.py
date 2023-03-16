@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.3.3'
+__version__    =  '0.3.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -59,10 +59,11 @@ def table_stats(title, lst_questions, lst_cells=[]):
         
         # Ask list with questions
         options = ask.lst(lst_questions, title, back=True, prev=True, exit=True, spacer=True)
+  
+        if answer.is_back(options['other']): break # Go back to menu
 
         # Cells td list. As parameter or asked for
-        if lst_cells: 
-            options['lst-sel-cells'] = lst_cells
+        options['lst-sel-cells'] = lst_cells
 
         st = time.time_ns() # Set the timer
         ok, path = stats_tables.calculate(options) # Calculate with the given options
@@ -146,6 +147,9 @@ def make_dayvalues():
         # Ask list with questions
         lst_ask = ['lst-stations', 'period', 'file-type', 'write']
         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+
+        if answer.is_back(options['other']): break # Go back to menu
+
         options['download'] = False # Default is False, do not give a download option
         options['lst-sel-cells'] = cfg.lst_cells_dayvalues # Data cells to show
 
@@ -183,6 +187,8 @@ def search_for_days():
         title = 'search 4 days'
         lst_ask = ['lst-stations', 'period', 's4d-query', 'file-type', 'file-name']
         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+
+        if answer.is_back(options['other']): break # Go back to menu
 
         st = time.time_ns() # Set the timer
         query_title =  options['s4d-query'].replace('\s+', ' ').strip()
@@ -272,6 +278,8 @@ def graph_period():
         ]
         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
 
+        if answer.is_back(options['other']): break # Go back to menu
+
         st = time.time_ns()
         ok, path = graphs.calculate(options)
         cnsl.log( text.process_time('Total processing time is ',st), cfg.verbose )
@@ -347,8 +355,8 @@ def process_download_animation():
         cnsl.log(text.head('START DOWNLOAD IMAGES AND MAKE AN ANIMATION'), True)
         # Ask list with questions
         options = ask.lst(lst_ask, title, back=True, prev=True, exit=True, spacer=True)
-        if options['other']:
-            break
+
+        if answer.is_back(options['other']): break # Go back to menu
 
         options['file-type'] = cfg.animation_ext
 
@@ -495,7 +503,7 @@ def main():
             t += f"{space}Press 'x' to quit program...\n\n"
             t += text.foot('Your choice ? ')
 
-        answ = ask.question(t, back=False, exit=False, spacer=True)  # Make a choice
+        answ = ask.question(t, spacer=True)  # Make a choice
 
         if not answ:
             continue
