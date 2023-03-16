@@ -63,7 +63,8 @@ def table_stats(title, lst_questions, lst_cells=[]):
         if answer.is_back(options['other']): break # Go back to menu
 
         # Cells td list. As parameter or asked for
-        options['lst-sel-cells'] = lst_cells
+        if lst_cells:
+            options['lst-sel-cells'] = lst_cells
 
         st = time.time_ns() # Set the timer
         ok, path = stats_tables.calculate(options) # Calculate with the given options
