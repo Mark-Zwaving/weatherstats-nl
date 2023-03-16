@@ -14,7 +14,7 @@
     </head>
     <body>
         <article class="container-xl max-width-index mx-auto">
-            <header id="dayvalues_menu">
+            <header id="dayvalues-menu">
               <nav class="navbar navbar-expand-md navbar-light bg-light p-1">
 
                 <div class="col text-center">
@@ -43,7 +43,7 @@
                     
                     <div class="col text-center">
                       <div class="form-group m-1"> 
-                        <select id="options_form_id" class="form-control custom-select">
+                        <select id="options-form-id" class="form-control custom-select">
                         </select>
                       </div>
                     </div>
@@ -56,7 +56,7 @@
                               <i class="fa fa-calendar" aria-hidden="true"></i>
                             </span>
                           </div>
-                          <input type="date" id="date_form_id" class="form-control form-control-sm"
+                          <input type="date" id="date-form-id" class="form-control form-control-sm"
                                 min="1906-01-01" max=""
                                 value="2000-01-01" aria-describedby="inputGroupPrepend3" required>
                         </div>
@@ -69,20 +69,18 @@
               </nav>
             </header>
 
-            <iframe id="dayvalues_page" name="dayvalues_page"
-                    src="dummy.html" scrolling="0" frameborder="0" border="0"></iframe>
+            <iframe id="iframe-dayvalues-page" name="iframe-dayvalues-page"
+                    src="dummy.html" scrolling="0" 
+                    frameborder="0" border="0"></iframe>
                 
         </article>
-
         <script src="./../../thirdparty/js/jquery-3.2.1.slim.min.js"></script>
         <script src="./../../thirdparty/js/popper.min.js"></script>
         <script src="./../../thirdparty/js/bootstrap.js"></script>
         <script src="./../../thirdparty/js/font-awesome-5.min.js"></script>
         <script src="./js/dayvalues.js"></script>
         <script src="./js/default.js"></script>
-
         <script>
-
           // Uncomment the stations you want to show in the optionlist on this page
           lst_stations = [
               // new Station('391', 'Arcen', '19900704'),
@@ -119,9 +117,7 @@
               // new Station('257', 'Wijk aan Zee', '19010101'),
               // new Station('323', 'Wilhelminadorp', '19010101')
           ]
-  
           wmo_act = '280' // Default Eelde ! ;)
-
         </script>
     </body>
 </html>
