@@ -43,47 +43,50 @@ def any_key(t='', spacer=False, verbose=True):
     return answ
 
 def question(t='...', default='', back=False, prev=False, exit=False, spacer=False):
-    tt =  t[:-1] if t[-1] == '\n' else t
-    if default: tt += f'\n{text.enter_default(default)}'
-    if prev: tt += f'\n{text.enter_previous_question()}'
-    if back: tt += f'\n{text.enter_back_to("main")}'
-    if exit: tt += f'\n{text.enter_exit}'
+    t =  t[:-1] if t[-1] == '\n' else t
+    if default: 
+        t += f'\n{text.enter_default(default)}'
+    if prev: 
+        t += f'\n{text.enter_previous()}'
+    if back: 
+        t += f'\n{text.enter_back("main")}'
+    if exit: 
+        t += f'\n{text.enter_exit}'
 
-    answ = any_key(tt, spacer=spacer)
-
-    if answ in text.exit:
-        cnsl.log('Goodbye!', True)
-        sys.exit()
-
-    return answ
-
-def back_to_main_menu(default='', back=False, prev=False, exit=True, spacer=False):
-    question(text.back_main, default, back, prev, exit, spacer)
-
-def again(tt, default='', back=False, prev=False, exit=False, spacer=False):
-    t  = f'{tt} Press a key...'
-    answ = question(t, default, back, prev, exit, spacer)
+    answ = any_key(t, spacer=spacer)
 
     if answer.is_quit(answ):
-        return answ # Return first el for quit
+        cnsl.log('Goodbye!', True)
+        sys.exit(0)
 
     return answ
 
-def y_or_n(t='Type in "y" for yess or "n" for no', default='', back=False, prev=False, exit=True, spacer=False):
-
+def y_or_n(t='', default='', back=False, prev=False, exit=True, spacer=False):
+    t += '\nType in "y" for yess or "n" for no'
     while True:
         answ = question(t, default, back, prev, exit, spacer)
 
-        ttt = ''
+        tt = ''
         if answer.is_empty(answ):
             return default
-        elif answer.is_quit(answ) or answer.is_prev(answ) or \
-             answ in text.lst_yess or answ in text.lst_no:
+        elif back and answer.is_back(answ):
+            return answ
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif answ in text.lst_yess or answ in text.lst_no:
             return answ
         else:
-            ttt += 'Type in "y" or "n"'
+            tt += 'Type in "y" or "n"...'
 
-        cnsl.log(ttt, True)
+        cnsl.log(tt, True)
+
+def is_yes(t='', default='', back=False, prev=False, exit=True, spacer=False):
+    if answer.is_yes(
+            y_or_n( t, default, back, prev, exit, spacer) 
+        ):
+        return True
+    else:
+        return False
 
 def integer(t='Give an integer', default='', back=False, prev=False, exit=True, spacer=False):
 
@@ -93,7 +96,9 @@ def integer(t='Give an integer', default='', back=False, prev=False, exit=True, 
         ttt = ''
         if answer.is_empty(answ):
             return default
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         elif validate.is_int(answ):
             return int(answ)
@@ -102,18 +107,17 @@ def integer(t='Give an integer', default='', back=False, prev=False, exit=True, 
 
         cnsl.log(ttt, True)
 
-def open_with_app( tt, default='', back=False, prev=False, exit=False, spacer=False):
-    t  = f'{tt}\n'
-    t += "Press 'y' to open the file...\n"
-    t += 'Press <enter> to skip opening the file... '
-    answ = question(t, default, back, prev, exit, spacer)
+def open_with_app(path, options, back=False, prev=False, exit=False, spacer=False):
+    t = f'\nOpen the file <type={options["file-type"]}> with your default application ?'
+    answ = y_or_n(t, default='', back=back, prev=prev, exit=exit, spacer=spacer)
 
     if answer.is_yes(answ):
-        return True
-    if answer.is_quit(answ):
-        return text.quit 
+        utils.exec_with_app(path)
     else:
-        return False
+        return answ
+
+def back_to_main_menu(default='', back=False, prev=False, exit=True, spacer=False):
+    question(text.back_main, default, back, prev, exit, spacer)
 
 def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst_sel = []
@@ -135,7 +139,9 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
                 ttt += text.type_in # Empthy list
             elif answer.is_empty(answ) and len(lst_sel) > 0:
                 break # Done
-            elif answer.is_quit(answ) or answer.is_prev(answ):
+            elif prev and answer.is_prev(answ):
+                return answ
+            elif back and answer.is_back(answ):
                 return answ
             elif answ == '*':
                 lst_sel = weather_stations.lst_stations_map()
@@ -184,8 +190,10 @@ def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False
             return default
         elif answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
             return answ 
+        elif back and answer.is_back(answ):
+            return answ
         else:
             # Check validity date
             if select.days_period(period=answ, check_only=True):
@@ -203,7 +211,9 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer).lower() 
 
-        if answer.is_quit(option) or answer.is_prev(option):
+        if prev and answer.is_prev(option):
+            return option
+        elif back and answer.is_back(option):
             return option
 
         if option in 'day':
@@ -246,7 +256,9 @@ def period_day_to_day( t, default, back, prev, exit, spacer):
 
         if answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         else:
             return answ
@@ -263,10 +275,12 @@ def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
         answ = question(tt, default, back, prev, exit, spacer)
 
         if default and answer.is_empty(answ):
-            return default
+            return default 
         elif answer.is_empty(answ):
             ttt = text.type_in
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         else:
             ok, ttt = utils.query_ok(answ)
@@ -293,8 +307,10 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
             return default
         elif answer.is_empty(answ):
             ttt += text.type_in
-        elif answer.is_quit(answ) or answer.is_prev(answ):
-            return answ # Return quit
+        elif prev and answer.is_prev(answ):
+            return answ  
+        elif back and answer.is_back(answ):
+            return answ
         elif answ in lst:
             return answ
         elif validate.is_int(answ) or validate.is_float(answ):
@@ -341,7 +357,9 @@ def day( t, default='', back=False, prev=False, exit=False, spacer=False):
             return default
         elif answer.is_empty(answ):
             ttt += text.type_in
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         elif answ in text.lst_mmdd:
             return answ
@@ -362,7 +380,9 @@ def month( t, default='', back=False, prev=False, exit=False, spacer=False):
         ttt = ''
         if answer.is_empty(answ):
             ttt += text.type_in 
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         elif text.month_to_mm(answ) != -1:
             return text.month_to_mm(answ)
@@ -375,10 +395,12 @@ def period_compare(t, default='', back=False, prev=False, exit=False, spacer=Fal
     lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer)
-        if answer.is_quit(option) or answer.is_prev(option):
-            return option
 
-        if option in text.lst_season:
+        if prev and answer.is_prev(option):
+            return option
+        elif back and answer.is_back(option):
+            return option
+        elif option in text.lst_season:
             tt = 'Select season to compare'
             answ = ('season', season_type(tt, default, back, prev, exit, spacer))
 
@@ -421,7 +443,9 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
             ttt += text.type_in # Empthy list
         elif answer.is_empty(answ) and len(lst_cells) > 0:
             break # Done
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         else:
             lst = answ_to_lst(answ)
@@ -484,8 +508,10 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
             continue # Again
         elif answer.is_empty(answ) and len(lst) > 0:
             break
-        elif answer.is_quit(answ) or answer.is_prev(answ):
-            return answ # Return first el for quit
+        elif prev and answer.is_prev(answ):
+            return answ 
+        elif back and answer.is_back(answ):
+            return answ
         else:
             l = answ.split(',') if answ.find(',') != -1 else [answ]
             l = [el.strip() for el in l]
@@ -508,7 +534,7 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 
     return lst
 
-def image_download_url():
+def image_download_url(back=False, prev=False, exit=False, spacer=False):
     lst_num = []
     t = 'Select a download image url\n'
     for ndx, url in enumerate(cfg.lst_weather_images_url):
@@ -517,12 +543,14 @@ def image_download_url():
         lst_num.append(num)
 
     while True:
-        answ = question(t, False, True, False, True, True)
+        answ = question(t, default='', back=back, prev=prev, exit=exit, spacer=spacer)
 
         tt = ''
         if answer.is_empty(answ):
             tt += text.type_in # Empthy list
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         elif answ in lst_num:
             return cfg.lst_weather_images_url[int(answ)-1]
@@ -531,75 +559,76 @@ def image_download_url():
     
         cnsl.log(tt, True)
 
-def date_time(t):
-    t = f'Give a {t} datetime -> format [yyyy-mm-dd HH:MM:SS]'
-    answ = question(t, '', True, True, True, True)
+def date_time(t, back=False, prev=False, exit=False, spacer=False):
+    t = f'Give a <{t}> datetime -> format [yyyy-mm-dd HH:MM:SS]'
+    answ = question(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
     return answ
 
-def interval_download():
+def interval_download(back=False, prev=False, exit=False, spacer=False):
     t = 'Give the interval download time in minutes'
-    answ = integer(t, 10, back=True, prev=True, exit=True, spacer=True)
-    
+    answ = integer(t, 10, back=True, prev=True, exit=True, spacer=True) 
     return answ
 
-def animation_name():
+def animation_name(back=False, prev=False, exit=False, spacer=False):
     t = f'Give a name for the animation file or press enter for default'
-    answ = question(t, '', True, True, True, True)
+    answ = question(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
     return answ 
 
-def animation_time():
+def animation_time(back=False, prev=False, exit=False, spacer=False):
     t = f'Give a animation time for the animation <float>'
-    answ = question(t, cfg.animation_time, True, True, True, True)
+    answ = question(t, cfg.animation_time, back=back, prev=prev, exit=exit, spacer=spacer)
     
     if answer.is_empty(answ):
         return cfg.animation_time
     else:
         return float(answ)
 
-def remove_downloads():
+def remove_downloads(back=False, prev=False, exit=False, spacer=False):
     while True:
-        t  = 'Do you want to remove the downloaded images?\n'
-        t += 'Type in "y" for yess or "n" for no'
-        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
+        t  = 'Do you want to remove the downloaded images?'
+        answ = y_or_n(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
 
-        if answ in text.lst_yess:
+        if answer.is_yes(answ):
             return True 
-        elif answ in text.lst_no:
+        elif answer.is_no(answ):
             return False
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         
         cnsl.log(f'Wrong answer {answ} given ?', True)
 
-def gif_compress():
+def gif_compress(back=False, prev=False, exit=False, spacer=False):
     while True:
         t  = 'Do you want compress the animation file ?\n'
-        t += 'gifsicle is needed on your OS\n'
-        t += 'Type in "y" for yess or "n" for no'
-        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
+        t += 'Gifsicle needs to be installed on your OS'
+        answ = y_or_n(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
 
-        if answ in text.lst_yess:
+        if answer.is_yes(answ):
             return True 
-        elif answ in text.lst_no:
+        elif answer.is_no(answ):
             return False
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev or answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
         
         cnsl.log(f'Wrong answer {answ} given ?', True)
 
-def animation_verbose():
+def animation_verbose(back=False, prev=False, exit=False, spacer=False):
     while True:
         t  = 'Do you want to use the verbose option ?\n'
         t += 'With verbose enabled the programm cannot do something else.\n'
-        t += 'Although wsstats can be started in another console.\n'
-        t += 'Type in "y" for yess or "n" for no'
-        answ = y_or_n(t, '', back=True, prev=True, exit=True, spacer=True)
-
-        if answ in text.lst_yess:
+        t += 'Although wsstats can be started in another console.'
+        answ = y_or_n(t, '', back, prev, exit, spacer)
+        if answer.is_yes(answ):
             return True 
-        elif answ in text.lst_no:
+        elif answer.is_no(answ):
             return False
-        elif answer.is_quit(answ) or answer.is_prev(answ):
+        elif prev and answer.is_prev(answ):
+            return answ
+        elif back and answer.is_back(answ):
             return answ
 
         cnsl.log(f'Wrong answer {answ} given ?', True)
@@ -608,7 +637,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
     # Max options to aks in this function
     lst_stations, lst_sel_cel, lst_entity, quit = [], [], [], False
     s4d, per_1, per_2, per_cmp, f_type, f_name = '', '', '', '', '', name
-    write = ''
+    write, other = '', ''
     # Make option default list
     graph_title, graph_y_label = '', '' 
     graph_default = cfg.plot_default
@@ -636,39 +665,39 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         answ, quest = '', lst_ask[i]
 
         if quest == 'image-download-url': 
-            anim_image_download_url = image_download_url()
+            anim_image_download_url = image_download_url(back, prev_act, exit, spacer)
             answ = anim_image_download_url
             
         elif quest == 'start-datetime': 
-            anim_start_datetime = date_time('start')
+            anim_start_datetime = date_time('start', back, prev_act, exit, spacer)
             answ = anim_start_datetime
 
         elif quest == 'end-datetime': 
-            anim_end_datetime = date_time('end')
+            anim_end_datetime = date_time('end', back, prev_act, exit, spacer)
             answ = anim_end_datetime
         
         elif quest == 'interval-download': 
-            anim_interval_download = interval_download()
+            anim_interval_download = interval_download(back, prev_act, exit, spacer)
             answ = anim_interval_download
 
         elif quest == 'animation-name': 
-            anim_animation_name = animation_name()
+            anim_animation_name = animation_name(back, prev_act, exit, spacer)
             answ = anim_animation_name
 
         elif quest == 'animation-time': 
-            anim_animation_time = animation_time()
+            anim_animation_time = animation_time(back, prev_act, exit, spacer)
             answ = anim_animation_time
         
         elif quest == 'remove-downloads': 
-            anim_remove_downloads = remove_downloads()
+            anim_remove_downloads = remove_downloads(back, prev_act, exit, spacer)
             answ = anim_remove_downloads
         
         elif quest == 'gif-compress': 
-            anim_gif_compress = gif_compress()
+            anim_gif_compress = gif_compress(back, prev_act, exit, spacer)
             answ = anim_gif_compress
         
         elif quest == 'verbose': 
-            anim_verbose = animation_verbose()
+            anim_verbose = animation_verbose(back, prev_act, exit, spacer)
             answ = anim_verbose
 
         elif quest == 'lst-stations': # Ask for one or more stations
@@ -840,13 +869,12 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                         answ = climate_yyyy_end
                         climate_periode = f'{climate_yyyy_start}-{climate_yyyy_end}'
 
-                    if answer.is_quit(answ):
-                        quit = True
-                        break; break; break
-                    elif answer.is_prev(answ):
+                    if prev and answer.is_prev(answ):
                         k -= 1
                         if k < 0:
                             break 
+                    elif back and answer.is_back(answ):
+                        other = answer
                     else: # Next question
                         k += 1 
 
@@ -864,23 +892,26 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     'climate-periode': climate_periode
                 } )
 
-                if answer.is_quit(answ):
-                    quit = True
-                    break; break
-                elif answer.is_prev(answ):
+                if prev and answer.is_prev(answ):
                     j -= 1
                     if j < 0:
                         break
+                elif back and answer.is_back(answ):
+                    other = answer
                 else: # Next question
                     j += 1
 
-        if answer.is_quit(answ):
-            quit = True
-            break
-        elif answer.is_prev(answ):
+        if back and answer.is_back(answ):
+            other = answer
+
+        elif prev and answer.is_prev(answ):
             i = i - 1 if i > 0 else 0 
+
         else:
             i += 1 # Next question
+
+        if not answer.is_empty(other):
+            break
 
     return { 
         'title': name, 
@@ -915,5 +946,5 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         'remove-downloads': anim_remove_downloads,
         'gif-compress': anim_gif_compress,
         'verbose': anim_verbose,
-        'quit': quit
+        'other': other
     } 
