@@ -23,8 +23,9 @@ import sources.model.ymd as ymd
 path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data html file 
 
 def calculate(options):
+    ok = True
     cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
-    ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
+    path_ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
     ftyp = options['file-type']
     # input(ftyp)
 
@@ -144,4 +145,4 @@ def calculate(options):
 
         cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', True)
 
-    return ndx_html            # Make link html only. NOPE
+    return ok, path_ndx_html # Make link html only. NOPE
