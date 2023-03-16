@@ -9,17 +9,27 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg, stations
-import numpy as np, math, time, re
+import numpy as np, math, time, re, shutil 
 import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.weather_stations as weather_stations
 import sources.model.convert as convert
 
-line_hashtag = '#' * cfg.txt_line_width
-line_hyphen  = '-' * cfg.txt_line_width
+cli_colls, cli_rows = shutil.get_terminal_size()
 
-def A0(d):
-    return '0{d}' if d < 10 else str(d) # Add zero < 10
+def A0(d): return '0{d}' if d < 10 else str(d) # Add zero < 10
+def line(s): return str(s) * (shutil.get_terminal_size()[0] - 1)
+def line_hashtag(): return line('#')
+def line_hyphen(): return line('-')
+def head(t='Header'): return f'{line_hashtag()}\n##  {t}\n{line_hashtag()}'
+def foot(t='Footer'): return f'{line_hashtag()}\n##  {t}\n{line_hashtag()}\n'
+
+def lines_spacer( cnt=1 ):
+    '''Function print enters to the screen'''
+    t = ''
+    while cnt >= 0: 
+        t += '\n'; cnt -= 1
+    return t
 
 def lst_to_col(lst, align='left', col=5, width=2, ln='\n'):
     # Overrule width if its too short
@@ -40,28 +50,17 @@ def lst_to_col(lst, align='left', col=5, width=2, ln='\n'):
 
     return t
 
-def head(t='Header'): 
-    return f'{line_hashtag}\n##  {t}\n{line_hashtag}'
-
-def foot(t='Footer'):
-    return f'{line_hashtag}\n##  {t}\n{line_hashtag}'
-
-type_in = 'Type in something...'
-next_n  = "Press 'n' to move to the next..."
-next_press_enter = "Press <enter> to move to the next..."
-back_main = "Press a 'key' to go back to the main menu..."
-
 type_in = 'Type in something...'
 next_n  = "Press 'n' to move to the next..."
 next_press_enter = "Press <enter> to move to the next..."
 back_main = "Press a 'key' to go back to the main menu..."
 
 # Answers option lists
-lst_quit = ['q','quit','stop','ho']
+lst_quit = ['q','quit','stop','ho', 'x','X','exit','get out']
 lst_yess = ['y','yes','yess','j','ja','ok','oke','oké','yee','jee', 'yep', 'yup', 'oui']
 lst_no   = ['n','no','nope','not','nee','nada','nein','non','neet','njet','neen']
-yes, no, quit = lst_yess[0], lst_no[0], lst_quit[0]
 lst_prev = ['p', 'last', 'prev', 'previous']
+lst_back = ['b', 'back', 'return']
 
 # Quick txt lists
 lst_m = ['1','2','3','4','5','6','7','8','9','10','11','12']
@@ -91,12 +90,6 @@ lst_dd   = [ '31', '29', '31', '30', '31', '30', '31', '31', '30', '31', '30', '
 lst_mmdd  = lst_dd_01 + lst_dd_02 + lst_dd_03 + lst_dd_04 + lst_dd_05 + lst_dd_06
 lst_mmdd += lst_dd_07 + lst_dd_08 + lst_dd_09 + lst_dd_10 + lst_dd_11 + lst_dd_12
 
-# Answers option lists
-answer_quit = ['q','quit','stop']
-answer_yes  = ['y','yes','yess','j','ja','ok','oke','oké','yee','jee']
-answer_no   = ['n','no','nope','nee','nada','nein','non','neet']
-exit        = ['x','X','exit','get out','stop']
-
 # File extensions
 extension_htm = '.html'
 extension_txt = '.txt'
@@ -110,10 +103,15 @@ lst_output_htm = ['html', 'htm', 'html file', 'htm file']
 lst_output_txt = ['txt', 'text', 'text file', 'txt file']
 lst_output_csv = ['csv', 'csv file']
 lst_output_excel = ['excel', 'excel file', 'excell', 'excell file']
+lst_output_gif = ['gif']
+lst_output_jpg = ['jpg', 'jpeg']
+lst_output_png = ['png']
+lst_output_webm = ['webm']
+lst_output_img = lst_output_gif + lst_output_jpg + lst_output_png + lst_output_webm 
 lst_output_all = ['*', 'all', 'all file types']
 lst_output_txt_cnsl = lst_output_txt + lst_output_cnsl
 lst_output_csv_excel = lst_output_csv + lst_output_excel
-lst_output_files = lst_output_txt + lst_output_htm + lst_output_csv_excel
+lst_output_files = lst_output_txt + lst_output_htm + lst_output_csv_excel + lst_output_img
 lst_output_all = lst_output_cnsl + lst_output_files
 
 # MENU 
@@ -148,9 +146,10 @@ lst_menu_statistics = [ 'STATISTICS TABLES', [
     [ 'Compare (day, month, year and season)', 'table_stats_compare' ],
 ] ]
 
-lst_menu_days = [ 'DAYS', [ 
-    [ 'Make or see dayvalues', 'make_dayvalues' ],
-    [ 'Search 4 days', 'search_for_days' ]
+lst_menu_days = [ 'DAYVALUES', [ 
+    [ 'Make dayvalues', 'make_dayvalues' ],
+    [ 'See dayvalues', 'see_dayvalues' ],
+    [ 'Select days', 'search_for_days' ]
 ] ]
 
 lst_menu_graphs = [ 'GRAPHS', [ 
@@ -158,12 +157,12 @@ lst_menu_graphs = [ 'GRAPHS', [
 ] ]
 
 lst_menu_weather = [ 'WEATHER (dutch)', [ 
-    [ 'Forecast buienradar', 'process_weather_buienradar_forecast' ],
-    [ 'Stations NL buienradar', 'process_weather_buienradar_current' ],
-    [ 'Forecast knmi', 'process_weather_knmi_forecast' ],
-    [ 'Forecast model knmi', 'process_weather_knmi_model' ],
-    [ 'Forecast guidance knmi', 'process_weather_knmi_guidance' ],
-    [ 'Stations NL knmi', 'process_weather_knmi_current' ]
+    [ 'Buienradar Forecast', 'process_weather_buienradar_forecast' ],
+    [ 'Buienradar Stations NL', 'process_weather_buienradar_current' ],
+    [ 'KNMI Forecast weather', 'process_weather_knmi_forecast' ],
+    [ 'KNMI Forecast guidance short term', 'process_weather_knmi_guidance' ],
+    [ 'KNMI Forecast model long term', 'process_weather_knmi_model' ],
+    [ 'KNMI Stations NL', 'process_weather_knmi_current' ]
 ] ]
 
 # [ 'QUICK IO <TODO>',
@@ -174,10 +173,8 @@ lst_menu_weather = [ 'WEATHER (dutch)', [
 
 # Menu texts
 menu_no_weather_stations = f'''
-No weatherstations found in configuration file !
-Add one or more weatherstations in stations.py'
-{foot('Press a key to quit...')}
-'''
+No weatherstations found in stations file !
+Add one or more weatherstations in stations.py'''
 
 menu_no_internet_no_data = '''
 No internet and no data! Not much can be done now.
@@ -798,12 +795,6 @@ def cleanup_whitespaces( t ):
     t = re.sub('\t+|\s+', ' ', t)
     return t.strip()
 
-def line_spacer( cnt=1 ):
-    '''Function print enters to the screen'''
-    t = ''
-    while cnt >= 0: t += '\n'; cnt -= 1
-    return t
-
 def day_ent_lst(sep=',', kol = False, kol_width = False):
     '''Functions prints a list with available entities'''
     l = daydata.entities
@@ -986,7 +977,7 @@ lst_name = lambda: [el.place for el in stations.lst]
 lst_wmo_name = lambda: [ f'{el[0]} {el[1]}' for el in zip( lst_wmo(), lst_name() ) ]
 
 enter_default  = lambda default: f'Press <enter> for default (={default})...'
-enter_back_to  = lambda t: f"Press 'q' to go back to the {t} menu... "
+enter_back_to  = lambda t: f"Press 'b' to go back to the {t} menu... "
 type_more_info = lambda i: f"Type '{i}' for more info..."
 
 ave_tg    = lambda s='cap': style('average temperature', s)
@@ -1105,13 +1096,13 @@ days_t10n_lt__30  = lambda s='cap': style('days with a ground minimum temperatur
 
 # TXT strings
 enter_default = lambda default: f'Press <enter> for default (={default})...'
-enter_back_to = lambda t: f"Press 'q' to go back to the {t} menu... "
-enter_previous_question = lambda s='':f"Press 'p' to go to the previous question..."
+enter_back = lambda t: f"Press 'b' to go back to the {t} menu... "
+enter_previous = lambda s='':f"Press 'p' to go to the previous question..."
 enter_exit = "Press 'x' to exit the program..."
 type_more_info = lambda i: f"Type '{i}' for more info..."
 
-error     = lambda t, err: f'{t} failed.\nError {err}'
-succes    = lambda t: f'{t} success.'
+error  = lambda t, err: f'{t} failed.\nError {err}'
+succes = lambda t: f'{t} success.'
 
 def climate(t=''): 
     return f'climate {t}'
@@ -1150,7 +1141,8 @@ def title_mean(t=''):
     return f'title mean {t}'
 
 ##########################################################################################
-# TRANSLATIONS TODO
+# TRANSLATIONS 
+# TODO
 EN = 0
 NL = 1
 
