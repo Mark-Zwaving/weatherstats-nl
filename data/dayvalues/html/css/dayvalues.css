@@ -11,17 +11,17 @@ body, html {
 	.navbar .nav-link{ padding-top:1rem; padding-bottom:1rem;  }
 }
 
-#dayvalues_menu {
-		height: 64px;
+#dayvalues-menu {
+	height: 64px;
 }
 
-#dayvalues_page {
-		border: 0;
-		margin: 0;
-		padding: 0;
-		width: 100%;
-		height: 1080px;
-		resize: both;
+#iframe-dayvalues-page {
+	border: 0;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	min-height: 1080px; /* UHD ? */
+	resize: both;
 }
 
 .link-station {

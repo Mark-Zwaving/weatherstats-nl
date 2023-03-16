@@ -5,7 +5,12 @@ data/forecasts
 data/statistics
 data/downloads
 data/animations
-data/dayvalues/html
+data/dayvalues/html/235
+data/dayvalues/html/260
+data/dayvalues/html/280
+data/dayvalues/html/310
+data/dayvalues/html/380
+
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
 data/graphs
