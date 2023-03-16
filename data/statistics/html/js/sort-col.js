@@ -11,7 +11,7 @@
 let table_tbody      =  'table#stats>tbody',
     table_stats_sel  =  'table#stats>tbody>tr',  // Locations of the tr with data
     table_popup_sel  =  'table#stats>tbody>tr>td>table.popup', // Popup table
-    css_click_cell   =  'cursor: cell;',  // Extra css for click cell
+    css_click_cell   =  'cursor: row-resize;',  // Extra css for click cell
     separator        =  '<span></span>',  // Default separator in html files
     no_data_given    =  '.', // Default dummy value in weatherstats
     empthy           =   '', // Fault value 
