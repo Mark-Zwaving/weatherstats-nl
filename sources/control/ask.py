@@ -61,7 +61,7 @@ def question(t='...', default='', back=False, prev=False, exit=False, spacer=Fal
 
     return answ
 
-def y_or_n(t='', default='', back=False, prev=False, exit=True, spacer=False):
+def y_or_n(t='', default='', back=False, prev=False, exit=False, spacer=False):
     t += '\nType in "y" for yess or "n" for no'
     while True:
         answ = question(t, default, back, prev, exit, spacer)
@@ -80,7 +80,7 @@ def y_or_n(t='', default='', back=False, prev=False, exit=True, spacer=False):
 
         cnsl.log(tt, True)
 
-def is_yes(t='', default='', back=False, prev=False, exit=True, spacer=False):
+def is_yes(t='', default='', back=False, prev=False, exit=False, spacer=False):
     if answer.is_yes(
             y_or_n( t, default, back, prev, exit, spacer) 
         ):
@@ -116,14 +116,14 @@ def open_with_app(path, options, back=False, prev=False, exit=False, spacer=Fals
     else:
         return answ
 
-def back_to_main_menu(default='', back=False, prev=False, exit=True, spacer=False):
+def back_to_main_menu(default='', back=False, prev=False, exit=False, spacer=False):
     question(text.back_main, default, back, prev, exit, spacer)
 
 def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst_sel = []
     if len(weather_stations.lst_stations_map()) > 0:
         while True:
-            tt = ''
+            tt = t + '\n'
             if cfg.info:
                 tt += text.menu_info_stations + '\n'
 
@@ -243,7 +243,7 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
         else:
             return answ
 
-def period_day_to_day( t, default, back, prev, exit, spacer):
+def period_day_to_day( t, default, back=False, prev=False, exit=False, spacer=False):
     while True:
         tt = ''
         if cfg.info:
@@ -534,16 +534,15 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 
     return lst
 
-def image_download_url(back=False, prev=False, exit=False, spacer=False):
+def image_download_url(t, default='', back=False, prev=False, exit=False, spacer=False):
     lst_num = []
-    t = 'Select a download image url\n'
     for ndx, url in enumerate(cfg.lst_weather_images_url):
         num = f'{ndx+1}'
-        t += f'  {num} {url}\n'
+        t += f'  {num}. {url}\n'
         lst_num.append(num)
 
     while True:
-        answ = question(t, default='', back=back, prev=prev, exit=exit, spacer=spacer)
+        answ = question(t, default, back, prev, exit, spacer)
 
         tt = ''
         if answer.is_empty(answ):
@@ -559,79 +558,10 @@ def image_download_url(back=False, prev=False, exit=False, spacer=False):
     
         cnsl.log(tt, True)
 
-def date_time(t, back=False, prev=False, exit=False, spacer=False):
+def date_time(t, default='', back=False, prev=False, exit=False, spacer=False):
     t = f'Give a <{t}> datetime -> format [yyyy-mm-dd HH:MM:SS]'
-    answ = question(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
+    answ = question(t, default, back, prev, exit, spacer)
     return answ
-
-def interval_download(back=False, prev=False, exit=False, spacer=False):
-    t = 'Give the interval download time in minutes'
-    answ = integer(t, 10, back=True, prev=True, exit=True, spacer=True) 
-    return answ
-
-def animation_name(back=False, prev=False, exit=False, spacer=False):
-    t = f'Give a name for the animation file or press enter for default'
-    answ = question(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
-    return answ 
-
-def animation_time(back=False, prev=False, exit=False, spacer=False):
-    t = f'Give a animation time for the animation <float>'
-    answ = question(t, cfg.animation_time, back=back, prev=prev, exit=exit, spacer=spacer)
-    
-    if answer.is_empty(answ):
-        return cfg.animation_time
-    else:
-        return float(answ)
-
-def remove_downloads(back=False, prev=False, exit=False, spacer=False):
-    while True:
-        t  = 'Do you want to remove the downloaded images?'
-        answ = y_or_n(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
-
-        if answer.is_yes(answ):
-            return True 
-        elif answer.is_no(answ):
-            return False
-        elif prev and answer.is_prev(answ):
-            return answ
-        elif back and answer.is_back(answ):
-            return answ
-        
-        cnsl.log(f'Wrong answer {answ} given ?', True)
-
-def gif_compress(back=False, prev=False, exit=False, spacer=False):
-    while True:
-        t  = 'Do you want compress the animation file ?\n'
-        t += 'Gifsicle needs to be installed on your OS'
-        answ = y_or_n(t, '', back=back, prev=prev, exit=exit, spacer=spacer)
-
-        if answer.is_yes(answ):
-            return True 
-        elif answer.is_no(answ):
-            return False
-        elif prev or answer.is_prev(answ):
-            return answ
-        elif back and answer.is_back(answ):
-            return answ
-        
-        cnsl.log(f'Wrong answer {answ} given ?', True)
-
-def animation_verbose(back=False, prev=False, exit=False, spacer=False):
-    while True:
-        t  = 'Do you want to use the verbose option ?\n'
-        t += 'With verbose enabled the programm cannot do something else.\n'
-        t += 'Although wsstats can be started in another console.'
-        answ = y_or_n(t, '', back, prev, exit, spacer)
-        if answer.is_yes(answ):
-            return True 
-        elif answer.is_no(answ):
-            return False
-        elif prev and answer.is_prev(answ):
-            return answ
-        elif back and answer.is_back(answ):
-            return answ
-
-        cnsl.log(f'Wrong answer {answ} given ?', True)
 
 def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=False):
     # Max options to aks in this function
@@ -665,149 +595,149 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         answ, quest = '', lst_ask[i]
 
         if quest == 'image-download-url': 
-            anim_image_download_url = image_download_url(back, prev_act, exit, spacer)
-            answ = anim_image_download_url
-            
+            answ = anim_image_download_url = image_download_url(
+                'Select a download image url\n', '', 
+                back, prev_act, exit, spacer
+            )
         elif quest == 'start-datetime': 
-            anim_start_datetime = date_time('start', back, prev_act, exit, spacer)
-            answ = anim_start_datetime
-
+            answ = anim_end_datetime = date_time('start', back, prev_act, exit, spacer)
         elif quest == 'end-datetime': 
-            anim_end_datetime = date_time('end', back, prev_act, exit, spacer)
-            answ = anim_end_datetime
-        
+            answ = anim_end_datetime = date_time('end', back, prev_act, exit, spacer)
         elif quest == 'interval-download': 
-            anim_interval_download = interval_download(back, prev_act, exit, spacer)
-            answ = anim_interval_download
-
+            answ = anim_interval_download = integer(
+                'Give the interval download time in minutes', 
+                default, back, prev, exit, spacer 
+            ) 
         elif quest == 'animation-name': 
-            anim_animation_name = animation_name(back, prev_act, exit, spacer)
-            answ = anim_animation_name
-
+            answ = anim_animation_name = question(
+                'Give a name for the animation file or press enter for default', 
+                default, back, prev, exit, spacer 
+            )
         elif quest == 'animation-time': 
-            anim_animation_time = animation_time(back, prev_act, exit, spacer)
-            answ = anim_animation_time
-        
+            answ = anim_animation_time = float( question(
+                'Give a animation time for the animation <float>', 
+                cfg.animation_time, back, prev_act, exit, spacer 
+            ) )
         elif quest == 'remove-downloads': 
-            anim_remove_downloads = remove_downloads(back, prev_act, exit, spacer)
-            answ = anim_remove_downloads
-        
+            answ = anim_remove_downloads = is_yes(
+                'Do you want to remove the downloaded images?', 
+                'n', back, prev_act, exit, spacer
+            )
         elif quest == 'gif-compress': 
-            anim_gif_compress = gif_compress(back, prev_act, exit, spacer)
-            answ = anim_gif_compress
-        
+            answ = anim_gif_compress = is_yes(
+                'Do you want compress the animation file ?\n'
+                'Software gifsicle needs to be installed on your OS',
+                 'n', back, prev_act, exit, spacer 
+            )
         elif quest == 'verbose': 
-            anim_verbose = animation_verbose(back, prev_act, exit, spacer)
-            answ = anim_verbose
-
+            answ = anim_verbose = is_yes(
+                'Do you want to use the verbose option ?\n'
+                'With verbose enabled the programm cannot do something else.\n'
+                'Although wsstats can be started in another console.', 
+                'y', back, prev_act, exit, spacer 
+            )
         elif quest == 'lst-stations': # Ask for one or more stations
-            t = 'Select one (or more) weather station(s) ?'
-            lst_stations = lst_places(t, default, back, prev_act, exit, spacer)
-            answ = lst_stations
-
+            answ = lst_stations = lst_places(
+                'Select one (or more) weather station(s) ?', 
+                default, back, prev_act, exit, spacer 
+            )
         elif quest in text.lst_period_1: # Ask for period
-            t = f'Give the period for the calculation of {name}'
-            per_1 = period_1(t, default, back, prev_act, exit, spacer)
-            answ = per_1
-    
+            answ = per_1 = period_1(
+                f'Give the period for the calculation of {name}', 
+                default, back, prev_act, exit, spacer 
+            ) 
         elif quest == 'period-cmp':
-            t = f'Give the period to compare ?'
-            per_cmp = period_compare(t, default, back, prev_act, exit, spacer)
-            answ = per_cmp
-
+            answ = per_cmp = period_compare(
+                'Give the period to compare ?',
+                default, back, prev_act, exit, spacer 
+            )
         elif quest == 'lst-diy-cells':
-            lst_sel_cel = lst_diy_cells('', default, back, prev_act, exit, spacer)
-            answ = lst_sel_cel
+            answ = lst_sel_cel = lst_diy_cells('', default, back, prev_act, exit, spacer)
             # Period 2 or not!
             if 'inf_period-2' in lst_sel_cel: # Add period 2 to question list
                 lst_ask = lst_ask[:i].append(text.lst_period_2[0]) + lst_ask[i:]
                 max = len(lst_ask)  # Update max
-
         elif quest == 'lst-sel-cells': # Ask for type cells
-            t = 'What will be the statistics cells ?'
-            lst_sel_cel = lst_sel_cells(t, default, back, prev_act, exit, spacer )
-            answ = lst_sel_cel
-
+            answ = lst_sel_cel = lst_sel_cells(
+                'What will be the statistics cells ?', 
+                default, back, prev_act, exit, spacer 
+            )
         elif quest == 'write': # Rewrite or only make new non-existing files
-            t, lst = 'Do you want to add only new files or rewrite it all ?', ['add', 'rewrite']
-            write = type_options(t, lst, 'add', back, prev_act, exit, spacer )
-            answ = write
-
+            answ = write = type_options(
+                'Do you want to add only new files or rewrite it all ?', 
+                ['add', 'rewrite'], 'add', 
+                back, prev_act, exit, spacer
+            )
         elif quest == 's4d-query':
-            t = 'Type in a query to search for days ?'
-            s4d = s4d_query(t, default, back, prev_act, exit, spacer)
-            answ = s4d 
-
+            answ = s4d = s4d_query(
+                'Type in a query to search for days ?', 
+                default, back, prev_act, exit, spacer
+            )
         elif quest == 'file-type': # Ask for a file types
-            default = cfg.default_output
-            t = 'Select output type ? '
-            f_type = file_type(t, default, back, prev_act, exit, spacer)
-            answ = f_type
-
+            answ = f_type = file_type(
+                'Select output file type ?',
+                cfg.default_output, back, prev_act, exit, spacer
+            )
         elif quest in text.lst_period_2:
-            t = 'Select a (day, month or period) period'
-            per_2 = period_2(t, default, back, prev_act, exit, spacer)
-            answ = per_2
-
+            answ = per_2 = period_2(
+                'Select a (day, month or period) period', 
+                default, back, prev_act, exit, spacer
+            )
         elif quest == 'file-name': # Ask for a name
             if f_type not in text.lst_output_cnsl:  # Add query to title if there
                 squery = f'-{text.query_sign_to_text(s4d)}' if s4d else '' 
                 tmp_per = f'-{per_2}' if per_2 else ''
                 tmp_name = f'{name}{squery}-{per_1}{tmp_per}-{utils.now_for_file()}' 
                 tmp_name = tmp_name.replace(' ', '-').replace('*', 'x').lower()
-
-                t = 'Give a name for the output file ? <optional>'
-                f_name = file_name(t, tmp_name, back, prev_act, exit, spacer) 
-                answ = f_name
+                answ = f_name = file_name(
+                    'Give a name for the output file ? <optional>', 
+                    tmp_name, back, prev_act, exit, spacer 
+                )
             else:
                 f_name=''
-
         elif quest == 'lst-entities':
-            t = 'Select weather entity(s) ?'
-            lst_entity = lst_entities(t, default, back, prev_act, exit, spacer)
-            answ = lst_entity
-
+            answ = lst_entity = lst_entities(
+                'Select weather entity(s) ?', 
+                default, back, prev_act, exit, spacer
+            )
         elif quest == 'graph-title':
-            t = 'Give a title for the graph'
-            graph_title = question(t, default, back, prev_act, exit, spacer)
-            answ = graph_title
-
+            answ = graph_title = question(
+                'Give a title for the graph', 
+                default, back, prev_act, exit, spacer )
         elif quest == 'graph-y-label':
-            t = 'Give a y-as label for the graph'
-            graph_y_label = question(t, default, back, prev_act, exit, spacer)
-            answ = graph_y_label
-
+            answ = graph_y_label = question(
+                'Give a y-as label for the graph', 
+                default, back, prev_act, exit, spacer 
+            )
         elif quest == 'graph-default':
-            t = 'Do you want to use default values ? See file -> config.py'
-            graph_default = y_or_n(t, cfg.plot_default, back, prev_act, exit, spacer)
-            answ = graph_default
-
+            answ = graph_default = y_or_n(
+                'Do you want to use default values ? See file -> config.py', 
+                cfg.plot_default, back, prev_act, exit, spacer
+            )
         elif answer.is_no(graph_default) and quest == 'graph-width':
-            t = 'Give the width (in pixels) for the graph ?'
-            graph_width = integer(t, cfg.plot_width, back, prev_act, exit, spacer)
-            answ = graph_width
-
+            answ = graph_width = integer(
+                'Give the width (in pixels) for the graph ?', 
+                cfg.plot_width, back, prev_act, exit, spacer
+            )
         elif answer.is_no(graph_default) and quest == 'graph-height':
-            t = 'Give the height (in pixels) for the graph ?'
-            graph_height = integer(t, cfg.plot_height, back, prev_act, exit, spacer)
-            answ = graph_height
-
+            answ = graph_height = integer(
+                'Give the height (in pixels) for the graph ?', 
+                cfg.plot_height, back, prev_act, exit, spacer
+            )
         elif answer.is_no(graph_default) and quest == 'graph-cummul-val':
-            t = 'Do you want cummulative values for the graph ?'
-            graph_cummul_val = y_or_n(t, cfg.plot_cummul_val, back, prev_act, exit, spacer)
-            answ = graph_cummul_val
-
+            answ = graph_cummul_val = y_or_n(
+                'Do you want cummulative values for the graph ?', 
+                cfg.plot_cummul_val, back, prev_act, exit, spacer 
+            )
         elif answer.is_no(graph_default) and quest == 'graph-type':
-            t, lst_ext = 'What type of image ? ', ['png', 'jpg', 'ps', 'pdf', 'svg']
-            graph_type = type_options(t, lst_ext, cfg.plot_image_type, back, prev_act, exit, spacer)
-            answ = graph_type
-
+            answ = graph_type = type_options(
+                'What type of image ?', ['png', 'jpg', 'ps', 'pdf', 'svg'], 
+                cfg.plot_image_type, back, prev_act, exit, spacer 
+            )
         elif answer.is_no(graph_default) and quest == 'graph-dpi':
-            t = 'Give the dpi ?'
-            graph_dpi = integer(t, cfg.plot_dpi, back, prev_act, exit, spacer)
-            answ = graph_dpi
-
-        # There must be a list with entities
+            answ = graph_dpi = integer(
+                'Give the dpi ?', cfg.plot_dpi, back, prev_act, exit, spacer
+            )
         elif quest == 'graph-lst-entities-types':
             j = 0 
             while j < len(lst_entity):
@@ -833,41 +763,42 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     quest = lst_ask_graph[k]
 
                     if quest == 'line-bar':
-                        t, lst_lb = f'Which type graph do you want to use for {entity} ?', ['line', 'bar']
-                        line_bar = type_options(t, lst_lb, cfg.plot_graph_type, back, prev_act, exit, spacer)
-                        answ = line_bar
-
+                        answ = line_bar = type_options(
+                            f'Which type graph do you want to use for {entity} ?', 
+                            ['line', 'bar'],
+                            cfg.plot_graph_type, back, prev_act, exit, spacer
+                        )
                     elif quest == 'marker-txt':
-                        t = f'Values next to the markers for {entity} ?'
-                        marker_txt = y_or_n(t, cfg.plot_marker_txt, back, prev_act, exit, spacer)
-                        answ = marker_txt
-
+                        answ = marker_txt = y_or_n(
+                            f'Values next to the markers for {entity} ?', 
+                            cfg.plot_marker_txt, back, prev_act, exit, spacer
+                        )
                     elif quest == 'min-max-ave-period': 
-                        t = f'Calculate min, max and average value for {entity} ?'
-                        min_max_ave_period = y_or_n(t, cfg.plot_min_max_ave_period, back, prev_act, exit, spacer)
-                        answ = min_max_ave_period
-
+                        answ = min_max_ave_period = y_or_n(
+                            f'Calculate min, max and average value for {entity} ?', 
+                            cfg.plot_min_max_ave_period, back, prev_act, exit, spacer
+                        )
                     elif quest == 'climate-ave':
-                        t = f'Calculate and plot the climate averages for {entity} ?'
-                        climate_ave = y_or_n(t, cfg.plot_climate_ave, back, prev_act, exit, spacer)
-                        answ = climate_ave
-
+                        answ = climate_ave = y_or_n(
+                            f'Calculate and plot the climate averages for {entity} ?', 
+                            cfg.plot_climate_ave, back, prev_act, exit, spacer
+                        )
                     elif answer.is_yes(climate_ave) and quest == 'climate-ave-marker-txt':
-                        t = f'Values next to the markers for climate averages for {entity} ?'
-                        climate_ave_marker_txt = y_or_n(t, cfg.plot_climate_marker_txt, back, prev_act, exit, spacer)
-                        answ = climate_ave_marker_txt
-
+                        answ = climate_ave_marker_txt = y_or_n(
+                            f'Values next to the markers for climate averages for {entity} ?', 
+                            cfg.plot_climate_marker_txt, back, prev_act, exit, spacer
+                        )
                     elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-start':
                         sy, ey = cfg.climate_period.split('-')
-                        t = f'Give a start year for the calculation of climate averages <yyyy> for {entity} ?'
-                        climate_yyyy_start = integer(t, sy, back, prev_act, exit, spacer)
-                        answ = climate_yyyy_start
-
-                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-end':                
-                        t = f'Give an end year for the calculation of climate average <yyyy> for {entity} ?'
-                        climate_yyyy_end = integer(t, ey, back, prev_act, exit, spacer)
-                        answ = climate_yyyy_end
-                        climate_periode = f'{climate_yyyy_start}-{climate_yyyy_end}'
+                        answ = climate_yyyy_start = integer(
+                            f'Give a start year for the calculation of climate averages <yyyy> for {entity} ?', 
+                            sy, back, prev_act, exit, spacer
+                        )
+                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-end':
+                        answ = climate_yyyy_end = integer(
+                            f'Give an end year for the calculation of climate average <yyyy> for {entity} ?', 
+                            ey, back, prev_act, exit, spacer
+                        )
 
                     if prev and answer.is_prev(answ):
                         k -= 1
@@ -889,7 +820,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     'climate-ave-marker-txt': climate_ave_marker_txt,
                     'climate-yyyy-start': climate_yyyy_start, 
                     'climate-yyyy-end': climate_yyyy_end,
-                    'climate-periode': climate_periode
+                    'climate-periode': f'{climate_yyyy_start}-{climate_yyyy_end}'
                 } )
 
                 if prev and answer.is_prev(answ):
@@ -902,7 +833,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     j += 1
 
         if back and answer.is_back(answ):
-            other = answer
+            other = text.lst_back[0]
 
         elif prev and answer.is_prev(answ):
             i = i - 1 if i > 0 else 0 
