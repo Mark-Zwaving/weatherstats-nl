@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.1'
+__version__    =  '0.1.2y'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -288,7 +288,7 @@ def pause(
     ):
     '''Functions pauses untill a certain date and time is reached and then
        continues the executing of programm.'''
-    cnsl.log('Start pause programm', verbose)
+    cnsl.log('Pause programm', verbose)
     # Check if there is a time anyway
     if not end_time: 
         return # We dont need to wait
@@ -314,7 +314,7 @@ def pause(
         act_ymdhms = int(ymd.ymdhms_now()) # New time act
 
     cnsl.log_r(f'[{ymd.now()}] {t}\n', verbose)
-    cnsl.log('End pause programm\n', verbose)
+    cnsl.log('End pause\n', verbose)
 
 def process_time_ext(t='', delta_sec = 0):
     '''Function gives a time string from nano seconds till days '''
@@ -445,12 +445,3 @@ def exec_with_app(fname, verbose=cfg.verbose):
 
     return ok
 
-def open_with_default_app(path, options):
-    t = f'\nOpen the file <type={ options["file-type"] }> with your default application ?'
-    fopen = ask.open_with_app(t, default='', back=True, exit=True, spacer=True)
-    if answer.is_quit(fopen):
-        return fopen
-    elif fopen:
-        exec_with_app(path)
-        
-    return True
