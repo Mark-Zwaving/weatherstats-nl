@@ -134,10 +134,10 @@ def dayvalue_div_entity(title=False, val=False, time=False ):
     val  =  val if  val != False else ''
     time = time if time != False else ''
     return f'''
-        <div class="card col-12 col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 mx-auto border-0">
-            <div class="card-body text-center">
-                <h6 class="card-title text-capitalize day_title">{title}</h6>
-                <div class="card-text day_data">{val}<br><small class="text-muted">{time}</small></div>
+        <div class="card col-12 col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 mx-auto border-0 card-dayvalue">
+            <div class="card-body text-center card-dayvalue-body">
+                <h6 class="card-title text-capitalize card-dayvalue-body-title">{title}</h6>
+                <div class="card-text card-dayvalue-body-data">{val}<br><small class="text-muted">{time}</small></div>
             </div>
         </div>
     '''.format( title, val, time )
