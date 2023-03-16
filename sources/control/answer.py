@@ -25,7 +25,7 @@ def is_quit(answ):
     else:
         answ = str(answ)
 
-    return str(answ).strip().lower() in text.lst_quit
+    return text.clear(answ).lower() in text.lst_quit
 
 def is_yes(answ):
     if type(answ) == list:
@@ -34,9 +34,9 @@ def is_yes(answ):
         else:
             answ = lst_to_str(answ)
     else:
-        answ = answ
+        answ = str(answ)
 
-    return str(answ).strip().lower() in text.lst_yess
+    return text.clear(answ).lower() in text.lst_yess
 
 def is_no(answ):
     if type(answ) == list:
@@ -45,9 +45,9 @@ def is_no(answ):
         else:
             answ = lst_to_str(answ)
     else:
-        answ = answ
+        answ = str(answ)
 
-    return str(answ).strip().lower() in text.lst_no
+    return text.clear(answ).lower() in text.lst_no
 
 def is_empty(answ):
     if type(answ) == list:
@@ -55,6 +55,8 @@ def is_empty(answ):
             answ = ''
         else:
             answ = lst_to_str(answ)
+    else:
+        answ = str(answ)
 
     return False if answ.strip() else True
 
@@ -65,6 +67,15 @@ def is_prev(answ):
         else:
             answ = lst_to_str(answ)
     else:
-        answ = answ
+        answ = str(answ)
 
-    return str(answ).strip().lower() in text.lst_prev
+    return text.clear(answ).lower() in text.lst_prev
+
+def is_back(answ):
+    if type(answ) == list:
+        if answ == text.lst_back:
+            answ = text.lst_back[0]
+        else:
+            answ = lst_to_str(answ)
+
+    return text.clear(answ).lower() in text.lst_back
