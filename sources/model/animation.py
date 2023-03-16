@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.0.3'
+__version__    = '0.0.5'
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -14,7 +14,7 @@ import sources.model.ymd as ymd
 import sources.model.utils as utils
 import sources.model.validate as validate
 import sources.view.console as cnsl
-import os, imageio, re, time, datetime
+import os, imageio, time, datetime
 
 # Function creates an image animation
 def create(
@@ -99,9 +99,10 @@ def download_interval(
         dt_time_next = dt_next.strftime('%H:%M:%S')
         ok, hms_next = validate.hhmmss(dt_time_next)
         ok, ymd_next = validate.yyyymmdd_1(dt_date_next)
-        i_next_time = int(f'{ymd_next}{hms_next}')
-        if i_end_time < i_next_time:
-            break # Done
+        i_next_time  = int(f'{ymd_next}{hms_next}')
+
+        if i_end_time < i_next_time and num_act > 1: # Always download one time
+            break
 
         # Make path
         y, m, d, H, M, S = ymd.y_m_d_h_m_s_now() # Get current date and time
@@ -116,19 +117,19 @@ def download_interval(
                 lst_images.append(path) # Add image to downloaded images list
                 num_act += 1 # Update num for next file only if download is a success
                 break
-            else: # Downdt_time_nextload failed.
+            else: # Download failed
                 t  = f'Download failed {fail_cnt} time(s), '
                 t += f'next try in {fail_next} seconds'
                 cnsl.log(t, cfg.error) # Only once
                 fail_cnt += 1 # Increase fails
                 time.sleep(fail_next)
         fail_cnt = 1 # Try next image, next time
+
         cnsl.log(' ', verbose) # Spacer
-        utils.pause(dt_time_next, dt_date_next, f'next ({num_act}) download at', verbose)
+        utils.pause(dt_time_next, dt_date_next, f'next download ({num_act}) at', verbose)
 
     cnsl.log(f'[{ymd.now()}] End interval download\n', verbose)
     return lst_images
-
 
 # Makes a animation of downloaded images
 def download_images_and_make_animations(
@@ -182,4 +183,4 @@ def download_images_and_make_animations(
         fio.remove_files_in_list(lst_images, verbose) # Remove downloaded images
 
     cnsl.log(f'[{ymd.now()}] End download images and make an animation\n', verbose)
-    return path
+    return ok, path
