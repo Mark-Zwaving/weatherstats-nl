@@ -20,7 +20,7 @@ log     = False  # Log to file
 debug   = False  # Debug mode
 
 # To save the current weather and forecasts in the data/forecasts map,
-# set save_forecasts to true
+# set save_forecasts to true else False
 save_forecasts = True 
 
 # Default output type file. Options: html, text and cmd
@@ -39,9 +39,6 @@ timezone = 'Europe/Amsterdam'
 
 # csv separator
 csv_sep = ';'
-
-# Line width for #
-txt_line_width = 80
 
 ################################################################################
 # For HTML pages
@@ -460,8 +457,9 @@ translate = False # Translation active or not
 
 # No download flooding from a server.
 # Time to wait after downloading a file. Always min = 0.2 seconds
+download_flood_protection_active = True
 download_interval_time = 0.3 # Seconds.
-download_max_num = 10000 # Max number downloads, flood protection
+# download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage/ip for checking an internet connection
 check_ip_1 = '42.251.36.14' # google.com
