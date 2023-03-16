@@ -704,7 +704,7 @@ def output(htm, txt, csv, options):
     # input(ftyp)
 
     if ftyp in text.lst_output_cnsl or cfg.console:  # For console
-        cnsl.log(f'\n{txt}\n', True)  # Add 1 spacer/enter around console output
+        cnsl.log(f'\n{txt}', True)  # Add 1 spacer/enter around console output
 
     if ftyp in text.lst_output_files:
         fname = options['file-name'] + text.file_extension(ftyp)  # File name
