@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.5'
+__version__    =  '0.1.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -16,18 +16,8 @@ if cfg.dir_app not in sys.path:
     sys.path.append(cfg.dir_app)
 
 # Import libraries
-import sources.control.menu as menu
-import sources.view.console as cnsl
-import stations
+import sources.control.menu
 
 # Main programm
 if __name__== '__main__':
-    cnsl.log('\nWelcome to WeatherStatsNL', True)
-    
-    if len(stations.lst) == 0:
-        menu.error_no_stations_found()
-    else:
-        menu.main_menu()
-
-    cnsl.log('\nGood bye !', True )
-    exit(0)
+    sources.control.menu.main()
