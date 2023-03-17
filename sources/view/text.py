@@ -140,10 +140,27 @@ lst_menu_statistics = [ 'STATISTICS TABLES', [
     [ 'Winter statistics', 'table_stats_winter' ],
     [ 'Summer statistics', 'table_stats_summer' ],
     [ 'Winter & summer statistics', 'table_stats_winter_summer' ],
+    [ 'Default statistics (see config.py)', 'table_stats_default_1' ],
     [ 'Default extremes (see config.py)', 'table_stats_extremes' ],
     [ 'Default counts (see config.py)', 'table_stats_counts' ],
-    [ 'Default statistics 1 (see config.py)', 'table_stats_default_1' ],
-    [ 'Default statistics 2 (see config.py)', 'table_stats_default_2' ],
+
+    ####################################################################################
+    ## Do you want to add more default lists with statistics in the menu ? 
+
+    # See -> control > menu.py for the functions
+    #     fn: select_menu_option(option)    # Broker between menu and python functions
+    #     fn: table_stats_id_1()            # Function for your statistics list 
+
+    # For an example list with statistics
+    # see -> config.py -> lst_cells_id_1 = [... ...]
+    # You can update the list with your own statistics cells
+
+    # ID-1 is the connection ID between the text menu and the python function 
+    
+    # Uncomment next row, to let it show up in the menu
+    # [ 'My stats ID-1 (see config.py)', 'ID-1' ], 
+    ####################################################################################
+
     [ 'Day, month & period statistics in a period', 'table_stats_period_in_period' ],
     [ 'Compare (day, month, year and season)', 'table_stats_compare' ],
 ] ]
@@ -151,7 +168,7 @@ lst_menu_statistics = [ 'STATISTICS TABLES', [
 lst_menu_days = [ 'DAYVALUES', [ 
     [ 'Make dayvalues', 'make_dayvalues' ],
     [ 'See dayvalues', 'see_dayvalues' ],
-    [ 'Select days', 'search_for_days' ]
+    [ 'Search for days', 'search_for_days' ]
 ] ]
 
 lst_menu_graphs = [ 'GRAPHS', [ 
