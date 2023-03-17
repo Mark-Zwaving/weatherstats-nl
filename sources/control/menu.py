@@ -107,10 +107,12 @@ def table_stats_default_1():
     lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
     table_stats(title, lst_ask, cfg.lst_cells_my_default_1)
 
-def table_stats_default_2(): 
-    title = 'my default statistics 2'
-    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name']
-    table_stats(title, lst_ask, cfg.lst_cells_my_default_2)
+# Add you own default fn
+def table_stats_id_1(): 
+    title = 'statistics <subject>'
+    lst_ask = ['lst-stations', 'period', 'file-type', 'file-name'] # Questions to ask. Do not change
+    lst_default = cfg.lst_cells_id_1 # Your list with your statistics cell options
+    table_stats(title, lst_ask, lst_default) # Do not change
 
 def table_stats_extremes(): 
     title = 'my default extremes'
@@ -407,6 +409,7 @@ def proces_images_from_dir():
 ##########################################################################################
 # MAIN MENU 
 def select_menu_option( option ):
+    '''Broker between text menu and python functions'''
     # Downloads
     if   option == 'process_knmi_dayvalues_all':     process_knmi_dayvalues_all()
     elif option == 'process_knmi_dayvalues_select':  process_knmi_dayvalues_select()
@@ -418,7 +421,10 @@ def select_menu_option( option ):
     elif option == 'table_stats_extremes':         table_stats_extremes()
     elif option == 'table_stats_counts':           table_stats_counts()
     elif option == 'table_stats_default_1':        table_stats_default_1()
-    elif option == 'table_stats_default_2':        table_stats_default_2()
+
+    # Add your own stats table
+    elif option == 'ID-1': table_stats_id_1()
+
     elif option == 'table_stats_period_in_period': table_stats_period_in_period()
     elif option == 'table_stats_compare':          table_stats_compare()
     # Days
