@@ -210,7 +210,7 @@ lst_cells_winter_summer = [
     'cnt_tn_lt_-5', 'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20'
 ]
 
-# My Default option 1, another option, will be in the menu option lst
+# Default option
 lst_cells_my_default_1 = [ 
     'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
     'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'max_fhx', 'max_px', 
@@ -219,12 +219,10 @@ lst_cells_my_default_1 = [
     'cnt_tx_ge_20', 'cnt_tn_lt_0'
 ]
 
-# My Default option 2, another option, will be in the menu option lst
-lst_cells_my_default_2 = [ 
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
-    'max_tx', 'min_tn', 'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh',
-    'cnt_tx_ge_30', 'cnt_tx_lt_0', 'cnt_tn_lt_0'
-]
+# My Default option ID-1, make your own list with statistic cells 
+# See file -> control -> view -> text.py -> lst_menu_statistics = [ 'STATISTICS TABLES', 
+# for more info
+lst_cells_id_1 = [ ] # Fill in your own statistics cells
 
 # Example spring ?
 lst_cells_spring = [ 
