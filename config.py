@@ -237,12 +237,9 @@ lst_cells_spring = [
 # Default cells for the extrems
 lst_cells_my_extremes = [
     'inf_place', 'inf_period', 
-    'max_tx', 'max_tg', 'max_tn', 'max_t10n', 
-    'min_tx', 'min_tg', 'min_tn', 'min_t10n',
-    'max_rh', 'max_rhx','max_fg', 'max_fhx',  
-    'max_px', 'max_pg', 'min_pg', 'min_pn', 
-    'min_ux', 'min_ug', 'min_un', 
-    'max_ev24', 'max_q'
+    'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'min_tx', 'min_tg', 'min_tn', 'min_t10n',
+    'max_sq', 'max_rh', 'max_rhx', 'max_fg', 'max_fhx', 'max_px', 'max_pg', 'min_pg', 
+    'min_pn', 'min_ux', 'min_ug', 'min_un', 'max_ev24', 'max_q'
 ]
 
 # Default cells for to count days
