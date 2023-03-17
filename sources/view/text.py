@@ -17,7 +17,7 @@ import sources.model.convert as convert
 
 cli_colls, cli_rows = shutil.get_terminal_size()
 
-def A0(d): return '0{d}' if d < 10 else str(d) # Add zero < 10
+def A0(d): return f'0{d}' if int(d) < 10 else str(d) # Add zero < 10
 def line(s): return str(s) * (shutil.get_terminal_size()[0] - 1)
 def line_hashtag(): return line('#')
 def line_hyphen(): return line('-')
@@ -72,21 +72,23 @@ lst_months_all = lst_m + lst_mm + lst_mmm + lst_mmmm
 
 dd_01, dd_02, dd_03, dd_04, dd_05, dd_06 = 31, 29, 31, 30, 31, 30
 dd_07, dd_08, dd_09, dd_10, dd_11, dd_12 = 31, 31, 30, 31, 30, 31
+lst_dd = [ dd_01, dd_02, dd_03, dd_04, dd_05, dd_06,
+           dd_07, dd_08, dd_09, dd_10, dd_11, dd_12 ]
+
 lst_dd_01 = [ f'01{A0(d)}' for d in range(1,dd_01+1) ]
-lst_dd_02 = [ f'01{A0(d)}' for d in range(1,dd_02+1) ]
-lst_dd_03 = [ f'01{A0(d)}' for d in range(1,dd_03+1) ]
-lst_dd_04 = [ f'01{A0(d)}' for d in range(1,dd_04+1) ]
-lst_dd_05 = [ f'01{A0(d)}' for d in range(1,dd_05+1) ]
-lst_dd_06 = [ f'01{A0(d)}' for d in range(1,dd_06+1) ]
-lst_dd_07 = [ f'01{A0(d)}' for d in range(1,dd_07+1) ]
-lst_dd_08 = [ f'01{A0(d)}' for d in range(1,dd_08+1) ]
-lst_dd_09 = [ f'01{A0(d)}' for d in range(1,dd_09+1) ]
-lst_dd_10 = [ f'01{A0(d)}' for d in range(1,dd_10+1) ]
-lst_dd_11 = [ f'01{A0(d)}' for d in range(1,dd_11+1) ]
-lst_dd_12 = [ f'01{A0(d)}' for d in range(1,dd_12+1) ]
+lst_dd_02 = [ f'02{A0(d)}' for d in range(1,dd_02+1) ]
+lst_dd_03 = [ f'03{A0(d)}' for d in range(1,dd_03+1) ]
+lst_dd_04 = [ f'04{A0(d)}' for d in range(1,dd_04+1) ]
+lst_dd_05 = [ f'05{A0(d)}' for d in range(1,dd_05+1) ]
+lst_dd_06 = [ f'06{A0(d)}' for d in range(1,dd_06+1) ]
+lst_dd_07 = [ f'07{A0(d)}' for d in range(1,dd_07+1) ]
+lst_dd_08 = [ f'08{A0(d)}' for d in range(1,dd_08+1) ]
+lst_dd_09 = [ f'09{A0(d)}' for d in range(1,dd_09+1) ]
+lst_dd_10 = [ f'10{A0(d)}' for d in range(1,dd_10+1) ]
+lst_dd_11 = [ f'11{A0(d)}' for d in range(1,dd_11+1) ]
+lst_dd_12 = [ f'12{A0(d)}' for d in range(1,dd_12+1) ]
 
-lst_dd   = [ '31', '29', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31' ]
-
+# lst_mmdd = [ str( f'{A0(i+1)}{A0(d)}' for d in range(1, dd + 1) ) for i, dd in enumerate(lst_dd) ]
 lst_mmdd  = lst_dd_01 + lst_dd_02 + lst_dd_03 + lst_dd_04 + lst_dd_05 + lst_dd_06
 lst_mmdd += lst_dd_07 + lst_dd_08 + lst_dd_09 + lst_dd_10 + lst_dd_11 + lst_dd_12
 
@@ -127,7 +129,7 @@ lst_menu_download = [ 'DOWNLOAD', [
     [ 'Download selected dayvalues knmi stations', 'process_knmi_dayvalues_select' ]
 ] ]
 
-lst_menu_animation = [ 'ANIMATIONS TODO', [ 
+lst_menu_animation = [ 'IMAGE ANIMATIONS TODO', [ 
     [ 'Download images only', 'process_download_images' ],
     [ 'Download and make an animation', 'process_download_animation' ],
     [ 'Animation from images in map', 'process_animation_from_dir' ]
@@ -216,7 +218,7 @@ yyyymmdd-yyyy*mmdd* selects a certain period from mmdd=mmdd* in a year from yyyy
 
 menu_info_select_a_day = f'''
 DAY INFO
-{lst_to_col(lst_mmdd, 'left', 16)}
+{lst_to_col(lst_mmdd, 'left', 15)}
 '''
 
 menu_info_select_a_month = f'''
