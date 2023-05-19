@@ -6,7 +6,7 @@
  * @version  0.1.4
  */
 
-'use strict'
+'use strict' 
 
 let table_tbody      =  'table#stats>tbody',
     table_stats_sel  =  'table#stats>tbody>tr',  // Locations of the tr with data
