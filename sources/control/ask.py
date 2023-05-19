@@ -657,6 +657,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             if 'inf_period-2' in lst_sel_cel: # Add period 2 to question list
                 lst_ask = lst_ask[:i].append(text.lst_period_2[0]) + lst_ask[i:]
                 max = len(lst_ask)  # Update max
+                
         elif quest == 'lst-sel-cells': # Ask for type cells
             answ = lst_sel_cel = lst_sel_cells(
                 'What will be the statistics cells ?', 
