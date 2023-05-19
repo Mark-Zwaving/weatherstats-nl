@@ -4,7 +4,7 @@ __author__ = 'Mark Zwaving'
 __email__ = 'markzwaving@gmail.com'
 __copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.0.3'
+__version__ = '0.0.6'
 __maintainer__ = 'Mark Zwaving'
 __status__ = 'Development'
 
@@ -14,7 +14,7 @@ import sys, os
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
 
 # Import weatherstats libraries
-import config as cfg
+import config as cfg, datetime
 import sources.model.weather_stations as weather_stations 
 import sources.model.dayvalues as dayvalues 
 import sources.model.ymd as ymd 
@@ -41,27 +41,45 @@ options = {
     'download': True               # Download data first
 }
 
-# No need to update it all (everytime)
-# Period for last X days
-days = 31 # days to go back
-end_ymd = ymd.yyyymmdd_now()
-start_ymd = ymd.yyyymmdd_minus_day(end_ymd, days)
-per_last_X_days = f'{start_ymd}-{end_ymd}'
+
 
 # Make dayvalues
-def make(lst_stations, period):
-    # Option list to make dayvalues
+def make(lst_stations, init):
+    y, m, day, H, M, S = ymd.y_m_d_h_m_s_now() # Get current date time
+    day_of_week = datetime.datetime.today().weekday() # Monday is 0 and Sunday is 6.
+    days   = 100 # Days to go back. No need to update it all everytime
+    ed_ymd = f'{y}{m}{day}'  # End date is today
+    st_ymd = ymd.yyyymmdd_minus_day(ed_ymd, days) # Start date is X days back
+    period = f'{st_ymd}-{ed_ymd}' # Last X days
+    update = 'add' # Default add only new days
+    download = True # Always download
+
+    if init: # First time, do all
+        period, update = '*', 'rewrite'
+    elif day_of_week == 6 : 
+        update = 'rewrite' # On sunday rewrite last X days
+    elif day == '01': 
+        update = 'rewrite' # First day of the month
+        period = '*'  # Update period rewrite all data
+    else:
+        pass
+        # Add only
+        # Check only last 100 days
+
+    # Make options for update
     options = {
         'title': 'dayvalues',          # Title for verbose options
         'lst-stations': lst_stations,  # Selected stations
-        'period': period,              # All times
+        'period': period,              # Period
         'file-type': 'html',           # html files
-        'write': 'rewrite',            # Rewrite 'rewrite' all or just just 'add'
+        'write': update,               # Rewrite 'rewrite' all or just just 'add'
         'lst-sel-cells': cfg.lst_cells_dayvalues,  # Entities for the day. Use all.
-        'download': True               # Download data first
+        'download': download           # Download data first
     }
-    dayvalues.calculate(options)
+    dayvalues.calculate(options) # Process update
 
 if __name__ == '__main__':
     # Example all days for lst stations
-    make(lst_stations, '*')
+
+    init = False # First time ?
+    make(lst_stations, init)
