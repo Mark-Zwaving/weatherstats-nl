@@ -98,7 +98,7 @@ def head(options, cnt=0):
         # Sort options. 
         # Defaults: sort is True, numeric and descending. Add 1 to col_num
         sort_type, sort_dir, col_num = sort_num, descending, col_num + 1
-        lst = option.split('_') # Make lst
+        lst = option.split(cfg.cells_separator) # Make lst
         typ, entity = lst[0], lst[1]
         ico = html.entity_to_icon(entity, size='fa-sm', color='', extra='') # Icon
 
