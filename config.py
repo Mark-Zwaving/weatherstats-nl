@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.9.8' 
+__version__    = '0.9.9' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -134,7 +134,6 @@ buienradar_json_places = [
 #  'Woensdrecht', 'Zeeplatform F-3', 'Zeeplatform K13'
 buienradar_json_cols = 4  # Colums for the data
 
-
 ################################################################################
 # Default cells for seasons (winter, summer and winter-summer), extremes and 
 # climate and own default lists
@@ -177,6 +176,9 @@ buienradar_json_cols = 4  # Colums for the data
 # day_tx, day_tg, day_tn, day_t10n, day_sq, day_sp, day_rh, day_rhx,
 # day_dr, day_pg, day_px, day_pn, day_ug, day_ux, day_un, day_ng, day_ddvec,
 # day_fhvec, day_fg, day_fhx, day_fhn, day_fxx, day_vvx, day_vvn, day_q
+
+cells_separator = '_'  # Separator for cell entities. Do not change.
+# inf_place = f'inf{cells_separator}place'
 
 # Menu default options lst 
 # Default cells winter
