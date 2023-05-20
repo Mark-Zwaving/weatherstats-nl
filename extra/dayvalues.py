@@ -54,17 +54,18 @@ def make(lst_stations, init):
     update = 'add' # Default add only new days
     download = True # Always download
 
-    if init: # First time, do all
-        period, update = '*', 'rewrite'
-    elif day_of_week == 6 : 
-        update = 'rewrite' # On sunday rewrite last X days
-    elif day == '01': 
-        update = 'rewrite' # First day of the month
-        period = '*'  # Update period rewrite all data
-    else:
+    input(period)
+
+    if init:                             # First time
+        update, period = 'rewrite', '*'  # Do all
+    elif int(H) >= 12:                   # Second day check
+        pass                             # Only add and download.
+    elif day_of_week == 6 :              # Sunday
+        update = 'rewrite'               # Rewrite last X days
+    elif day == '01':                    # First day of month
+        update, period = 'rewrite', '*'  # All time rewrite all data
+    else:                                # Add only and download
         pass
-        # Add only
-        # Check only last 100 days
 
     # Make options for update
     options = {
@@ -74,8 +75,9 @@ def make(lst_stations, init):
         'file-type': 'html',           # html files
         'write': update,               # Rewrite 'rewrite' all or just just 'add'
         'lst-sel-cells': cfg.lst_cells_dayvalues,  # Entities for the day. Use all.
-        'download': download           # Download data first
+        'download': download           # Download data
     }
+
     dayvalues.calculate(options) # Process update
 
 if __name__ == '__main__':
