@@ -54,7 +54,7 @@ def make(lst_stations, init):
     update = 'add' # Default add only new days
     download = True # Always download
 
-    input(period)
+    # input(period)
 
     if init:                             # First time
         update, period = 'rewrite', '*'  # Do all
