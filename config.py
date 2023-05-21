@@ -456,7 +456,7 @@ translate = False # Translation active or not
 # Time to wait after downloading a file. Always min = 0.2 seconds
 download_flood_protection_active = True
 download_interval_time = 0.3 # Seconds.
-# download_max_num = 10000 # Max number downloads, flood protection
+download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage/ip for checking an internet connection
 check_ip_1 = '42.251.36.14' # google.com
