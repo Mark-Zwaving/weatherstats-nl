@@ -16,7 +16,6 @@
         <article class="container-xl max-width-index mx-auto">
             <header id="dayvalues-menu">
               <nav class="navbar navbar-expand-md navbar-light bg-light p-1">
-
                 <div class="col text-center">
                   <button class="btn btn-info btn-sm m-1" id="year-before">
                     <i class="fa fa-fast-backward" aria-hidden="true"></i>
@@ -38,25 +37,25 @@
                   </button>
                 </div>
     
-                <div class="col text-center">
+                <div class="col">
                   <form class="form-inline">
                     
                     <div class="col text-center">
                       <div class="form-group m-1"> 
-                        <select id="options-form-id" class="form-control custom-select">
+                        <select id="options-form-id" class="form-control custom-select form-control-sm">
                         </select>
                       </div>
                     </div>
 
-                    <div class="col text-center">
+                    <div class="col">
                       <div class="form-group m-1">
                         <div class="input-group">
                           <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroupPrepend3">
-                              <i class="fa fa-calendar" aria-hidden="true"></i>
+                              <i class="fa fa-calendar fa-xs text-info" aria-hidden="true"></i>
                             </span>
                           </div>
-                          <input type="date" id="date-form-id" class="form-control form-control-sm"
+                          <input type="date" id="date-form-id" class="form-control form-control-sm" 
                                 min="1906-01-01" max=""
                                 value="2000-01-01" aria-describedby="inputGroupPrepend3" required>
                         </div>
@@ -69,8 +68,9 @@
               </nav>
             </header>
 
-            <iframe id="iframe-dayvalues-page" name="iframe-dayvalues-page"
-                    src="dummy.html" scrolling="0" 
+            <iframe id="iframe-dayvalues-page" 
+                    name="iframe-dayvalues-page"
+                    src="dummy.html" scrolling="auto" 
                     frameborder="0" border="0"></iframe>
                 
         </article>
