@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.9.9' 
+__version__    = '0.1.0' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -25,14 +25,11 @@ save_forecasts = True
 
 # Default output type file. Options: html, text and cmd
 # cmd is output to screen only. Text en html writes texts/html files
-default_output = 'html file'
+default_output = 'html'
 
 # The <default> years/period for the calculations of climate averages
 climate_start_year = 1991
 climate_end_year   = 2020
-
-# Do not change
-climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # Set the time zone
 timezone = 'Europe/Amsterdam'  
@@ -313,7 +310,7 @@ remove_download = False
 # Plotting default values
 # Use of default values (below) ? Or add values at runtime ?
 plot_default = 'y'
-plot_show = 'n'  # Show the plot directly -> matplotlib.show(). yess (y) or no (n)
+plot_show = 'y'  # Show the plot directly -> matplotlib.show(). yess (y) or no (n)
 plot_tight_layout = 'y'  # Use of matplotlib.tight_layout(). yess (y) or no (n)
 # Plot resolutions default.
 # Example month -> width 1600 x height 900. More days may need more width
@@ -327,7 +324,7 @@ plot_line_width = 1       # Width line
 plot_line_style = 'solid'  # Linestyle
 plot_marker_size = 3       # Dot sizes
 plot_marker_type = 'o'     # Type marker
-plot_marker_txt = 'n'   # Markertext. yess (y) or no (n)
+plot_marker_txt = 'y'      # Markertext. yess (y) or no (n)
 plot_cummul_val = 'n'      # Cummulative values. yess (y) or no (n)
 # Adding climate averages to plot. yess (y) or no (n)
 plot_climate_ave = 'n'
@@ -431,14 +428,12 @@ plot_legend_fancybox = None
 data_comment_sign = '#'
 data_dtype = np.float64  # Data type for reading data files
 data_min_year = 1901  # Minumum year of possible data
-np_empthy = np.array([[]])
-np_no_data = np.array([[]])
-no_data_given = '.'
-data_empthy = ''
-txt_no_data = '.'
-txt_data_error = 'x'
+np_empthy_1d = np.array([])
+np_empthy_2d = np.array([[]])
+empthy = ''
 no_val = '.'  # Replacement for no output
-empthy = '.'
+txt_data_error = 'x'
+date_false = -1
 
 # Descending min or max
 html_max = True
@@ -455,7 +450,7 @@ translate = False # Translation active or not
 # No download flooding from a server.
 # Time to wait after downloading a file. Always min = 0.2 seconds
 download_flood_protection_active = True
-download_interval_time = 0.3 # Seconds.
+download_interval_time = 0.2 # Seconds.
 download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage/ip for checking an internet connection
@@ -466,8 +461,10 @@ check_ip_4 = '8.8.8.8'
 check_port_80  = 80
 check_port_ssl = 443
 check_port_dns = 53
-check_timeout = 500 # Milli secs
+check_timeout  = 500 # Milli secs
 
+
+################################################################################
 ################################################################################
 # Vars below do not change
 hour_day     =  24
@@ -478,6 +475,8 @@ sec_day      =  hour_day * sec_hour
 sec_week     =  day_week * sec_day
 hour_minute  =  sec_minute
 day_minute   =  hour_day * hour_minute
+
+climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # Startup time for running this app (!more or less)
 app_start_time = time.time() 
