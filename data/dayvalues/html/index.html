@@ -117,7 +117,13 @@
               // new Station('257', 'Wijk aan Zee', '19010101'),
               // new Station('323', 'Wilhelminadorp', '19010101')
           ]
-          wmo_act = '280' // Default Eelde ! ;)
+
+          // 1) Overwrite defaults in: ./../js/davalues.js
+          wmo_act  = '260' // Default De Bilt
+          date_act = get_max_available_date() // Maximum possible date
+
+          // 2) Overwrite from url
+
         </script>
     </body>
 </html>
