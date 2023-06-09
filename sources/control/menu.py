@@ -29,13 +29,13 @@ def process_knmi_dayvalues_all():
     cnsl.log(text.head('START DOWNLOAD ALL DAYVALUES KNMI'), True)
     daydata.process_all()
     cnsl.log(text.foot('END DOWNLOAD ALL DAYVALUES KNMI'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 def process_knmi_dayvalues_select():
     '''Function asks for one or more wmo numbers to download their data'''
     while True:
         cnsl.log( text.head('START DOWNLOAD DAYVALUES KNMI'), True)
-        options = ask.lst(['lst-stations'], '', back=True, prev=False, exit=True, spacer=True)
+        options = ask.lst(['lst-stations'], default=cfg.empthy, back=True, prev=False, exit=True, spacer=True)
 
         daydata.process_lst(options['lst-stations'])
 
@@ -144,12 +144,12 @@ def table_stats_compare():
 def make_dayvalues():
     '''Funtion gets day values from data knmi '''
     while True:
-        cnsl.log(text.head('START MAKE OR SEE DAY VALUES'), True)
+        cnsl.log(text.head('START MAKE DAY VALUES'), True)
         title = 'dayvalues' # Unused!
  
         # Ask list with questions
         lst_ask = ['lst-stations', 'period', 'file-type', 'write']
-        options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+        options = ask.lst(lst_ask, title, default=cfg.empthy, back=True, prev=True, exit=True, spacer=True)
 
         if answer.is_back(options['other']): break # Go back to menu
 
@@ -177,7 +177,47 @@ def make_dayvalues():
         else:
             break 
 
+    cnsl.log(text.foot('END MAKE DAY VALUES'), True)
+
+def see_a_day():
+    '''Funtion for seeing a day value from data knmi '''
+    while True:
+        cnsl.log(text.head('START SEE A DAY'), True)
+        title = 'see a day' # Unused!
+ 
+        # Ask list with questions
+        lst_ask = ['lst-stations', 'period', 'file-type', 'write']
+        options = ask.lst(lst_ask, title, default=cfg.empthy, back=True, prev=True, exit=True, spacer=True)
+
+        if answer.is_back(options['other']): 
+            break # Go back to menu
+
+        options['download'] = False # Default is False, do not give a download option
+        options['lst-sel-cells'] = cfg.lst_cells_dayvalues # Data cells to show
+
+        st = time.time_ns()
+        ok, path = dayvalues.calculate(options)
+        cnsl.log(text.process_time('Total processing time is ', st), cfg.verbose)
+
+        if ok:
+            if options['file-type'] in text.lst_output_files:
+                if answer.is_back(
+                    ask.open_with_app( 
+                        path, options, back=False, prev=False, exit=True, spacer=True
+                    )
+                ):
+                    break
+
+        if ask.is_yes(
+            'Do you want to select other period(s) or station(s) ?', 
+            default='y', back=False, prev=False, exit=True, spacer=True
+        ):
+            continue 
+        else:
+            break 
+
     cnsl.log(text.foot('END MAKE OR SEE DAY VALUES'), True)
+
 
 ##########################################################################################
 # SEARCH FOR DAYS
@@ -189,7 +229,7 @@ def search_for_days():
         # Ask list with questions
         title = 'search 4 days'
         lst_ask = ['lst-stations', 'period', 's4d-query', 'file-type', 'file-name']
-        options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+        options = ask.lst(lst_ask, title, default=cfg.empthy, back=True, prev=True, exit=True, spacer=True)
 
         if answer.is_back(options['other']): break # Go back to menu
 
@@ -225,7 +265,7 @@ def process_weather_buienradar_forecast():
     cnsl.log(text.head('START FORECAST BUIENRADAR'), True)
     weather.process('buienradar-weather')
     cnsl.log(text.foot('END FORECAST BUIENRADAR'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 # weather cities
 def process_weather_buienradar_current():
@@ -233,7 +273,7 @@ def process_weather_buienradar_current():
     cnsl.log(text.head('START WEATHERSTATIONS BUIENRADAR'), True)
     weather.process('buienradar-stations')
     cnsl.log(text.foot('END WEATHERSTATIONS BUIENRADAR'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 ##########################################################################################
 # KNMI Weather
@@ -242,28 +282,28 @@ def process_weather_knmi_forecast():
     cnsl.log(text.head('START FORECAST KNMI'), True)
     weather.process('knmi-weather')
     cnsl.log(text.foot('END FORECAST KNMI'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 def process_weather_knmi_model():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START KNMI FORECAST MODEL LONG TERM'), True)
     weather.process('knmi-model')
     cnsl.log(text.foot('END KNMI FORECAST MODEL LONG TERM'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 def process_weather_knmi_guidance():
     '''Function downloads and prints a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START KNMI FORECAST GUIDANCE SHORT TERM'), True)
     weather.process('knmi-guidance')
     cnsl.log(text.foot('END KNMI FORECAST GUIDANCE SHORT TERM'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 def process_weather_knmi_current():
     '''Function downloads and print a actual weather values to the screen'''
     cnsl.log(text.head('START WEATHERSTATIONS KNMI'), True)
     weather.process('knmi-stations')
     cnsl.log(text.foot('END WEATHERSTATIONS KNMI'), True)
-    ask.question(text.back_main, default='', back=False, prev=False, exit=True, spacer=True)
+    ask.question(text.back_main, default=cfg.empthy, back=False, prev=False, exit=True, spacer=True)
 
 ##########################################################################################
 # GRAPHS
@@ -279,27 +319,27 @@ def graph_period():
             'graph-title', 'graph-y-label', 'graph-default','graph-width',
             'graph-height', 'graph-cummul-val','graph-dpi', 'graph-lst-entities-types'
         ]
-        options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+        options = ask.lst(lst_ask, title, default=cfg.empthy, back=True, prev=True, exit=True, spacer=True)
+        options['file-type'] = options["graph-type"] # For use in execute with default app
 
-        if answer.is_back(options['other']): break # Go back to menu
+        if answer.is_back( options['other'] ): break # Go back to menu
 
         st = time.time_ns()
         ok, path = graphs.calculate(options)
-        cnsl.log( text.process_time('Total processing time is ',st), cfg.verbose )
+        cnsl.log( text.process_time( 'Total processing time is ', st ), cfg.verbose )
 
         if ok:
-            if options['file-type'] in text.lst_output_files:
-                if answer.is_back(
-                    ask.open_with_app(
-                        path, options, 
-                        back=False, prev=False, exit=True, spacer=True
-                    )
-                ):
+            cnsl.log( f'Graph made success\n{path}', True )
+            if options["graph-type"] in text.lst_output_files:
+                if answer.is_back( 
+                    ask.open_with_app( path, options, back=False, prev=False, exit=True, spacer=True)
+                ): 
                     break
-
+        else:
+            cnsl.log('Graph made failed', True )
+                    
         if ask.is_yes(
-            'Do you want to make more graphs ?', 
-            default='y', back=False, prev=False, exit=True, spacer=True
+            'Do you want to make more graphs ?', default='y', back=False, prev=False, exit=True, spacer=True
         ):
             continue 
         else:
@@ -313,7 +353,7 @@ def graph_period():
 
 #         title = 'graph statistics'
 #         lst_ask = ['lst-stations', 'period']
-#         options = ask.lst(lst_ask, title, default='', back=True, prev=True, exit=True, spacer=True)
+#         options = ask.lst(lst_ask, title, default=cfg.empthy, back=True, prev=True, exit=True, spacer=True)
 
 #         st = time.time_ns()
 #         path = graphs.calculate(options)
@@ -482,7 +522,7 @@ def main():
     space = '    '  
     while True:  # Main menu
         web, data, lst_menu = check_menu_options()
-        num, main = 1, ''
+        num, main = 1, cfg.empthy
         for el in lst_menu:
             title, options = el[0], el[1]
             main += f'\n{space}{title}\n'
