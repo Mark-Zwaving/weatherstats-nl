@@ -4,27 +4,30 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.2.3'
+__version__    =  '0.2.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import sys, config as cfg
+import validators
 import sources.view.text as text
 import sources.model.weather_stations as weather_stations
 import sources.model.utils as utils
 import sources.model.daydata as daydata
 import sources.model.select as select
+import sources.model.validate as validate
+import sources.model.ymd as ymd
+import sources.model.search4days as s4d
 import sources.view.console as cnsl
 import sources.control.answer as answer
-import sources.model.validate as validate
 
 marker = '\n  ?  '
-def ln(t):  return '\n' if t else ''
+def ln(t):  return '\n' if t else cfg.empthy
 
 def txt(t): return f'{t}{marker}'
 
 def space(spacer, verbose): 
-    cnsl.log('', spacer and verbose) 
+    cnsl.log(cfg.empthy, spacer and verbose) 
 
 def answ_to_lst(answ):
     lst = [] # Make a list with table cells
@@ -35,16 +38,16 @@ def answ_to_lst(answ):
 
     return lst
 
-def any_key(t='', spacer=False, verbose=True):
+def any_key(t=cfg.empthy, spacer=False, verbose=True):
     '''Answer can be anything'''
     answ = text.clean(input(txt(t)))
     space(spacer, verbose)
 
     return answ
 
-def question(t='...', default='', back=False, prev=False, exit=False, spacer=False):
+def question(t='...', default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     t =  t[:-1] if t[-1] == '\n' else t
-    if default: 
+    if default != cfg.empthy: 
         t += f'\n{text.enter_default(default)}'
     if prev: 
         t += f'\n{text.enter_previous()}'
@@ -58,18 +61,18 @@ def question(t='...', default='', back=False, prev=False, exit=False, spacer=Fal
     if answer.is_quit(answ):
         cnsl.log('Goodbye!', True)
         sys.exit(0)
+    elif default != cfg.empthy and answer.is_empty(answ):
+        return default
 
     return answ
 
-def y_or_n(t='', default='', back=False, prev=False, exit=False, spacer=False):
+def y_or_n(t=cfg.empthy, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     t += '\nType in "y" for yess or "n" for no'
     while True:
         answ = question(t, default, back, prev, exit, spacer)
 
-        tt = ''
-        if answer.is_empty(answ):
-            return default
-        elif back and answer.is_back(answ):
+        tt = cfg.empthy
+        if back and answer.is_back(answ):
             return answ
         elif prev and answer.is_prev(answ):
             return answ
@@ -80,7 +83,7 @@ def y_or_n(t='', default='', back=False, prev=False, exit=False, spacer=False):
 
         cnsl.log(tt, True)
 
-def is_yes(t='', default='', back=False, prev=False, exit=False, spacer=False):
+def is_yes(t=cfg.empthy, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     if answer.is_yes(
             y_or_n( t, default, back, prev, exit, spacer) 
         ):
@@ -88,15 +91,13 @@ def is_yes(t='', default='', back=False, prev=False, exit=False, spacer=False):
     else:
         return False
 
-def integer(t='Give an integer', default='', back=False, prev=False, exit=True, spacer=False):
+def integer(t='Give an integer', default=cfg.empthy, back=False, prev=False, exit=True, spacer=False):
 
     while True:
         answ = question(t, default, back, prev, exit, spacer)
 
-        ttt = ''
-        if answer.is_empty(answ):
-            return default
-        elif prev and answer.is_prev(answ):
+        ttt = cfg.empthy
+        if prev and answer.is_prev(answ):
             return answ
         elif back and answer.is_back(answ):
             return answ
@@ -109,17 +110,17 @@ def integer(t='Give an integer', default='', back=False, prev=False, exit=True, 
 
 def open_with_app(path, options, back=False, prev=False, exit=False, spacer=False):
     t = f'\nOpen the file <type={options["file-type"]}> with your default application ?'
-    answ = y_or_n(t, default='', back=back, prev=prev, exit=exit, spacer=spacer)
+    answ = y_or_n( t, default=cfg.empthy, back=back, prev=prev, exit=exit, spacer=spacer )
 
     if answer.is_yes(answ):
         utils.exec_with_app(path)
-    else:
-        return answ
+    
+    return answ
 
-def back_to_main_menu(default='', back=False, prev=False, exit=False, spacer=False):
+def back_to_main_menu(default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     question(text.back_main, default, back, prev, exit, spacer)
 
-def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
+def lst_places(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst_sel = []
     if len(weather_stations.lst_stations_map()) > 0:
         while True:
@@ -130,11 +131,11 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
             tt += 'To add one station, give a wmo-number or a city name\n'
             tt += 'To add more stations, give a wmo-number or a city name separated by a comma\n'
             tt += f"Press '*' to add all available weather stations\n"
-            tt += f'{text.next_press_enter}' if len(lst_sel) > 0 else ''
+            tt += f'{text.next_press_enter}' if len(lst_sel) > 0 else cfg.empthy
 
             answ = question(tt, default, back, prev, exit, spacer)
 
-            ttt = ''
+            ttt = cfg.empthy
             if answer.is_empty(answ) and len(lst_sel) == 0:
                 ttt += text.type_in # Empthy list
             elif answer.is_empty(answ) and len(lst_sel) > 0:
@@ -176,10 +177,10 @@ def lst_places(t, default='', back=False, prev=False, exit=False, spacer=False):
 
     return lst_sel
 
-def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False):
+def period_1( t=cfg.empthy, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
 
     while True:
-        tt = ''
+        tt = cfg.empthy
         if cfg.info:
             tt += text.menu_info_periods + '\n'
         tt += t
@@ -203,7 +204,7 @@ def period_1( t='', default='', back=False, prev=False, exit=False, spacer=False
 
         cnsl.log(ttt, cfg.error)
 
-def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
+def period_2(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
 
     lst = [ 'day', 'month' , 'period'
             #, 'season' 
@@ -245,7 +246,7 @@ def period_2(t, default='', back=False, prev=False, exit=False, spacer=False):
 
 def period_day_to_day( t, default, back=False, prev=False, exit=False, spacer=False):
     while True:
-        tt = ''
+        tt = cfg.empthy
         if cfg.info:
             tt += 'Select a start day(<format:<mmdd>) and a end day (<format:<mmdd>). Separated with an -\n' 
             tt += 'Input format: mmdd-mmdd\n'
@@ -265,9 +266,9 @@ def period_day_to_day( t, default, back=False, prev=False, exit=False, spacer=Fa
 
         cnsl.log(ttt, cfg.error)
 
-def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
+def s4d_query(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     while True:
-        tt = ''
+        tt = cfg.empthy
         if cfg.info:
             tt += text.menu_info_queries + '\n'
         tt += t
@@ -283,7 +284,7 @@ def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
         elif back and answer.is_back(answ):
             return answ
         else:
-            ok, ttt = utils.query_ok(answ)
+            ok, ttt = s4d.query_ok(answ)
             if ok:
                 return answ
             else:
@@ -291,7 +292,7 @@ def s4d_query(t, default='', back=False, prev=False, exit=False, spacer=False):
 
         cnsl.log(ttt, cfg.error)
 
-def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=False):
+def type_options(t, lst, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = [el.lower() for el in lst] # Make lower case
     tt = t + '\n'
     # Make options
@@ -302,7 +303,7 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
     while True:
         answ = question(tt, default, back, prev, exit, spacer).lower()
 
-        ttt = ''
+        ttt = cfg.empthy
         if default and answer.is_empty(answ):
             return default
         elif answer.is_empty(answ):
@@ -323,19 +324,19 @@ def type_options(t, lst, default='', back=False, prev=False, exit=False, spacer=
 
         cnsl.log(ttt, True)
 
-def file_type(t, default='', back=False, prev=False, exit=False, spacer=False):
+def file_type(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = text.lst_output_options
     return type_options(t, lst, default, back, prev, exit, spacer)
 
-def graph_type(t, default='', back=False, prev=False, exit=False, spacer=False):
+def graph_type(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = ['line', 'bar']
     return type_options(t, lst, default, back, prev, exit, spacer)
 
-def season_type(t, default='', back=False, prev=False, exit=False, spacer=False):
+def season_type(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = ['winter', 'spring', 'summer', 'autumn']
     return type_options(t, lst, default, back, prev, exit, spacer)
 
-def file_name(t, default='', back=False, prev=False, exit=False, spacer=False):
+def file_name(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     answ = question(t, default, back, prev, exit, spacer)
 
     if answer.is_empty(answ):
@@ -343,16 +344,16 @@ def file_name(t, default='', back=False, prev=False, exit=False, spacer=False):
 
     return answ
 
-def day( t, default='', back=False, prev=False, exit=False, spacer=False):
+def day( t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     while True:
-        tt = ''
+        tt = cfg.empthy
         if cfg.info:
             tt += text.menu_info_select_a_day + '\n'
         tt += t
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        ttt = ''
+        ttt = cfg.empthy
         if default:
             return default
         elif answer.is_empty(answ):
@@ -368,16 +369,16 @@ def day( t, default='', back=False, prev=False, exit=False, spacer=False):
 
         cnsl.log(ttt, cfg.error)
 
-def month( t, default='', back=False, prev=False, exit=False, spacer=False):
+def month( t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     while True:
-        tt =  ''
+        tt =  cfg.empthy
         if cfg.info:
             tt += text.menu_info_select_a_month + '\n'
         tt += t
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        ttt = ''
+        ttt = cfg.empthy
         if answer.is_empty(answ):
             ttt += text.type_in 
         elif prev and answer.is_prev(answ):
@@ -391,7 +392,7 @@ def month( t, default='', back=False, prev=False, exit=False, spacer=False):
 
         cnsl.log(ttt, cfg.error)
 
-def period_compare(t, default='', back=False, prev=False, exit=False, spacer=False):    
+def period_compare(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):    
     lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
         option = type_options(t, lst, default, back, prev, exit, spacer)
@@ -425,20 +426,20 @@ def period_compare(t, default='', back=False, prev=False, exit=False, spacer=Fal
         else: 
             return answ
 
-def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=False):
+def lst_diy_cells(t=cfg.empthy, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst_cells = []
     while True:
-        tt =  ''
+        tt =  cfg.empthy
         if cfg.info:
             tt += text.menu_info_td_cells + '\n'
 
         tt += 'To add one table cell give one statistics table cell option\n'
         tt += 'To add more table cells give table cell statistics separated by a comma\n'
-        tt += f'{text.next_press_enter}' if len(lst_cells) > 0 else ''
+        tt += f'{text.next_press_enter}' if len(lst_cells) > 0 else cfg.empthy
     
         answ = question(tt, default, back, prev, exit, spacer)
 
-        ttt = ''
+        ttt = cfg.empthy
         if answer.is_empty(answ) and len(lst_cells) == 0:
             ttt += text.type_in # Empthy list
         elif answer.is_empty(answ) and len(lst_cells) > 0:
@@ -463,7 +464,7 @@ def lst_diy_cells(t='', default='', back=False, prev=False, exit=False, spacer=F
 
     return lst_cells
 
-def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=False):
+def lst_sel_cells(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = [
         'diy <do it yourself> cells', 
         'winter statistics <default, see config.py>', 
@@ -488,11 +489,11 @@ def lst_sel_cells(t, default='', back=False, prev=False, exit=False, spacer=Fals
      
     return answ 
 
-def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=False):
+def lst_entities( t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst = []
 
     while True:
-        tt = ''
+        tt = cfg.empthy
         if cfg.info:
             tt += text.menu_info_entities + '\n'
         tt += t + '\n'
@@ -502,7 +503,7 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 
         answ = question(tt, default, back, prev, exit, spacer)
 
-        ttt = ''
+        ttt = cfg.empthy
         if answer.is_empty(answ) and len(lst) == 0:
             ttt += text.type_in
             continue # Again
@@ -534,42 +535,41 @@ def lst_entities( t, default='', back=False, prev=False, exit=False, spacer=Fals
 
     return lst
 
-def image_download_url(t, default='', back=False, prev=False, exit=False, spacer=False):
+def image_download_url(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     lst_num = []
-    for ndx, url in enumerate(cfg.lst_weather_images_url):
-        num = f'{ndx+1}'
-        t += f'  {num}. {url}\n'
-        lst_num.append(num)
+    t = f'{text.menu_image_download_examples}\n{t}'
 
     while True:
         answ = question(t, default, back, prev, exit, spacer)
 
-        tt = ''
+        tt = cfg.empthy
         if answer.is_empty(answ):
             tt += text.type_in # Empthy list
         elif prev and answer.is_prev(answ):
             return answ
         elif back and answer.is_back(answ):
             return answ
-        elif answ in lst_num:
-            return cfg.lst_weather_images_url[int(answ)-1]
         else:
-            tt = f'Answer given {answ} is unknown'
+            # Check url answer
+            if validators.url(answ) == True:
+                return answ
+            else:
+                tt = f'Error in url: {answ}.'
     
         cnsl.log(tt, True)
 
-def date_time(t, default='', back=False, prev=False, exit=False, spacer=False):
+def date_time(t, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     t = f'Give a <{t}> datetime -> format [yyyy-mm-dd HH:MM:SS]'
     answ = question(t, default, back, prev, exit, spacer)
     return answ
 
-def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=False):
+def lst(lst_ask, name, default=cfg.empthy, back=False, prev=False, exit=False, spacer=False):
     # Max options to aks in this function
     lst_stations, lst_sel_cel, lst_entity, quit = [], [], [], False
-    s4d, per_1, per_2, per_cmp, f_type, f_name = '', '', '', '', '', name
-    write, other = '', ''
+    s4d, per_1, per_2, per_cmp, f_type, f_name = cfg.empthy, cfg.empthy, cfg.empthy, cfg.empthy, cfg.empthy, name
+    write, other = cfg.empthy, cfg.empthy
     # Make option default list
-    graph_title, graph_y_label = '', '' 
+    graph_title, graph_y_label = cfg.empthy, cfg.empthy 
     graph_default = cfg.plot_default
     graph_width = cfg.plot_width
     graph_height = cfg.plot_height
@@ -579,43 +579,51 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
     graph_lst_entities_options = []
 
     # Animations
-    anim_image_download_url = ''
-    anim_start_datetime = ''
-    anim_end_datetime = ''
-    anim_interval_download = ''
-    anim_animation_name = ''
-    anim_animation_time = ''
-    anim_remove_downloads = ''
-    anim_gif_compress = ''
-    anim_verbose = ''
+    anim_image_download_url = cfg.empthy
+    anim_start_datetime = cfg.empthy
+    anim_end_datetime = cfg.empthy
+    anim_interval_download = cfg.empthy
+    anim_animation_name = cfg.empthy
+    anim_animation_time = cfg.empthy
+    anim_remove_downloads = cfg.empthy
+    anim_gif_compress = cfg.empthy
+    anim_verbose = cfg.empthy
 
     i, max = 0, len(lst_ask)
     while i < max:
         prev_act = False if i == 0 else prev # Can go to prev or not
-        answ, quest = '', lst_ask[i]
+        answ, quest = cfg.empthy, lst_ask[i]
 
         if quest == 'image-download-url': 
             answ = anim_image_download_url = image_download_url(
-                'Select a download image url\n', '', 
+                'Give a download image url\n', cfg.empthy, 
                 back, prev_act, exit, spacer
             )
         elif quest == 'start-datetime': 
-            answ = anim_end_datetime = date_time('start', back, prev_act, exit, spacer)
+            # [yyyy-mm-dd HH:MM:SS]
+            y, m, d, HH, MM, SS = ymd.y_m_d_h_m_s_now()
+            answ = anim_end_datetime = date_time( 'start', f'{y}-{m}-{d} {HH}:{MM}:{SS}', 
+                                                   back, prev_act, exit, spacer )
         elif quest == 'end-datetime': 
-            answ = anim_end_datetime = date_time('end', back, prev_act, exit, spacer)
+            y, m, d = ymd.split_yyyymmdd( ymd.yyyymmdd_plus_day( ymd.yyyymmdd_now(), 1 ) )
+            HH, MM, SS = ymd.hh_mm_ss_now()
+            answ = anim_end_datetime = date_time( 'end', f'{y}-{m}-{d} {HH}:{MM}:{SS}', 
+                                                   back, prev_act, exit, spacer )
         elif quest == 'interval-download': 
+            default = 10
             answ = anim_interval_download = integer(
                 'Give the interval download time in minutes', 
                 default, back, prev, exit, spacer 
             ) 
         elif quest == 'animation-name': 
+            default = f'animation-{ymd.yyyymmdd_now()}-{ymd.hhmmss_now()}'
             answ = anim_animation_name = question(
                 'Give a name for the animation file or press enter for default', 
                 default, back, prev, exit, spacer 
             )
         elif quest == 'animation-time': 
             answ = anim_animation_time = float( question(
-                'Give a animation time for the animation <float>', 
+                'Give a animation time for in the animation self <float>', 
                 cfg.animation_time, back, prev_act, exit, spacer 
             ) )
         elif quest == 'remove-downloads': 
@@ -639,7 +647,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         elif quest == 'lst-stations': # Ask for one or more stations
             answ = lst_stations = lst_places(
                 'Select one (or more) weather station(s) ?', 
-                default, back, prev_act, exit, spacer 
+                cfg.empthy, back, prev_act, exit, spacer 
             )
         elif quest in text.lst_period_1: # Ask for period
             answ = per_1 = period_1(
@@ -652,7 +660,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                 default, back, prev_act, exit, spacer 
             )
         elif quest == 'lst-diy-cells':
-            answ = lst_sel_cel = lst_diy_cells('', default, back, prev_act, exit, spacer)
+            answ = lst_sel_cel = lst_diy_cells(cfg.empthy, default, back, prev_act, exit, spacer)
             # Period 2 or not!
             if 'inf_period-2' in lst_sel_cel: # Add period 2 to question list
                 lst_ask = lst_ask[:i].append(text.lst_period_2[0]) + lst_ask[i:]
@@ -686,8 +694,8 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
             )
         elif quest == 'file-name': # Ask for a name
             if f_type not in text.lst_output_cnsl:  # Add query to title if there
-                squery = f'-{text.query_sign_to_text(s4d)}' if s4d else '' 
-                tmp_per = f'-{per_2}' if per_2 else ''
+                squery = f'-{text.query_sign_to_text(s4d)}' if s4d else cfg.empthy 
+                tmp_per = f'-{per_2}' if per_2 else cfg.empthy
                 tmp_name = f'{name}{squery}-{per_1}{tmp_per}-{utils.now_for_file()}' 
                 tmp_name = tmp_name.replace(' ', '-').replace('*', 'x').lower()
                 answ = f_name = file_name(
@@ -695,7 +703,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                     tmp_name, back, prev_act, exit, spacer 
                 )
             else:
-                f_name=''
+                f_name=cfg.empthy
         elif quest == 'lst-entities':
             answ = lst_entity = lst_entities(
                 'Select weather entity(s) ?', 
@@ -704,11 +712,11 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         elif quest == 'graph-title':
             answ = graph_title = question(
                 'Give a title for the graph', 
-                default, back, prev_act, exit, spacer )
+                'My Graph Title', back, prev_act, exit, spacer )
         elif quest == 'graph-y-label':
             answ = graph_y_label = question(
                 'Give a y-as label for the graph', 
-                default, back, prev_act, exit, spacer 
+                'weatherdata', back, prev_act, exit, spacer 
             )
         elif quest == 'graph-default':
             answ = graph_default = y_or_n(
@@ -750,11 +758,11 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
                 marker_size = cfg.plot_marker_size
                 marker_txt = cfg.plot_marker_txt
                 min_max_ave_period = cfg.plot_min_max_ave_period
-                climate_yyyy_start = ''
-                climate_yyyy_end = ''
+                climate_yyyy_start = cfg.empthy
+                climate_yyyy_end = cfg.empthy
                 climate_ave = cfg.plot_climate_ave
                 climate_ave_marker_txt = cfg.plot_climate_marker_txt
-                climate_periode = ''
+                climate_periode = cfg.empthy
                 lst_ask_graph = [ 
                     'line-bar', 'marker-txt', 'min-max-ave-period', 'climate-ave', 
                     'climate-ave-marker-txt', 'climate-periode', 'climate-yyyy-start', 'climate-yyyy-end'
@@ -857,6 +865,7 @@ def lst(lst_ask, name, default='', back=False, prev=False, exit=False, spacer=Fa
         'write': write, 
         'file-type': f_type,
         'file-name': f_name,
+
         # Graphs
         'graph-title': graph_title,
         'graph-y-label': graph_y_label, 

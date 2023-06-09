@@ -3,16 +3,17 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.3'
+__version__    =  '0.0.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
+import config as cfg
 import sources.view.text as text
 
 # Makes versatile answers possible (list or string)
 def lst_to_str(answ):
     if type(answ) == list:
-        answ = str(answ[0]) if len(answ) > 0 else ''
+        answ = str(answ[0]) if len(answ) > 0 else cfg.empthy
 
     return answ
 
@@ -52,7 +53,7 @@ def is_no(answ):
 def is_empty(answ):
     if type(answ) == list:
         if answ == []:
-            answ = ''
+            answ = cfg.empthy
         else:
             answ = lst_to_str(answ)
     else:
