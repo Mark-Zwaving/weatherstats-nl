@@ -5,7 +5,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.2.2'
+__version__    =  '0.2.3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -17,6 +17,8 @@ import sources.view.console as cnsl
 import threading, urllib, json, os, time, zipfile, requests
 import shutil, urllib.request, socket
 from urllib.parse import urlparse
+
+download_interval_time_min = 0.2
 
 abspath = lambda path: os.path.abspath(path)
 mk_path = lambda dir, f: abspath(os.path.join(dir, f))
@@ -39,7 +41,7 @@ def check(path, verbose=cfg.verbose):
                 cnsl.log('File does not exist', verbose)
     return ok
 
-def write(path='dummy.txt', content='', encoding='utf-8', prefix='w', verbose=cfg.verbose):
+def write(path='dummy.txt', content=cfg.empthy, encoding='utf-8', prefix='w', verbose=cfg.verbose):
     '''Function writes content to a file'''
     ok = False
     cnsl.log(f'[{ymd.now()}] write a file', verbose)
@@ -57,13 +59,13 @@ def write(path='dummy.txt', content='', encoding='utf-8', prefix='w', verbose=cf
             ok = True
     return ok
 
-def save(path='dummy.txt', content='', encoding='utf-8', prefix='w', verbose=cfg.verbose):
+def save(path='dummy.txt', content=cfg.empthy, encoding='utf-8', prefix='w', verbose=cfg.verbose):
     '''Function writes content to a file'''
     return write(path, content, encoding, prefix, verbose)
 
 def read(path, encoding='utf-8', verbose=cfg.verbose):
     '''Function reads the content in a file'''
-    ok, t, paths = False, '', convert.to_lst(path)
+    ok, t, paths = False, cfg.empthy, convert.to_lst(path)
     cnsl.log(f'[{ymd.now()}] Read a file', verbose)
     cnsl.log(f'File(s) {str(paths)}', verbose)
 
@@ -82,7 +84,7 @@ def read(path, encoding='utf-8', verbose=cfg.verbose):
 
 def readlines(path, encoding='utf-8',verbose=cfg.verbose):
     '''Function reads the content from a file into a list'''
-    l, ok, t, paths = [], False, '', convert.to_lst(path)
+    l, ok, t, paths = [], False, cfg.empthy, convert.to_lst(path)
     cnsl.log(f'[{ymd.now()}] Read file(s) into a list', verbose)
     cnsl.log(f'File(s) {str(paths)}', verbose)
 
@@ -230,14 +232,15 @@ def download(
         # Flood server protection
         if cfg.download_flood_protection_active:
             wait = cfg.download_interval_time
-            if wait < 0.2: wait = 0.2
+            if wait < download_interval_time_min: 
+                wait = download_interval_time_min
             time.sleep(wait)
 
     return ok
 
 def download_read_file(url, file, verbose=cfg.verbose):
     '''Function downloads a file, read the file and return the content of the file'''
-    ok, t = False, ''
+    ok, t = False, cfg.empthy
     cnsl.log(f'[{ymd.now()}] download and read', verbose)
     cnsl.log(f'Url: {url}', verbose)
     cnsl.log(f'To file: {url}', verbose)
@@ -254,7 +257,7 @@ def request(url, type='txt', verbose=cfg.verbose):
     '''Function makes the request based on the url given as parameter
        The return values are: ok, True if success else False... And the text From
        the request.'''
-    ok, t = False, ''
+    ok, t = False, cfg.empthy
     cnsl.log(f'[{ymd.now()}] {type} - request', verbose)
     cnsl.log(f'Url: {url}', verbose)
     with threading.Lock():
@@ -414,8 +417,8 @@ def lst_maps(map, recursive=True, secret=True, verbose=cfg.verbose):
 
 def lst_files_dir(
         dir,             # Dir to search for files
-        extensions = '', # <optional> List of extensions or one string ext to search the map for
-        keywords   = '', # <optional> List of keyword or one string to search the directory for
+        extensions = cfg.empthy, # <optional> List of extensions or one string ext to search the map for
+        keywords   = cfg.empthy, # <optional> List of keyword or one string to search the directory for
         case_insensitive = True, # <optional> Search case insensitive. True by default.
         verbose = cfg.verbose  # <optional> Overwrite verbose option
     ):
