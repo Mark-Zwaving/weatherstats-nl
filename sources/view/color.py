@@ -8,6 +8,7 @@ __version__    =  '0.0.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
+import config as cfg
 import sources.model.utils as utils
 
 # Initialisation of color list, will be overwritten with correct values at the bottom
@@ -33,7 +34,7 @@ sort_hexas = lambda : lst_hexas.sort()
 sort_rgbs  = lambda : lst_rgbs.sort()
 sort_hsl   = lambda : lst_hsls.sort()
 
-def get_key_row(id=NAME, color=''):
+def get_key_row(id=NAME, color=cfg.e):
     key = -1
     if check_name(color):
         i = 0
@@ -80,7 +81,7 @@ def hexa_to_rgb(hexa):
         rgb = lst[key][RGB]
     else:
         # Make hexa always a string, replace '#' with '' and make uppercase
-        h = str(hexa).replace('#','').upper()
+        h = str(hexa).replace('#',cfg.e).upper()
 
         # Make it work for a 3 digits hexa too. Convert to 6 digits
         if len(h) == 3:
@@ -179,7 +180,7 @@ def rgb_to_hue(rgb):
 def hexa_to_dec(hexa):
     ''' Function calculates a hexa value into a decimal value'''
     # Make a string, replace '#' with '', reverse chars and make uppercase
-    hexa = str(hexa).replace('#','')[::-1].upper()
+    hexa = str(hexa).replace('#',cfg.e)[::-1].upper()
     pos, radix, total, val = 0, 16, 0, -1 # Init base vars
     for char in hexa: # Check all chars and calculate the hexa value and sum up
         # Find decimal value for char in list with hex values
