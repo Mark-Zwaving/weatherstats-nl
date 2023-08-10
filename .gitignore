@@ -11,12 +11,16 @@ data/dayvalues/html/280
 data/dayvalues/html/310
 data/dayvalues/html/380
 
+data/statistics/csv
+data/statistics/html/2023
+
 data/dayvalues/zip/*.zip
 data/dayvalues/txt/*.txt
 data/graphs
 
 __pycache__
 sources/model/__pycache__
+sources/model/cell/__pycache__
 sources/view/__pycache__
 sources/control/__pycache__
 

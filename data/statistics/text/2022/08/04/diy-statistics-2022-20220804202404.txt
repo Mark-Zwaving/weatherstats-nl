@@ -1,0 +1,36 @@
+PLACE            AVE tg  CLI avetg   max tx  HEAT   tx>25     tx>30     tx>35   
+Arcen            11.7°C    10.7°C    37.8°C  110.0    38        9         1     
+Berkhout         10.9°C    10.1°C    34.4°C  46.4     10        2         0     
+Cabauw Mast      11.3°C    10.3°C    35.9°C  67.6     14        2         1     
+De Bilt          11.4°C    10.4°C    35.5°C  63.5     16        2         1     
+De Kooy          11.0°C    9.9°C     36.1°C  42.4     7         1         1     
+Deelen           11.0°C    10.1°C    37.7°C  79.4     24        6         1     
+Eelde            10.5°C    9.6°C     35.6°C  53.9     14        4         1     
+Eindhoven        11.7°C    10.6°C    38.3°C  105.2    32        7         1     
+Ell              11.6°C    10.8°C    36.2°C  98.6     34        8         1     
+Gilze-Rijen      11.6°C    10.5°C    38.1°C  94.0     27        7         1     
+Heino            10.9°C    9.9°C     36.8°C  60.9     18        5         1     
+Herwijnen        11.2°C    10.2°C    36.3°C  69.9     22        5         1     
+Hoek van Hollan  11.8°C    10.6°C    38.5°C  68.7     10        3         1     
+Hoogeveen        10.7°C    9.8°C     36.5°C  54.3     16        4         1     
+Hoorn Terschell  10.4°C    9.5°C     32.5°C  34.5     6         1         0     
+Hupsel           11.1°C    10.0°C    38.4°C  85.2     25        8         1     
+Lauwersoog       11.0°C    9.9°C     35.2°C  51.4     12        1         1     
+Leeuwarden       10.5°C    9.5°C     34.8°C  45.5     7         1         0     
+Lelystad         11.1°C    10.1°C    36.2°C  58.4     11        3         1     
+Maastricht       11.8°C    10.6°C    39.5°C  129.4    36        8         1     
+Marknesse        11.0°C    9.9°C     36.0°C  55.0     11        3         1     
+Nieuw Beerta     10.4°C    9.4°C     35.7°C  49.0     16        3         1     
+Rotterdam        11.7°C    10.5°C    37.1°C  79.5     19        4         1     
+Schiphol         11.6°C    10.4°C    35.5°C  67.6     13        3         1     
+Stavoren         10.7°C    9.8°C     34.2°C  43.2     8         1         0     
+Twenthe          11.1°C    10.0°C    38.0°C  83.0     23        6         1     
+Vlieland         10.9°C    9.8°C     32.7°C  38.2     6         1         0     
+Vlissingen       12.0°C    10.7°C    33.6°C  83.4     15        2         0     
+Volkel           11.6°C    10.4°C    37.8°C  96.4     28        7         1     
+Voorschoten      11.2°C    10.7°C    35.0°C  48.9     11        2         0     
+Westdorpe        11.8°C    10.7°C    39.1°C  90.5     26        7         2     
+Wijk aan Zee     11.3°C    10.3°C    37.3°C  50.5     7         1         1     
+Wilhelminadorp   11.7°C    10.5°C    38.6°C  76.1     14        5         1     
+Woensdrecht      11.5°C    10.6°C    38.8°C  86.5     26        6         1     
+SOURCE DATA: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)
