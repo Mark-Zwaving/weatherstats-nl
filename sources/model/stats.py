@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.4'
+__version__    =  '0.0.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -17,20 +17,21 @@ import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.select as select
 import sources.model.convert as cvt
+import sources.model.search4days as s4d
 
 if sys.platform in ['cygwin', 'win32']:
     from asyncio.windows_events import NULL
 
 class Days:
     '''Class saves and stores statistics of a station in a given period'''
-    np_data_2d   = cfg.np_no_data
-    np_period_2d = cfg.np_no_data # This is the array with the period
-    np_good_2d   = cfg.np_no_data # This the operatonal np array
-    np_good_1d   = cfg.np_no_data # Good 1d entity array
-    np_good_keys = cfg.np_no_data # Good keys array
-    period    = '*'
-    ymd_start = -1.0
-    ymd_end   = -1.0
+    np_data_2d   = cfg.np_empthy_2d
+    np_period_2d = cfg.np_empthy_2d # This is the array with the period
+    np_good_2d   = cfg.np_empthy_2d # This the operatonal np array
+    np_good_1d   = cfg.np_empthy_1d # Good 1d entity array
+    np_good_keys = cfg.np_empthy_1d # Good keys array
+    period       = '*'
+    ymd_start    = cfg.date_false
+    ymd_end      = cfg.date_false
 
     def __init__(
             self,
@@ -43,10 +44,8 @@ class Days:
         self.np_period_2d = np_data  # All the available data
         self.set_period( period ) # Set new data period
 
-
     def set_station(self, station):
         self.station = station
-
 
     def set_period(self, period):
         if not self.np_data_2d_has_days():
@@ -63,12 +62,11 @@ class Days:
             if self.np_period_2d.size != 0:
                 self.np_ymd = self.np_period_2d[:, daydata.etk('yyyymmdd')]
                 self.ymd_start = f'{self.np_ymd[0]:.0f}' # Make txt and round 0
-                self.ymd_end = f'{self.np_ymd[-1]:.0f}' # Make txt and round 0
+                self.ymd_end   = f'{self.np_ymd[-1]:.0f}' # Make txt and round 0
             
             return True
 
         return False
-
 
     def process_days_1d_2d(self, entity):
         '''Removes nan values based on entity values from np days period 2d . 
@@ -162,7 +160,7 @@ class Days:
             if descend: np_sorted_2d = np.flip(np_sorted_2d, axis=0)
 
         else: # No correct data found
-            np_sorted_2d = cfg.np_no_data
+            np_sorted_2d = cfg.np_empthy_2d
 
         return np_sorted_2d, Days(self.station, np_sorted_2d)
 
@@ -175,7 +173,7 @@ class Days:
             value     # float
         ):
         '''Function returns keys of days and days np array based on conditionals like TX > 30 for example'''
-        np_days_2d = cfg.np_no_data # Init data failure
+        np_days_2d = cfg.np_empthy_2d # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity days 
 
         if self.npl_has_days( npl_2d ): # There are good days, lets check for days 
@@ -228,7 +226,7 @@ class Days:
             entity
         ):
         '''Calculates the average value for a given entity'''
-        ave = cfg.np_no_data  # Init data failure
+        ave = cfg.np_empthy_2d  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -239,7 +237,7 @@ class Days:
 
     def max(self, entity):
         '''Gets maximum value for a given entity'''
-        maxx, max_day, np_sorted_2d = cfg.np_no_data, cfg.np_no_data, cfg.np_no_data  # Init data failure
+        maxx, max_day, np_sorted_2d = cfg.np_empthy_2d, cfg.np_empthy_2d, cfg.np_empthy_2d  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -251,7 +249,7 @@ class Days:
 
     def min(self, entity):
         '''Gets maximum value for a given entity'''
-        minn, min_day, np_sorted_2d = cfg.np_no_data, cfg.np_no_data, cfg.np_no_data  # Init data failure
+        minn, min_day, np_sorted_2d = cfg.np_empthy_2d, cfg.np_empthy_2d, cfg.np_empthy_2d  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -263,7 +261,7 @@ class Days:
 
     def sum(self, entity):
         '''Calculates the sum value for a given entity'''
-        summ = cfg.np_no_data  # Init data failure
+        summ = cfg.np_empthy_2d  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -274,7 +272,7 @@ class Days:
 
     def hellmann(self):
         '''Function calculation hellmann in given data'''
-        hmann, np_hmann_2d, entity = cfg.np_no_data, cfg.np_no_data, 'tg'  # Init data failure
+        hmann, np_hmann_2d, entity = cfg.np_empthy_2d, cfg.np_empthy_2d, 'tg'  # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -290,7 +288,7 @@ class Days:
 
     def heat_ndx(self):
         '''Function calculates heat-ndx'''
-        heat, np_heat_2d, entity = cfg.np_no_data, cfg.np_no_data, 'tg' # Init data failure
+        heat, np_heat_2d, entity = cfg.np_empthy_2d, cfg.np_empthy_2d, 'tg' # Init data failure
         self.process_days_1d_2d( entity ) # Remove nan data of entity
 
         if self.np_good_1d_has_days(): # There are good days
@@ -313,7 +311,7 @@ class Days:
         ijnsen = (v * v / 363.0)  +  (2.0 * y / 3.0)  +  (10.0 * z / 9.0) 
         ???? ERROR TODO
         '''
-        ijnsen, np_ijnsen = cfg.np_no_data, cfg.np_no_data # Init data failure 
+        ijnsen, np_ijnsen = cfg.np_empthy_2d, cfg.np_empthy_2d # Init data failure 
         np_tx_1d, np_tx_2d = self.process_days_1d_2d( 'tx' )  # Remove nan data of entity
         np_tn_1d, np_tn_2d = self.process_days_1d_2d( 'tn' )  # Remove nan data of entity
 
@@ -349,7 +347,7 @@ class Days:
         Calculate the sum of all these days and make it absolute (=positive)
         Sum the result tn and tx together 
         '''
-        frost, np_frost = cfg.np_no_data, cfg.np_no_data   # Init data failure
+        frost, np_frost = cfg.np_empthy_2d, cfg.np_empthy_2d   # Init data failure
         np_tx_1d, np_tx_2d = self.process_days_1d_2d('tx')  # Remove nan data of entity
         np_tn_1d, np_tn_2d = self.process_days_1d_2d('tn')  # Remove nan data of entity
 
@@ -406,7 +404,7 @@ class Days:
         # print(isy, iey)
         # input()
 
-        value, days, np_clima_days_2d = cfg.np_no_data, None, np.array([]) 
+        value, days, np_clima_days_2d = cfg.np_empthy_2d, None, cfg.np_empthy_2d
 
         # Walkthrough all the days (=dates) for a given period
         for ymd in self.lst_yyyymmdd(): 
@@ -434,7 +432,7 @@ class Days:
 
     def all_extreme(self, entity, option='max'):
         '''Gets extreme value for a given entity for a given period in all the available data'''
-        if self.ymd_start == -1.0 or self.ymd_end == -1.0: return cfg.txt_no_data 
+        if self.ymd_start == cfg.date_false or self.ymd_end == cfg.date_false: return cfg.no_val 
 
         sy, ey = self.ymd_start, self.ymd_end 
         extreme, descend, extreme_day, np_extreme_days_2d = None, None, None, np.array([])
@@ -477,7 +475,7 @@ class Days:
         query = query.replace('\s+', ' ').strip()  
         lst = query.split(' ')
 
-        ok, err = utils.query_ok(query) # Check query
+        ok, err = s4d.query_ok(query) # Check query
 
         if ok:
             i, max = 0, len(query.split(' '))
