@@ -3,7 +3,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.8'
+__version__    =  '0.0.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -174,7 +174,7 @@ def hhmmss(
     return True, f'{h}{m}{s}'
 
 def yyyymmdd_1(
-        yyyymmdd = '',  # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e,  # String date format is <yyyymmdd>
         verbose = cfg.verbose
     ):
     '''Function validates a date stamp'''
