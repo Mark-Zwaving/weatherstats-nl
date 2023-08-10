@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.4.6'
+__version__    = '0.4.7'
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -128,7 +128,7 @@ def octa_to_txt(octa):
     elif 7 == i: return 'Vrijwel geheel bewolkt'
     elif 8 == i: return 'Geheel bewolkt'
     elif 9 == i: return 'Bovenlucht onzichtbaar'
-    else: return ''
+    else: return cfg.e
 
 def deg_to_txt(deg):
     i = int(deg)
