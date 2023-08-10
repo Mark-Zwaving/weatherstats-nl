@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.8'
+__version__    =  '0.0.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -24,7 +24,7 @@ SS   = lambda: datetime.datetime.now().strftime('%S')
 def symd(yyyymmdd):
     '''Date always to string'''
     # if   type(yyyymmdd) is str: return yyyymmdd
-    ymd = ''
+    ymd = cfg.e
     if type(yyyymmdd) is int: ymd = str(yyyymmdd)
     elif type(yyyymmdd) is float: ymd = str(int(round(yyyymmdd)))
     elif isinstance(yyyymmdd, np.floating): ymd = str(int(round(yyyymmdd))) # np.around(yyyymmdd).astype('str')
@@ -131,7 +131,7 @@ def split_yyyymmdd_hh_mm_ss(
     return y, m, d, hh, mm, ss
 
 def hh_mm_ss_plus_second(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         second = 1     # Seconds to add
     ):
     '''Function adds seconds to time string, format hh:mm:ss'''
@@ -142,42 +142,42 @@ def hh_mm_ss_plus_second(
     return dt.strftime('%H:%M:%S')
 
 def hh_mm_ss_minus_second(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         second = 1     # Seconds to substract
     ):
     '''Function substract seconds of time string, format hh:mm:ss'''
     return hh_mm_ss_plus_second( hh_mm_ss, -second) # Just make seconds negative
 
 def hh_mm_ss_plus_minute(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         minute = 1 # Minutes to add
     ):
     '''Function adds minutes to time string, format hh:mm:ss'''
     return hh_mm_ss_plus_second(hh_mm_ss, minute * cfg.sec_minute)
 
 def hh_mm_ss_minus_minute(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         minute = 1 # Minutes to substract
     ):
     '''Function substract minutes of time string, format hh:mm:ss'''
     return hh_mm_ss_plus_minute( hh_mm_ss, -minute)
 
 def hh_mm_ss_plus_hour(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         hour = 1 # Hours to add
     ):
     '''Function adds hours to time string, format hh:mm:ss'''
     return hh_mm_ss_plus_second(hh_mm_ss, hour * cfg.sec_hour)
 
 def hh_mm_ss_minus_hour(
-        hh_mm_ss = '', # Time string format hh:mm:ss
+        hh_mm_ss = cfg.e, # Time string format hh:mm:ss
         hour = 1  # Hours to substract
     ):
     '''Function substracts hours of time string, format hh:mm:ss'''
     return hh_mm_ss_plus_hour(hh_mm_ss, -hour)
 
 def yyyymmdd_plus_second(
-        yyyymmdd = '',  # Date to add the seconds to
+        yyyymmdd = cfg.e,  # Date to add the seconds to
         second  = 0    # Seconds to add/substract seconds to date
     ):
     '''Functions adds or substracts one or more seconds to a given date'''
@@ -187,13 +187,13 @@ def yyyymmdd_plus_second(
     return dt_new.strftime('%Y%m%d') # Return new yyyymmmdd string
 
 def yyyymmdd_minus_sec(
-        yyyymmdd = '',  # Date to add the seconds to
+        yyyymmdd = cfg.e,  # Date to add the seconds to
         second  = 0    # Seconds to substract seconds to date
     ):
     return yyyymmdd_plus_second(symd(yyyymmdd), -second)
 
 def yyyymmdd_plus_hour(
-        yyyymmdd = '',  # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e,  # String date format is <yyyymmdd>
         hour = 1       # Integer/float add hours to a current day,
     ):
     '''Add or substract one or more days from date format <yyyymmdd>.
@@ -201,13 +201,13 @@ def yyyymmdd_plus_hour(
     return yyyymmdd_plus_second(symd(yyyymmdd), hour * cfg.sec_hour)  # Add the hours seconds to date
 
 def yyyymmdd_minus_hour(
-        yyyymmdd = '',  # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e,  # String date format is <yyyymmdd>
         hour = 1       # Integer/float substract hours from current day,
     ):
     return yyyymmdd_plus_hour(symd(yyyymmdd), -hour)
 
 def yyyymmdd_plus_day(
-        yyyymmdd = '', # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e, # String date format is <yyyymmdd>
         day = 1        # Integer/float add if positive and substract if negative days from current day,
     ):
     '''Add or substract one or more days from date format <yyyymmdd>.
@@ -215,13 +215,13 @@ def yyyymmdd_plus_day(
     return yyyymmdd_plus_second(symd(yyyymmdd), day * cfg.sec_day)  # Add the day seconds to date
 
 def yyyymmdd_minus_day(
-        yyyymmdd = '', # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e, # String date format is <yyyymmdd>
         day = 1        # Integer/float add if positive and substract if negative days from current day,
     ):
     return yyyymmdd_plus_day(yyyymmdd, -day)
 
 def yyyymmdd_plus_week(
-        yyyymmdd = '', # String date format is <yyyymmdd>
+        yyyymmdd = cfg.e, # String date format is <yyyymmdd>
         week = 1       # Integer/float add if positive and substract if negative days from current day,
     ):
     '''Add or substract one or more days from date format <yyyymmdd>.
