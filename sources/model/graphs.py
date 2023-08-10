@@ -12,6 +12,7 @@ import statistics
 import math, sys, numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+from threading import Thread
 import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
@@ -66,30 +67,30 @@ def calculate( options ):
     # }
 
     ok = True 
-    t = f'[{ymd.now()}] Create <{options["title"]}>'
+    t = f'[{ymd.now()}] Create <{options[text.ask_title]}>'
     cnsl.log(t, True)
 
     # Size values are inches. And figure always in front
     plt.figure( 
         figsize = ( 
-            cvt.pixel_to_inch( options['graph-width']  ),
-            cvt.pixel_to_inch( options['graph-height'] ) 
+            cvt.pixel_to_inch( options[text.ask_graph_width]  ),
+            cvt.pixel_to_inch( options[text.ask_graph_height] ) 
         ),
-        dpi=options['graph-dpi']
+        dpi=options[text.ask_graph_dpi]
     )
 
     # Color handling
-    rnd_col = True if len(options['lst-stations']) > 1 else False
+    rnd_col = True if len(options[text.ask_stations]) > 1 else False
     if rnd_col:
         col_list = util.lst_shuffle(col.save_colors, 3)
         col_ndx, col_cnt = 0, len(col_list) - 1
 
-    sub_txt = ''
+    sub_txt = cfg.e
     max_all, min_all = sys.float_info.min, sys.float_info.max
 
-    for station in options['lst-stations']:
-        t  = f'[{ymd.now()}] Calculate graph <{options["graph-title"]}> '
-        t += f'for period <{options["period"]}> '
+    for station in options[text.ask_stations]:
+        t  = f'[{ymd.now()}] Calculate graph <{options[text.ask_graph_title]}> '
+        t += f'for period <{options[text.ask_period]}> '
         t += f'{station.wmo} {station.place}'
         cnsl.log(t, cfg.verbose)
 
@@ -97,20 +98,20 @@ def calculate( options ):
         if not ok: continue 
 
         # Get days from a station for the given period
-        days = stats.Days( station, np_data_2d, options['period'] )
+        days = stats.Days( station, np_data_2d, options[text.ask_period] )
         lst_ymd = days.lst_yyyymmdd() # Date lst
 
-        for graph in options['graph-lst-entities-types']:
+        for graph in options[text.ask_graph_entities]:
             entity = graph['entity'].upper()
             cnsl.log( f'Process weatherdata {station.place} for {entity}', cfg.verbose )
             np_entity_1d = days.np_period_2d[:, daydata.etk(entity)] # Get the values needed for the graph
 
             # Cumulative sum of values, if chosen
-            if answer.is_yes(options['graph-cummul-val']): 
+            if answer.is_yes(options[text.ask_graph_cummul_val]): 
                 np_entity_1d = np.cumsum(np_entity_1d)
 
             # Label, colors and lst_val
-            label = f'{station.place} {text.entity_to_text(entity)}'
+            label = f'{station.place} {text.ent_to_txt(entity)}'
             color = col_list[col_ndx] if rnd_col else col.entity_to_color(entity)
             lst_val = [ daydata.rounding(el, entity) for el in list(np_entity_1d) ]
 
@@ -125,10 +126,10 @@ def calculate( options ):
                 max_act, max_day, _ = days.max(entity)        
                 ave_act, _ = days.average( entity )
                 sum_act, _ = days.sum( entity )
-                max_val = f'max={ text.fix_entity(max_act, entity) } at { int(max_day[daydata.etk("yyyymmdd")]) }'
-                min_val = f'min={ text.fix_entity(min_act, entity) } at { int(min_day[daydata.etk("yyyymmdd")]) }'
-                ave_val = f'mean={ text.fix_entity(ave_act, entity) }'
-                sum_val = f'sum={ text.fix_entity(sum_act, entity) }'
+                max_val = f'max={ text.fix_ent(max_act, entity) } at { int(max_day[daydata.etk("yyyymmdd")]) }'
+                min_val = f'min={ text.fix_ent(min_act, entity) } at { int(min_day[daydata.etk("yyyymmdd")]) }'
+                ave_val = f'mean={ text.fix_ent(ave_act, entity) }'
+                sum_val = f'sum={ text.fix_ent(sum_act, entity) }'
 
                 ttt = f'{station.place} {entity} '
                 if entity in ['SQ', 'RH', 'EV24', 'Q']: 
@@ -139,7 +140,7 @@ def calculate( options ):
                 sub_txt += ttt + '\n'
  
             if answer.is_yes( graph['climate-ave'] ):
-                label_clima = f'Day climate {station.place} {text.entity_to_text(entity)}'
+                label_clima = f'Day climate {station.place} {text.ent_to_txt(entity)}'
                 ttt = f'Calculate climate value {entity} for {station.place}...'
                 cnsl.log(ttt, True)
 
@@ -155,13 +156,13 @@ def calculate( options ):
                     txt_mmdd = datetime.strptime(yyyymmdd, '%Y%m%d' ).strftime('%B %d').lower()
 
                     ttt  = f'Climate value {entity} for <{txt_mmdd}> in period <{graph["climate-periode"]}> '
-                    ttt += f'is { text.fix_entity(ave_raw, entity) }'
+                    ttt += f'is { text.fix_ent(ave_raw, entity) }'
                     cnsl.log(ttt, cfg.verbose)
 
                 # Clima average round correctly based on entity
                 if len(lst_clima) > 0:
                     clima_ave = statistics.mean(lst_clima) # Calculate average
-                    ttt  = f'{station.place} {entity} mean={text.fix_entity(clima_ave, entity)} climate period '
+                    ttt  = f'{station.place} {entity} mean={text.fix_ent(clima_ave, entity)} climate period '
                     ttt += f'from { graph["climate-yyyy-start"] } to { graph["climate-yyyy-end"] }'
                     cnsl.log(ttt, cfg.verbose)
                     sub_txt += ttt + '\n'
@@ -234,29 +235,27 @@ def calculate( options ):
                 col_ndx = 0 if col_ndx == col_cnt else col_ndx + 1
 
     # Give legend some space above (maximimum) entity 
+    # !!!! optimize TODO TODO TODO
+    spacer_def = 2 # Correction pffft
+    spacer_max_yas = len(options[text.ask_stations]) * len(options[text.ask_graph_entities]) + spacer_def
+    # spacer_min_yas = 0.5 # Not needed
+    max_val_tick = int( round( math.ceil(  max_all + spacer_max_yas ))) # Maximum value
+    min_val_tick = int( round( math.floor( min_all ))) # Minimum value
+    min_max_diff = max_val_tick - min_val_tick
+    step_tick = 10 ** len( str( abs(min_max_diff) )[:-2] ) # TODO ? Calculating y steps in graph
 
-    # !!!! TODO BUGGY MAX MIN VALUES
-    multiply = 1.1 # Add space multiplyer
-    max_tick  = int( round( math.ceil( max_all ) ) )  # Alltime maximum
-    min_tick  = int( round( math.floor( min_all ) ) )  # Alltime minimum
-    step_tick = 1 if (max_tick-min_tick) < 20 else 2  # int( round( math.floor( abs(max_tick) - abs(min_tick) / 10 ) ) )
-    add_space = int( round( math.ceil( len(options['lst-stations']) * len(options['graph-lst-entities-types']) * multiply ) ) )
-    y_pos_txt = step_tick + max_tick + add_space # Under the edgeplt.show()
-    x_pos_txt = 0
-    y_ticks = np.arange(min_tick, y_pos_txt, step_tick)  # 1 - 10 % ranges
-    x_ticks = np.array(lst_ymd)
+    # Position text upper left 
+    x_pos_tick = 0  # Left
+    y_pos_tick = max_val_tick + step_tick + step_tick  # Max y value
+    y_ticks = np.arange( min_val_tick, y_pos_tick + step_tick, step_tick )  # ! Plus step_tick
+    x_ticks = np.array( lst_ymd )
 
-    print( max_tick, min_tick )
-    print( step_tick, add_space )
-    print( x_pos_txt, y_pos_txt )
-
-    # Correction archhhh... for text 
-    sub_txt = 3 * '\n' + sub_txt
+    # print( x_pos_tick, y_pos_tick )
 
     if sub_txt: # Add text to plot, if there
         plt.text( 
-            x_pos_txt, 
-            y_pos_txt,  # Most left and at the top
+            x_pos_tick, 
+            y_pos_tick - 0.5, # Most left and almost at the top
             sub_txt, 
             **cfg.plot_add_txt_font, 
             color = '#555555', 
@@ -278,7 +277,7 @@ def calculate( options ):
     )
 
     plt.title( 
-        options['graph-title'], 
+        options[text.ask_graph_title], 
         **cfg.plot_title_font, 
         color = cfg.plot_title_color 
     )
@@ -290,7 +289,7 @@ def calculate( options ):
     )
 
     plt.ylabel( 
-        options['graph-y-label'], 
+        options[text.ask_graph_ylabel], 
         **cfg.plot_ylabel_font, 
         color = cfg.plot_ylabel_color 
     )
@@ -311,18 +310,16 @@ def calculate( options ):
             linewidth = cfg.plot_grid_linewidth 
         )
 
-    if answer.is_yes(cfg.plot_tight_layout):
+    if answer.is_yes( cfg.plot_tight_layout ):
         plt.tight_layout()
 
     # Make path and save image
-    path, dir, _ = utils.mk_path_with_dates( 
-        cfg.dir_graphs, f'{options["file-name"]}.{options["graph-type"]}'
-    )
-    fio.mk_dir(dir, verbose=False) # Create map always
+    fname = f'{options[text.ask_filename]}.{options[text.ask_graph_type]}' 
+    path, dir, _ = utils.mk_path_with_dates( cfg.dir_graphs, fname )
+    fio.mk_dir( dir, verbose=False ) # Create map always
+    plt.savefig( path, dpi=options[text.ask_graph_dpi], format=options[text.ask_graph_type] )
 
-    plt.savefig(path, dpi = options['graph-dpi'], format = options['graph-type'] )
-
-    if answer.is_yes(cfg.plot_show): 
+    if answer.is_yes( cfg.plot_show ): 
         plt.show()
 
     return ok, path
