@@ -48,7 +48,7 @@ def log_r(
     if debug: 
         input(s)
     elif verbose: 
-        print(s, end='')
+        print(s, end=cfg.e)
    
     if log: # Write log if selected
         write_log(s)
