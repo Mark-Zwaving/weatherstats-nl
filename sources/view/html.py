@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.9.6'
+__version__    =  '0.9.7'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -25,42 +25,42 @@ class Template():
     charset     = 'UTF-8'
     author      = 'WeatherstatsNL'
     viewport    = 'width=device-width, initial-scale=1.0, shrink-to-fit=no'
-    description = ''
-    icon        = ''
-    html        = ''
-    header      = ''
-    main        = ''
-    footer      = ''
-    title       = ''
+    description = cfg.e
+    icon        = cfg.e
+    html        = cfg.e
+    header      = cfg.e
+    main        = cfg.e
+    footer      = cfg.e
+    title       = cfg.e
     js_files    = []
-    js_code     = ''
+    js_code     = cfg.e
     css_files   = []
-    css_code    = ''
+    css_code    = cfg.e
     strip       = cfg.html_strip
     verbose     = cfg.verbose
-    template    = ''
-    path        = ''
+    template    = cfg.e
+    path        = cfg.e
 
     def __init__(self, title='WeatherstatsNL - template',
-                       header='', main='',  footer='' ):
+                       header=cfg.e, main=cfg.e,  footer=cfg.e ):
         self.title  = title
         self.header = header
         self.main   = main
         self.footer = footer
 
-        title = self.title.strip().replace(' ', '')
+        title = self.title.strip().replace(' ', cfg.e)
         dt = ymd.text(ymd.yyyymmdd_now())
         self.file_name = f'{title}-{dt}.html'
         self.template  = cfg.html_template_statistics
-        self.path_to_root = ''
+        self.path_to_root = cfg.e
 
     def set_path(self, path):
         self.path = path
 
-    def add_css_file(self, path=''):
+    def add_css_file(self, path=cfg.e):
         self.css_files.append(f'<link rel="stylesheet" type="text/css" href="{path}">')
 
-    def add_js_file(self, path=''):
+    def add_js_file(self, path=cfg.e):
         self.js_files.append(f'<script src="{path}"></script>')
 
     def add_description(self, description):
@@ -105,21 +105,21 @@ class Template():
         fio.delete(self.path, self.verbose)
 
     def reset(self):
-        self.description = ''
-        self.icon = ''
-        self.html = ''
-        self.header = ''
-        self.main = ''
-        self.footer = ''
-        self.title = ''
+        self.description = cfg.e
+        self.icon = cfg.e
+        self.html = cfg.e
+        self.header = cfg.e
+        self.main = cfg.e
+        self.footer = cfg.e
+        self.title = cfg.e
         self.js_files = []
-        self.js_code = ''
+        self.js_code = cfg.e
         self.css_files = []
-        self.css_code = ''
+        self.css_code = cfg.e
         self.strip = cfg.html_strip
         self.verbose = cfg.verbose
-        self.template = ''
-        self.path = ''
+        self.template = cfg.e
+        self.path = cfg.e
 
 def max_popup_rows(total, max):
     return total if max == -1 else max
@@ -131,8 +131,8 @@ def footer_data_notification(station):
 
 # DAYVALUES
 def dayvalue_div_entity(title=False, val=False, time=False ):
-    val  =  val if  val != False else ''
-    time = time if time != False else ''
+    val  =  val if  val != False else cfg.e
+    time = time if time != False else cfg.e
     return f'''
         <div class="card col-12 col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 mx-auto border-0 card-dayvalue">
             <div class="card-body text-center card-dayvalue-body">
@@ -143,159 +143,159 @@ def dayvalue_div_entity(title=False, val=False, time=False ):
     '''.format( title, val, time )
 
 def day_value_tx(tx, txh):
-    if tx != cfg.no_data_given: 
+    if tx != cfg.no_val: 
         tx = f'{entity_to_icon("tx", "text-danger")} {tx}'
     htm = dayvalue_div_entity( text.ent_to_txt('TX'), tx, txh )
     return htm
 
 def day_value_tg(tg): 
-    if tg != cfg.no_data_given:
+    if tg != cfg.no_val:
         tg = f'{entity_to_icon("tg", "text-success")} {tg}'
-    htm = dayvalue_div_entity( text.ent_to_txt('TG'), tg, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('TG'), tg, cfg.e)
     return htm
 
 def day_value_tn(tn, tnh):
-    if tn != cfg.no_data_given: 
+    if tn != cfg.no_val: 
         tn = f'{entity_to_icon("tn", "text-primary")} {tn}'
     htm = dayvalue_div_entity( text.ent_to_txt('TN'), tn, tnh )
     return htm
 
 def day_value_t10n(t10n, t10nh):    
-    if t10n != cfg.no_data_given:
+    if t10n != cfg.no_val:
         t10n = f'{entity_to_icon("t10n", "text-warning")} {t10n}'
     htm = dayvalue_div_entity( text.ent_to_txt('T10N'), t10n, t10nh)
     return htm
 
 def day_value_ddvec(ddvec): 
-    if ddvec != cfg.no_data_given: 
+    if ddvec != cfg.no_val: 
         ddvec = f'{entity_to_icon("ddvec", "text-info")} {ddvec}'
-    htm = dayvalue_div_entity( text.ent_to_txt('DDVEC'), ddvec, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('DDVEC'), ddvec, cfg.e)
     return htm
 
 def day_value_fhvec(fhvec):
-    if fhvec != cfg.no_data_given: 
+    if fhvec != cfg.no_val: 
         fhvec = f'{entity_to_icon("fhvec", "text-success")} {fhvec}'
-    htm = dayvalue_div_entity( text.ent_to_txt('FHVEC'), fhvec, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('FHVEC'), fhvec, cfg.e)
     return htm
 
 def day_value_fg(fg):
-    if fg != cfg.no_data_given:
+    if fg != cfg.no_val:
         fg = f'{entity_to_icon("fg", "text-success")} {fg}'
-    htm = dayvalue_div_entity( text.ent_to_txt('FG'), fg, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('FG'), fg, cfg.e)
     return htm
 
 def day_value_fhx(fhx, fhxh):
-    if fhx != cfg.no_data_given:
+    if fhx != cfg.no_val:
         fhx = f'{entity_to_icon("fhx", "text-success")} {fhx}'
     htm = dayvalue_div_entity( text.ent_to_txt('FHX'), fhx, fhxh)
     return htm
 
 def day_value_fxx(fxx, fxxh):
-    if fxx !=  cfg.no_data_given:
+    if fxx !=  cfg.no_val:
         fxx = f'{entity_to_icon("fxx", "text-success")} {fxx}'
     htm = dayvalue_div_entity( text.ent_to_txt('FXX'), fxx, fxxh)
     return htm
 
 def day_value_fhn(fhn, fhnh):
-    if fhn != cfg.no_data_given:
+    if fhn != cfg.no_val:
         fhn = f'{entity_to_icon("fhn", "text-success")} {fhn}'
     htm = dayvalue_div_entity( text.ent_to_txt('FHN'), fhn, fhnh)
     return htm
 
 def day_value_sq(sq):
-    if sq != cfg.no_data_given:
+    if sq != cfg.no_val:
         sq = f'{entity_to_icon("sq", "text-warning")} {sq}'
-    htm = dayvalue_div_entity( text.ent_to_txt('SQ'), sq, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('SQ'), sq, cfg.e)
     return htm
 
 def day_value_sp(sp):
-    if sp != cfg.no_data_given:
+    if sp != cfg.no_val:
         sp = f'{entity_to_icon("sp", "text-warning")} {sp}'
-    htm = dayvalue_div_entity( text.ent_to_txt('SP'), sp, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('SP'), sp, cfg.e)
     return htm
 
 def day_value_rh(rh):
-    if rh != cfg.no_data_given: 
+    if rh != cfg.no_val: 
         rh = f'{entity_to_icon("rh", "text-primary")} {rh}'
-    htm = dayvalue_div_entity( text.ent_to_txt('RH'), rh, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('RH'), rh, cfg.e)
     return htm
 
 def day_value_rhx(rhx, rhxh):
-    if rhx != cfg.no_data_given: 
+    if rhx != cfg.no_val: 
         rhx = f'{entity_to_icon("rhx", "text-primary")} {rhx}'
     htm = dayvalue_div_entity( text.ent_to_txt('RHX'), rhx, rhxh)
     return htm
 
 def day_value_dr(dr):
-    if dr != cfg.no_data_given: 
+    if dr != cfg.no_val: 
         dr = f'{entity_to_icon("dr", "text-primary")} {dr}'
-    htm = dayvalue_div_entity( text.ent_to_txt('DR'), dr, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('DR'), dr, cfg.e)
     return htm
 
 def day_value_px(px, pxh):
-    if px != cfg.no_data_given:
+    if px != cfg.no_val:
         px = f'{entity_to_icon("px", "text-warning")} {px}'
     htm = dayvalue_div_entity( text.ent_to_txt('PX'), px, pxh)
     return htm 
 
 def day_value_pg(pg):
-    if pg != cfg.no_data_given: 
+    if pg != cfg.no_val: 
         pg = f'{entity_to_icon("pg", "text-warning")} {pg}'
-    htm = dayvalue_div_entity( text.ent_to_txt('PG'), pg, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('PG'), pg, cfg.e)
     return htm 
 
 def day_value_pn(pn, pnh):
-    if pn != cfg.no_data_given: 
+    if pn != cfg.no_val: 
         pn = f'{entity_to_icon("pn", "text-warning")} {pn}'
     htm =  dayvalue_div_entity( text.ent_to_txt('PN'), pn, pnh)
     return htm 
 
 def day_value_ux(ux, uxh):
-    if ux != cfg.no_data_given: 
+    if ux != cfg.no_val: 
         ux = f'{entity_to_icon("ux", "text-primary")} {ux}'
     htm = dayvalue_div_entity( text.ent_to_txt('UX'), ux, uxh)
     return htm
 
 def day_value_ug(ug):
-    if ug != cfg.no_data_given: 
+    if ug != cfg.no_val: 
         ug = f'{entity_to_icon("ug", "text-primary")} {ug}'
-    htm = dayvalue_div_entity( text.ent_to_txt('UG'), ug, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('UG'), ug, cfg.e)
     return htm 
 
 def day_value_un(un, unh):
-    if un != cfg.no_data_given: 
+    if un != cfg.no_val: 
         un = f'{entity_to_icon("un", "text-primary")} {un}'
     htm = dayvalue_div_entity( text.ent_to_txt('UN'), un, unh)
     return htm 
 
 def day_value_vvx(vvx, vvxh):
-    if vvx != cfg.no_data_given:
+    if vvx != cfg.no_val:
         vvx = f'{entity_to_icon("vvx", "text-info")} {vvx}'
     htm = dayvalue_div_entity( text.ent_to_txt('VVX'), vvx, vvxh)
     return htm
 
 def day_value_vvn(vvn, vvnh):
-    if vvn != cfg.no_data_given:
+    if vvn != cfg.no_val:
         vvn = f'{entity_to_icon("vvn", "text-info")} {vvn}'
     htm = dayvalue_div_entity( text.ent_to_txt('VVN'), vvn, vvnh )
     return htm
 
 def day_value_ng(ng):
-    if ng != cfg.no_data_given: 
+    if ng != cfg.no_val: 
         ng = f'{entity_to_icon("ng", "text-secondary")} {ng}'
-    htm = dayvalue_div_entity( text.ent_to_txt('NG'), ng, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('NG'), ng, cfg.e)
     return htm 
 
 def day_value_q(q):
-    if q != cfg.no_data_given:
+    if q != cfg.no_val:
         q = f'{entity_to_icon("q", "text-danger")} {q}'
-    htm = dayvalue_div_entity( text.ent_to_txt('Q'), q, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('Q'), q, cfg.e)
     return htm
 
 def day_value_ev24(ev24):
-    if ev24 != cfg.no_data_given: 
+    if ev24 != cfg.no_val: 
         ev24 = f'{entity_to_icon("ev24", "text-warning")} {ev24}'
-    htm = dayvalue_div_entity( text.ent_to_txt('EV24'), ev24, '')
+    htm = dayvalue_div_entity( text.ent_to_txt('EV24'), ev24, cfg.e)
     return htm 
 
 def day_values_all(day):
@@ -332,24 +332,24 @@ def day_values_all(day):
 
     return htm
 
-def th(t, clas=''):
-    cl = f' class="{clas}"' if clas else ''
+def th(t, clas=cfg.e):
+    cl = f' class="{clas}"' if clas else cfg.e
     return f'<th{cl}>{t}</th>'
 
-def span(t, clas=''):
-    cl = f' class="{clas}"' if clas else ''
+def span(t, clas=cfg.e):
+    cl = f' class="{clas}"' if clas else cfg.e
     return f'<span{cl}>{t}</span>'
 
-def tr_th(lth, clas=''):
-    cl = f' class="{clas}"' if clas else ''
+def tr_th(lth, clas=cfg.e):
+    cl = f' class="{clas}"' if clas else cfg.e
     t = f'<tr{cl}>'
     for th in lth:
         t += f'<th>{th}</th>'
     t += '</tr>'
     return t
 
-def tr_td(ltd, clas=''):
-    cl = f' class="{clas}"' if clas else ''
+def tr_td(ltd, clas=cfg.e):
+    cl = f' class="{clas}"' if clas else cfg.e
     t = f'<tr{cl}>'
     for td in ltd:
         t += '<td>{td}</td>'
@@ -359,11 +359,11 @@ def tr_td(ltd, clas=''):
 def title_mean(entity):
     return f'<span class="overline">{entity_to_icon("ave")} {entity}</span>'
 
-def attr_title(entity, value=''):
-    return f'{text.ent_to_txt(entity)} { text.fix_ent(value) if value else "" }'.strip()
+def attr_title(entity, value=cfg.e):
+    return f'{text.ent_to_txt(entity)} { text.fix_ent(value) if value else cfg.e }'.strip()
 
 def extreme_values( day, entity ):
-    span = f'<span class="val">{cfg.txt_no_data}</span>' 
+    span = f'<span class="val">{cfg.no_val}</span>' 
     try:
         val_raw = day[daydata.etk(entity)]
         ymd_raw = day[daydata.etk('yyyymmdd')]
@@ -378,7 +378,7 @@ def extreme_values( day, entity ):
     return span
 
 def table( lst_head, lst_body, reverse=False ):
-    htm = ''
+    htm = cfg.e
     if lst_body:
         htm = f'''
         <table class="popup">
@@ -396,10 +396,10 @@ def table( lst_head, lst_body, reverse=False ):
 
 def table_days(days, entity, reverse=False):
 
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
-            time_too, t_td, lst_head = False, '', ['pos', 'date', entity]
+            time_too, t_td, lst_head = False, cfg.e, ['pos', 'date', entity]
             t_entity = daydata.entity_to_t_entity(entity)
             if t_entity:
                 lst_head.append(t_entity)
@@ -435,11 +435,11 @@ def table_days(days, entity, reverse=False):
 
 def table_average(days, entity, reverse=False):
 
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, '', ['cnt', 'date', entity, 'ave']
+            time_too, t_td, lst_head = False, cfg.e, ['cnt', 'date', entity, 'ave']
             t_entity = daydata.entity_to_t_entity(entity)
             if t_entity:
                 lst_head = ['cnt', 'date', entity, t_entity, 'ave']
@@ -478,11 +478,11 @@ def table_average(days, entity, reverse=False):
     return html
 
 def table_count(days, entity):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, '', ['cnt', 'date', entity]
+            time_too, t_td, lst_head = False, cfg.e, ['cnt', 'date', entity]
             t_entity = daydata.entity_to_t_entity(entity)
             if t_entity:
                 lst_head.append(t_entity)
@@ -519,11 +519,11 @@ def table_count(days, entity):
     return html
 
 def table_sum(days, entity):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, '', ['cnt','date',entity,'sum']
+            time_too, t_td, lst_head = False, cfg.e, ['cnt','date',entity,'sum']
             t_entity = daydata.entity_to_t_entity(entity)
             if t_entity:
                 time_too = True 
@@ -561,7 +561,7 @@ def table_sum(days, entity):
     return html
 
 def table_frost_sum(days):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             cnt, lst, station, format = 1, [], days.station, days.station.format
@@ -601,7 +601,7 @@ def table_frost_sum(days):
     return html
 
 def table_ijnsen(days):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             cnt, lst, station, format = 1, [], days.station, days.station.format
@@ -645,7 +645,7 @@ def table_ijnsen(days):
     return html
 
 def table_hellmann(days):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             cnt, lst, station = 1, [], days.station
@@ -677,7 +677,7 @@ def table_hellmann(days):
     return html
 
 def table_heat_ndx(days):
-    html = ''
+    html = cfg.e
     if cfg.html_popup_table_show:
         if days.np_period_2d_has_days():
             cnt, lst, station = 1, [], days.station
@@ -710,7 +710,7 @@ def table_heat_ndx(days):
 
     return html
 
-def entity_to_icon(entity, color='', size='', extra=''):
+def entity_to_icon(entity, color=cfg.e, size=cfg.e, extra=cfg.e):
     e = entity.lower()
     if   e == 'tx':    return icon.temp_full(color, extra, size)
     elif e == 'tg':    return icon.temp_half(color, extra, size)
@@ -760,7 +760,7 @@ def entity_to_icon(entity, color='', size='', extra=''):
     elif e in text.lst_evaporation: return icon.sweat(color, extra, size)
     elif e in ['sq','sp']: return icon.sun(color, extra, size)
     elif e in text.lst_sum: return 'Σ'
-    elif e in text.lst_ave: return ''
+    elif e in text.lst_ave: return cfg.e
     elif e in text.lst_gt: return icon.gt(color, extra, size)
     elif e in text.lst_ge: return icon.ge(color, extra, size)
     elif e in text.lst_lt: return icon.lt(color, extra, size)
