@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.3'
+__version__    =  '0.1.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -84,7 +84,7 @@ def correct(value, entity, format='knmi'):
     return f
 
 def entity_to_t_entity(entity):
-    e, t_entity = entity.upper(), ''
+    e, t_entity = entity.upper(), cfg.e
     if   e == 'TX': t_entity = 'TXH'
     elif e == 'TN': t_entity = 'TNH'
     elif e == 'T10N': t_entity = 'T10NH'
@@ -335,8 +335,60 @@ def ents( day, format='knmi' ):
              vvn, vvnh, vvx, vvxh, ng, ug,
              ux, uxh, un, unh, ev24 )
 
+def normalize( day, format='knmi' ):
+    stn   = int( day[STN] )
+    ymd   = int( day[YYYYMMDD] )
+    ddvec = day[DDVEC] / 10.0
+    fhvec = day[FHVEC] / 10.0
+    fg    = day[FG] / 10.0
+    fhx   = day[FHX] / 10.0
+    fhxh  = int( day[FHXH] )
+    fhn   = day[FHN] / 10.0
+    fhnh  = int( day[FHNH] )
+    fxx   = day[FXX] / 10.0
+    fxxh  = int( day[FXXH] )
+    tg    = day[TG] / 10.0
+    tn    = day[TN] / 10.0
+    tnh   = int( day[TNH] )
+    tx    = day[TX] / 10.0
+    txh   = day[TXH] / 10.0
+    t10n  = day[T10N] / 10.0
+    t10nh = int( day[T10NH] )
+    sq    = day[SQ] / 10.0
+    sp    = int( day[SP] ) 
+    q     = day[Q]
+    dr    = day[DR]
+    rh    = day[RH]
+    rhx   = day[RHX]
+    rhxh  = int( day[RHXH] )
+    pg    = day[PG] / 10.0
+    px    = day[PX] / 10.0
+    pxh   = int(day[PXH])
+    pn    = day[PN] / 10.0
+    pnh   = int(day[PNH])
+    vvn   = day[VVN] / 10.0
+    vvnh  = int(day[VVNH])
+    vvx   = day[VVX] / 10.0
+    vvxh  = int(day[VVXH])
+    ng    = int(day[NG])
+    ug    = int(day[UG])
+    ux    = int(day[UX])
+    uxh   = int(day[UXH])
+    un    = int(day[UN])
+    unh   = int(day[UNH])
+    ev24  = day[EV24] / 10.0
+
+    return ( stn, ymd, ddvec, fhvec, fg, fhx,
+             fhxh, fhn, fhnh, fxx, fxxh, tg,
+             tn, tnh, tx, txh, t10n, t10nh,
+             sq, sp, q, dr, rh, rhx,
+             rhxh, pg, px, pxh, pn, pnh,
+             vvn, vvnh, vvx, vvxh, ng, ug,
+             ux, uxh, un, unh, ev24 )
+
+
 def date_by_val(data, val, ent):
-    ymd, row, col, key_ent = '', 0, 1, etk(ent)
+    ymd, row, col, key_ent = cfg.e, 0, 1, etk(ent)
 
     for ndx, el in np.ndenumerate(data):  # ndx (0,0)
         if ndx[col] == key_ent: # Check only searched indexes
@@ -389,7 +441,7 @@ def sel_period( data, period ):
 
 def read( station, verbose=cfg.verbose ):
     '''Reads data dayvalues from the knmi into a list'''
-    ok, data, fname = '', False, station.data_txt_path
+    ok, data, fname = cfg.e, False, station.data_txt_path
     cnsl.log(f'Read {station.wmo} {station.place}', verbose)
 
     with threading.Lock():
@@ -473,7 +525,7 @@ def process_lst(lst_stations, verbose=cfg.verbose):
     st = time.time_ns()
     for station in lst_stations: 
         process_data(station, verbose)
-    cnsl.log(utils.process_time('Total processing time is ', st, ''), cfg.verbose)
+    cnsl.log(utils.process_time('Total processing time is ', st, cfg.e), cfg.verbose)
 
 def process_all(verbose=cfg.verbose):
     '''Function processes (downloading en unzipping) files from the selected stations'''
