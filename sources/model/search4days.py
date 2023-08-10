@@ -31,7 +31,7 @@ def query_parser( query ):
     while key < max:
         el = l[key]
         if el in ['and', 'or']:
-            q = '' # Create part query
+            q = cfg.e # Create part query
             for i in range(mem,key):
                 q += f' {l[i]} '
             queries.append( utils.clear(q) ) # Append query part
@@ -39,7 +39,7 @@ def query_parser( query ):
             mem = key + 1 # Always start at the next key
         key += 1
 
-    q = '' # Create last part query
+    q = cfg.e # Create last part query
     for i in range(mem,key):
         q += f' {l[i]} '
     queries.append( utils.clear(q) )
@@ -127,7 +127,7 @@ def query_advanced( data, query ):
 
 def query_ok(query):
     # Check the query
-    ok, ttt, p = True, '', query.split(' ')
+    ok, ttt, p = True, cfg.e, query.split(' ')
     max = len(p)
 
     if max < 3 or not (max-3) % 4 == 0:
@@ -236,22 +236,22 @@ def calculate(places, period, query, type, fname):
                 stn, ymd, ddvec, fhvec, fg, fhx, fhxh, fhn, fhnh, fxx, fxxh, tg, \
                 tn, tnh, tx, txh, t10n, t10nh, sq, sp, q, dr, rh, rhx, \
                 rhxh, pg, px, pxh, pn, pnh, vvn, vvnh, vvx, vvxh, ng, ug, \
-                ux, uxh, un, unh, ev24 = dayvalues.ents( day )
+                ux, uxh, un, unh, ev24 = daydata.ents( day )
 
                 place = stations.from_wmo_to_name(stn)
                 state = stations.from_wmo_to_province(stn)
                 station = stations.from_wmo_to_station(stn)
                 date = f'{day[daydata.YYYYMMDD]:.0f}'
 
-                lfg, fg_ms, fg_bft = fg.split(' '), '', ''
+                lfg, fg_ms, fg_bft = fg.split(' '), cfg.e, cfg.e
                 if len(lfg) == 2: fg_ms, fg_bft = lfg[0], lfg[1]
                 else: fg_ms = fg
 
-                lfhvec, fhvec_ms, fhvec_bft = fhvec.split(' '), '', ''
+                lfhvec, fhvec_ms, fhvec_bft = fhvec.split(' '), cfg.e, cfg.e
                 if len(lfhvec) == 2: fhvec_ms, fhvec_bft = lfg[0], lfg[1]
                 else: fhvec_ms = fhvec
 
-                lddvec, ddvec_deg, ddvec_txt = ddvec.split(' '), '', ''
+                lddvec, ddvec_deg, ddvec_txt = ddvec.split(' '), cfg.e, cfg.e
                 if len(lddvec) == 2: ddvec_deg, ddvec_txt = lddvec[0], lddvec[1]
                 else: ddvec_deg = ddvec
 
@@ -294,7 +294,7 @@ def calculate(places, period, query, type, fname):
         else:
             html += f'''
                 <tr>
-                    <td colspan="{colspan}"> {tr.t("No days found")} </td>
+                    <td colspan="{colspan}"> {text.t("No days found")} </td>
                 </tr>
                 '''
 
