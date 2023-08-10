@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__version__    =  '0.0.6'
+__version__    =  '0.0.7'
 __license__    =  'GNU General Public License version 3 - GPLv3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -106,8 +106,8 @@ def check_yymmdd(y, m, d):
 
 # Check for weird dates. TODO make better with x stars
 def check_ymd(ymd):
-    y, m, d, r = '', '', '', ''
-    ymd = ymd.replace(' ', '').strip()
+    y, m, d, r = cfg.e, cfg.e, cfg.e, cfg.e
+    ymd = ymd.replace(' ', cfg.e).strip()
 
     if ymd == x1: 
         ymd = x8
@@ -141,7 +141,6 @@ def check_ymd(ymd):
     elif len(ymd) == 1:
         ymd = ymd
     
-
     # Check individual
     if is_dd(y):  y = check_yy(y)
     if is_dd(d):  d = check_dd(d)
@@ -200,14 +199,14 @@ def max_date( ymd ):
             p = ymd
 
         # OPTION YYYY**** | YYYY
-        elif md in [x4, '']:
+        elif md in [x4, cfg.e]:
             if y == y_now:
                 p = ymd_now
             else:
                 p = f'{y}{md_now}'
 
         # OPTION YYYYMM** | YYYMM
-        elif is_dd(m) and d in [x2,'']:
+        elif is_dd(m) and d in [x2,cfg.e]:
             if ym == ym_now:
                 p = ymd_now
 
@@ -231,10 +230,10 @@ def np_merge(result, new):
     result = new if result.size == 0 else np.concatenate( (result, new), axis=0)
     return result
 
-def days_period(np_data_2d=np.array([[]]), period='*', check_only=False):
+def days_period(np_data_2d=cfg.np_empthy_2d, period='*', check_only=False):
     '''Function returns a np array with data based on a period.
        Function can be used to check_only periods too.'''
-    ok, lst_periods, result = False, [], np.array([])  # Lst with all the dates
+    ok, lst_periods, result = False, [], cfg.np_empthy_2d # Lst with all the dates
     if not check_only:
         if np_data_2d.size == 0:
             return np_data_2d, lst_periods # This must not
