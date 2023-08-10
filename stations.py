@@ -36,6 +36,7 @@ class Station:
             self.data_zip_file      = f'etmgeg_{self.wmo}.zip'
             self.data_txt_file      = f'etmgeg_{self.wmo}.txt'
             self.data_url = cfg.knmi_dayvalues_url.format(self.wmo)
+
         elif self.format == 'dwd': # TODO
             pass
 
