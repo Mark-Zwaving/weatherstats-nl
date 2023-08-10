@@ -35,7 +35,7 @@ climate_end_year   = 2020
 timezone = 'Europe/Amsterdam'  
 
 # csv separator
-csv_sep = ';'
+csv_sep  = ';'
 
 ################################################################################
 # For HTML pages
@@ -48,40 +48,45 @@ html_strip = True
 
 ################################################################################
 # Config base maps
-dir_app        = os.path.abspath(os.path.dirname(__file__))
-dir_www        = os.path.abspath('/var/www/html')  # For a webserver
-dir_data       = os.path.join(dir_app,  'data')
-dir_statistics = os.path.join(dir_data, 'statistics')
-dir_templates  = os.path.join(dir_data, 'templates')
-dir_forecasts  = os.path.join(dir_data, 'forecasts')    # Downloaded forecasts
-dir_thirdparty = os.path.join(dir_data, 'thirdparty')
-dir_graphs     = os.path.join(dir_data, 'graphs')
-dir_download   = os.path.join(dir_data, 'downloads')
-dir_animation  = os.path.join(dir_data, 'animations')
+dir_app            = os.path.abspath(os.path.dirname(__file__))
+dir_www            = os.path.abspath('/var/www/html')  # For a webserver
+dir_data           = os.path.join(dir_app,  'data')
+dir_statistics     = os.path.join(dir_data, 'statistics')
+dir_templates      = os.path.join(dir_data, 'templates')
+dir_forecasts      = os.path.join(dir_data, 'forecasts')    # Downloaded forecasts
+dir_thirdparty     = os.path.join(dir_data, 'thirdparty')
+dir_graphs         = os.path.join(dir_data, 'graphs')
+dir_download       = os.path.join(dir_data, 'downloads')
+dir_animation      = os.path.join(dir_data, 'animations')
+dir_database       = os.path.join(dir_data, 'database')
 
-dir_dayvalues     = os.path.join(dir_data, 'dayvalues') # Dayvalues
-dir_dayvalues_zip = os.path.join(dir_dayvalues, 'zip')  # knmi zip files
-dir_dayvalues_txt = os.path.join(dir_dayvalues, 'txt')  # knmi text files
-dir_dayvalues_htm = os.path.join(dir_dayvalues, 'html') # knmi html files from text
+dir_dayvalues      = os.path.join(dir_data, 'dayvalues') # Dayvalues
+dir_dayvalues_zip  = os.path.join(dir_dayvalues, 'zip')  # knmi zip files
+dir_dayvalues_txt  = os.path.join(dir_dayvalues, 'txt')  # knmi text files
+dir_dayvalues_htm  = os.path.join(dir_dayvalues, 'html') # knmi html files from text
 
-dir_stats_txt   = os.path.join(dir_statistics, 'text')
-dir_stats_htm   = os.path.join(dir_statistics, 'html')
-dir_stats_csv   = os.path.join(dir_statistics, 'csv')
-dir_stats_excel = os.path.join(dir_statistics, 'excel')
+dir_stats_txt      = os.path.join(dir_statistics, 'text')
+dir_stats_htm      = os.path.join(dir_statistics, 'html')
+dir_stats_csv      = os.path.join(dir_statistics, 'csv')
+dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 
 # Paths templates
 html_template_dayvalues  = os.path.join(dir_templates, 'dayvalues.html')
 html_template_statistics = os.path.join(dir_templates, 'statistics.html')
 
+# Path database TODO maybes
+db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
+
 ################################################################################
 # KNMI Weather
-knmi_ftp_pub = 'ftp://ftp.knmi.nl/pub_weerberichten/'
+knmi_ftp_pub               = 'ftp://ftp.knmi.nl/pub_weerberichten/'
 knmi_forecast_global_url   = f'{knmi_ftp_pub}basisverwachting.txt'
 knmi_forecast_model_url    = f'{knmi_ftp_pub}guidance_meerdaagse.txt'
 knmi_forecast_guidance_url = f'{knmi_ftp_pub}guidance_modelbeoordeling.txt'
 
-# JSON url 10 minute values.
-knmi_json_data_10min = 'ftp://ftp.knmi.nl/pub_weerberichten/tabel_10Min_data.json'
+# JSON url 10 minute values
+knmi_json_data_10min       = 'ftp://ftp.knmi.nl/pub_weerberichten/tabel_10Min_data.json'
+
 # Select places to show with current measurements. -1 for all
 # Possible options for knmi places
 # 'Lauwersoog', 'Nieuw Beerta', 'Terschelling', 'Vlieland', 'Leeuwarden', 'Stavoren',
@@ -98,22 +103,22 @@ knmi_json_places = [
 knmi_json_cols = 4  # Colums for the data
 
 # Dayvalues knmi
-knmi_dayvalues_url = 'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
+knmi_dayvalues_url          = 'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
 knmi_dayvalues_notification = 'SOURCE DATA: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)'
-knmi_dayvalues_skip_header = 52
-knmi_dayvalues_skip_footer = 0
-knmi_dayvalues_dummy_val = 99999999
-knmi_dayvalues_missing_val = '     '
-knmi_dayvalues_delimiter = ','
-knmi_dayvalues_info_txt = 'data/dayvalues/txt/dayvalues.txt'
+knmi_dayvalues_skip_header  = 52
+knmi_dayvalues_skip_footer  = 0
+knmi_dayvalues_dummy_val    = 99999999
+knmi_dayvalues_missing_val  = '     '
+knmi_dayvalues_delimiter    = ','
+knmi_dayvalues_info_txt     = 'data/dayvalues/txt/dayvalues.txt'
 # For 'rh', 'rhx', 'sq' sometimes value is -1, that means meaurement value is below 0.05.
 # Give replacement value for -1 here
 knmi_dayvalues_low_measure_val = 0.025
-knmi_data_format = 'knmi'  # used for data format
+knmi_data_format            = 'knmi'  # used for data format
 
 ################################################################################
 # Buienradar JSON data url
-buienradar_json_data = 'https://data.buienradar.nl/2.0/feed/json'
+buienradar_json_data   = 'https://data.buienradar.nl/2.0/feed/json'
 # Select places to show with actual measurements. -1 for all
 buienradar_json_places = [
     'Leeuwarden', 'Vlissingen', 'De Bilt', 'Groningen',
@@ -285,15 +290,15 @@ plaza_url_temp_2meter  = f'{plaza_url_base_act_img }/GMT_TTTT_latest.png' # Temp
 
 # Dowload url list
 lst_weather_images_url = [
-    knmi_url_windforce,
-    knmi_url_windspeed,
-    knmi_url_windmax,
-    knmi_url_temperature,
-    knmi_url_rel_moist,
+    knmi_url_windforce, 
+    knmi_url_windspeed, 
+    knmi_url_windmax, 
+    knmi_url_temperature, 
+    knmi_url_rel_moist, 
     knmi_url_view, 
     plaza_url_temp_10cm, 
     plaza_url_weerbeeld, 
-    plaza_url_temp_2meter
+    plaza_url_temp_2meter 
 ]
 
 ################################################################################
@@ -302,9 +307,9 @@ animation_time  = 0.5         # Default animation time zip for animations
 animation_ext   = 'gif'       # Default Extension for animation. Do not change.
 animation_name  = 'animation' # Default base-name for the animation file
 # To use compress: programm gifsicle needs to be installed on your system
-gif_compress    = True # Compress output animation gifs
-# Delete the dowloaded images after the aniamtion is made 
-remove_download = False
+gif_compress    = True        # Compress output animation gifs
+copy_compressed = True        # When compress is true keep a copy for the compressed file
+remove_download = False       # Delete the dowloaded images after the aniamtion is made 
 
 ################################################################################
 # Plotting default values
@@ -318,24 +323,24 @@ plot_width = 1280  # Width (px) plotted image
 plot_height = 720  # Height (px) plotted image
 # Images dpi (dots per inches) for printing on paper
 plot_dpi = 100  # Higher will increase de point size. Make width/height higher too
-plot_image_type = 'png'    # Default image type
-plot_graph_type = 'line'   # bar or line
-plot_line_width = 1       # Width line
-plot_line_style = 'solid'  # Linestyle
-plot_marker_size = 3       # Dot sizes
-plot_marker_type = 'o'     # Type marker
-plot_marker_txt = 'y'      # Markertext. yess (y) or no (n)
-plot_cummul_val = 'n'      # Cummulative values. yess (y) or no (n)
+plot_image_type  = 'png'    # Default image type
+plot_graph_type  = 'line'   # bar or line
+plot_line_width  = 1        # Width line
+plot_line_style  = 'solid'  # Linestyle
+plot_marker_size = 3        # Dot sizes
+plot_marker_type = 'o'      # Type marker
+plot_marker_txt  = 'y'      # Markertext. yess (y) or no (n)
+plot_cummul_val  = 'n'      # Cummulative values. yess (y) or no (n)
 # Adding climate averages to plot. yess (y) or no (n)
 plot_climate_ave = 'n'
 plot_climate_marker_txt = 'n'  # Adding markers next to the climate markers..
 # Adding climate min, max and averages to plot. yess (y) or no (n)
 plot_min_max_ave_period = 'y'
-plot_clima_line_style = 'dotted'
-plot_clima_line_width = 1
-plot_clima_marker_type = '.'
-plot_clima_marker_size = 2
-plot_xas_rotation = 60
+plot_clima_line_style   = 'dotted'
+plot_clima_line_width   =  1
+plot_clima_marker_type  = '.'
+plot_clima_marker_size  =  2
+plot_xas_rotation       = 60
 
 # Base Style Plotting
 # 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight',
@@ -353,87 +358,86 @@ plt_style = 'fivethirtyeight'
 
 # Style for marker texts
 plot_marker_color = '#333333'
-plot_marker_font = {'family': 'DejaVu Sans',
-                    'weight': 'normal',
-                    'size': 'small',
-                    'variant': 'small-caps'
-                    }
+plot_marker_font  = { 'family': 'DejaVu Sans',
+                      'weight': 'normal',
+                      'size': 'small',
+                      'variant': 'small-caps' }
 plot_marker_horizontalalignment = 'center'
-plot_marker_verticalalignment = 'top'
+plot_marker_verticalalignment   = 'top'
 plot_marker_alpha = 0.9
 
 # Style for added texts (extremes, min, max mean)
-plot_add_txt_font = {'family': 'monospace',
-                     'weight': 'normal',
-                     'style': 'normal',
-                     'size': '9',
-                     'variant': 'normal'}
+plot_add_txt_font = { 'family': 'monospace',
+                      'weight': 'normal',
+                      'style': 'normal',
+                      'size': '9',
+                      'variant': 'normal' }
 
 # Style grid in plot
-plot_grid_on = True  # True for a grid or False for no grid
-plot_grid_color = '#cccccc'
+plot_grid_on        = True  # True for a grid or False for no grid
+plot_grid_color     = '#cccccc'
 plot_grid_linestyle = 'dotted'
 plot_grid_linewidth = 1
 
 # Style titel
 plot_title_color = '#333333'
-plot_title_font = {'family': 'DejaVu Sans',
-                   'weight': 'bold',
-                   'size': '14',
-                   'variant': 'normal'}
+plot_title_font  = { 'family': 'DejaVu Sans',
+                     'weight': 'bold',
+                     'size': '14',
+                     'variant': 'normal' }
 # Style xlabel
-plot_xlabel_text = 'DATES'
+plot_xlabel_text  = 'DATES'
 plot_xlabel_color = '#555555'
-plot_xlabel_font = {'family': 'monospace',
-                    'weight': 'normal',
-                    'size': '10',
-                    'variant': 'small-caps'}
+plot_xlabel_font  = { 'family': 'monospace',
+                      'weight': 'normal',
+                      'size': '10',
+                      'variant': 'small-caps' }
 
 # Style values/dates on the x-as
 plot_xas_color = '#555555'
-plot_xas_font = {'family': 'monospace',
-                 'weight': 'normal',
-                 'size': '9',
-                 'variant': 'normal'}
+plot_xas_font  = { 'family': 'monospace',
+                   'weight': 'normal',
+                   'size': '9',
+                   'variant': 'normal' }
 
 # Style ylabel
 plot_ylabel_color = '#555555'
-plot_ylabel_font = {'family': 'monospace',
-                    'weight': 'normal',
-                    'size': '11',
-                    'variant': 'small-caps'}
+plot_ylabel_font  = { 'family': 'monospace',
+                      'weight': 'normal',
+                      'size': '11',
+                      'variant': 'small-caps' }
 
 # Style values/dates on the y-as
 plot_yas_color = '#555555'
-plot_yas_font = {'family': 'monospace',
-                 'weight': 'normal',
-                 'size': '9',
-                 'variant': 'small-caps'}
+plot_yas_font  = { 'family': 'monospace',
+                   'weight': 'normal',
+                   'size': '9',
+                   'variant': 'small-caps' }
 
 # Style legend
-plot_legend_font = {'family': 'DejaVu Sans',
-                    'weight': 'normal',
-                    'style': 'normal',
-                    'size': '9',
-                    'variant': 'normal'}  # Does not work
+plot_legend_font = { 'family': 'DejaVu Sans',
+                     'weight': 'normal',
+                     'style': 'normal',
+                     'size': '9',
+                     'variant': 'normal' }  # Does not work
 
-plot_legend_loc = 'upper right'
+plot_legend_loc       = 'upper right'
 plot_legend_facecolor = None
-plot_legend_shadow = None
-plot_legend_frameon = None
-plot_legend_fancybox = None
+plot_legend_shadow    = None
+plot_legend_frameon   = None
+plot_legend_fancybox  = None
 
 ################################################################################
 # Constants do not change
 data_comment_sign = '#'
-data_dtype = np.float64  # Data type for reading data files
-data_min_year = 1901  # Minumum year of possible data
-np_empthy_1d = np.array([])
-np_empthy_2d = np.array([[]])
-empthy = ''
-no_val = '.'  # Replacement for no output
-txt_data_error = 'x'
-date_false = -1
+data_dtype     = np.float64  # Data type for reading data files
+data_min_year  = 1901  # Minumum year of possible data
+np_empthy_1d   = np.array([])
+np_empthy_2d   = np.array([[]])
+e = empthy     = '' 
+nv = no_val    = '.'  # Replacement for no output
+txt_data_error = 'x' 
+date_false     = -1 
 
 # Descending min or max
 html_max = True
@@ -444,7 +448,7 @@ fl_min = sys.float_info.max  # Maximum possible value
 
 # Give language for app. Under contruction. TODO
 # 'NL' for Netherlands/Dutch, 'EN' for English, Default is English
-lang = 'EN' # Select language. Only english
+lang      = 'EN'  # Select language. Only english
 translate = False # Translation active or not
 
 # No download flooding from a server.
@@ -454,15 +458,14 @@ download_interval_time = 0.2 # Seconds.
 download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage/ip for checking an internet connection
-check_ip_1 = '42.251.36.14' # google.com
-check_ip_2 = '95.101.74.93' # NU.nl
-check_ip_3 = '1.1.1.1' 
-check_ip_4 = '8.8.8.8' 
+check_ip_1     = '42.251.36.14'  # google.com
+check_ip_2     = '95.101.74.93'  # NU.nl
+check_ip_3     = '1.1.1.1' 
+check_ip_4     = '8.8.8.8' 
 check_port_80  = 80
 check_port_ssl = 443
 check_port_dns = 53
 check_timeout  = 500 # Milli secs
-
 
 ################################################################################
 ################################################################################
@@ -480,6 +483,8 @@ climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # Startup time for running this app (!more or less)
 app_start_time = time.time() 
+
+forbidden_map_chars = ['\\','`','*','{','}','[',']','(',')','>','<','#','+','-','.','!','$','\'']
 
 # Copyright notification weatherstats 
 created_by_notification = 'Created by weatherstats-nl at %s' 
