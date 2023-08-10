@@ -41,13 +41,13 @@ def wmo_to_place(wmo):
     for station in stations.lst:
         if station.wmo == wmo:
             return station.place
-    return cfg.empthy
+    return cfg.no_val
 
 def wmo_to_province(wmo):
     for station in stations.lst:
         if station.wmo == wmo:
             return station.province
-    return cfg.empthy
+    return cfg.no_val
 
 def wmo_to_station(wmo):
     '''Get station object based on wmo'''
