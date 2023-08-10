@@ -4,18 +4,17 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.2y'
+__version__    =  '0.1.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
-import sources.model.validate as validate
-import sources.model.ymd as ymd
-import sources.control.answer as answer
 import sources.control.fio as fio
-import sources.control.ask as ask
+import sources.model.ymd as ymd
+import sources.model.validate as validate
 import sources.view.console as cnsl
-import datetime, time, math, os, sys, random, math, shutil, webbrowser, subprocess
+import sources.view.text as text
+import datetime, math, time, os, sys, random, math, shutil, webbrowser, subprocess
 import numpy as np
 from datetime import datetime
 from dateutil import rrule
@@ -28,11 +27,19 @@ var_dump    = lambda v: print( f'Dump {id(v)} {type(v)} {v}' )
 url_name    = lambda url: urlparse(url).netloc.split('.')[-2].lower()
 name_ext    = lambda path: os.path.splitext(os.path.basename(path))
 lst_unique  = lambda lst: list(set(lst))
-lst_shuffle = lambda lst, lev=3: lst_fisher_yates_shuffle(lst, lev)
+lst_shuffle = lambda lst, lev=3: lst_fisher_yates_shuffle(lst, lev) # ERR, TODO
 lst_to_s    = lambda lst, sep=', ': sep.join(lst)
 rnd_digit   = lambda min, max: random.randint(min, max)
 abspath     = lambda path: os.path.abspath(path)
 mk_path     = lambda dir, f: abspath(os.path.join(dir, f))
+
+def map_name(map):
+    '''Function makes a string valid to be used as directory name'''
+    repl_char = 'x' 
+    for char in cfg.forbidden_map_chars:
+        map = map.replace(char, repl_char)
+
+    return map
 
 def name_with_act_date(base_name, ext='txt'):
     H, M, S = ymd.hh_mm_ss_now()
@@ -65,7 +72,7 @@ def remove_chars(s, l):
     if type(l) != list:
         l = [l]
     for rm in l:
-        s = s.replace(rm,'')
+        s = s.replace(rm,cfg.e)
     return s
 
 def l_years(ys, ye):
@@ -228,33 +235,40 @@ def compress_gif(
        Example linux debian: install command: sudo apt-get install gifsicle
     '''
     ok = False
-    cnsl.log(f'Start compress file {ymd.now()}', verbose)
+    cnsl.log( text.head( f'[{ymd.now()}] Start compress file' ), verbose )
+    cnsl.log( f'Animation file name: {path}', verbose )
+    cnsl.log( f'Copy for the compressed file: {cfg.copy_compressed}', verbose )
 
-    if os.path.isfile(path):
-        cnsl.log(f'Filename is {path}')
+    if os.path.isfile( path ): 
         try: # Check for pygifsicle
-            import pygifsicle
+            import pygifsicle 
         except:
             cnsl.log('Python library pygifsicle is not installed', cfg.error)
             cnsl.log('Install library with command: python3 -m pip install pygifsicle', cfg.error)
             cnsl.log('Install on your os the following programm: gifsicle', cfg.error)
             cnsl.log('Example install debian: sudo apt-get install gifsicle', cfg.error)
         else:
-            fcopy = f'{path}.bck'
-            shutil.copyfile(path, fcopy)
+            fcopy = f'{path[:-4]}-compressed.{cfg.animation_ext}' # Name for a copy file 
+            shutil.copyfile( path, fcopy )   # Copy the original file to a copy file
             try:
-                pygifsicle.optimize(path)
+                pygifsicle.optimize( fcopy ) # Compress the copy file
             except Exception as e:
-                cnsl.log(f'Error compressing \n{e}', cfg.error)
-                shutil.copyfile(fcopy, path) # Put original file back
+                cnsl.log( f'Error compressing \n{e}', cfg.error )
+                fio.delete( fcopy, verbose=False ) # Remove the copy  
             else:
-                ok = True
-                cnsl.log('Compress successfull', verbose)
-            fio.delete(fcopy, False) # Always remove the copy
-    else:
-        cnsl.log(f'Path - {path} - is not a file', verbose)
+                ok = True  # All went well 
+                if not cfg.copy_compressed:       # Replace original with the compressed file 
+                    fio.delete( path, verbose=False )  # Remove the original animation 
+                    shutil.copyfile( fcopy, path )     # Copy the compressed copy to the real animation file 
+                    fio.delete( fcopy, verbose=False ) # Remove the compressed copy
 
-    cnsl.log('End compress file', verbose)
+                cnsl.log( f'[{ymd.now()}] Compress successfull', verbose ) 
+
+    else:
+        cnsl.log(f'Path - {path} - is not a file', verbose) 
+
+    cnsl.log( text.foot( f'[{ymd.now()}] End compress file' ), verbose ) 
+
     return ok
 
 def rm_l0(s):
@@ -279,19 +293,19 @@ def s_in_lst(lst, s, case_insensitive=True):
     return False
 
 def pause(
-        end_time, # Time with format <HH:MM:SS> or <HHMMSS> to pause untill to.
-                  # Minutes and seconds can be omitted then 00 wiil be used
-        end_date, # <optional> Date to start. Format <yyyymmdd> or <yyyy-mm-dd>
-                  # If omitted current date will be used.
-        output = 'programm will continue at', # <optional> Output text second substring
-        verbose = cfg.verbose 
+        end_time  = cfg.e,  # Time with format <HH:MM:SS> or <HHMMSS> to pause untill to.
+                            # Minutes and seconds can be omitted then 00 wiil be used
+        end_date  = cfg.e,  # <optional> Date to start. Format <yyyymmdd> or <yyyy-mm-dd>
+                            # If omitted current date will be used.
+        output    = 'programm will continue at', # <optional> Output text second substring
+        verbose   = cfg.verbose 
     ):
     '''Functions pauses untill a certain date and time is reached and then
        continues the executing of programm.'''
-    cnsl.log('Pause programm', verbose)
+    
     # Check if there is a time anyway
-    if not end_time: 
-        return # We dont need to wait
+    if end_time == cfg.e: return # We don't need to wait
+    if end_date == cfg.e: end_date = ymd.yyyymmdd_now() # Get current date if not given 
 
     # Get start date time
     ok, hhmmss = validate.hhmmss(end_time) # Fill in the possible missing parts
@@ -313,10 +327,9 @@ def pause(
         cnsl.log_r(f'[{ymd.now()}] {t}', verbose)       
         act_ymdhms = int(ymd.ymdhms_now()) # New time act
 
-    cnsl.log_r(f'[{ymd.now()}] {t}\n', verbose)
-    cnsl.log('End pause\n', verbose)
+    cnsl.log_r(f'[{ymd.now()}] {t}\n\n', verbose)
 
-def process_time_ext(t='', delta_sec = 0):
+def process_time_ext(t=cfg.e, delta_sec = 0):
     '''Function gives a time string from nano seconds till days '''
     # Calculate from seconds
     rest, total_sec = math.modf( delta_sec )
@@ -341,7 +354,7 @@ def process_time_ext(t='', delta_sec = 0):
     
     return t
 
-def process_time(t='', st=time.time_ns(), ln='\n'):
+def process_time(t=cfg.e, st=time.time_ns(), ln='\n'):
     delta = time.time_ns() - st
     t = process_time_ext(t, delta)
     return t + ln
@@ -383,7 +396,7 @@ def lst_fisher_yates_shuffle(lst, level=1):
 
 def exec_with_app(fname, verbose=cfg.verbose):
     '''Function opens a file with an default application'''
-    ok, err = False, ''
+    ok, err = False, cfg.e
     cnsl.log(f'Start open file with an app {ymd.now()}', verbose)
 
     if fio.check(fname, verbose):
@@ -444,4 +457,3 @@ def exec_with_app(fname, verbose=cfg.verbose):
         cnsl.log(f'Error open file with an app\n{err}', cfg.error)
 
     return ok
-
