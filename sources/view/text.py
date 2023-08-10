@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.6'
+__version__    =  '0.1.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -124,25 +124,58 @@ title_menu_winter_summer_stats = 'Winter & summer statistics'
 title_menu_default_extremes = 'Default extremes (see config.py)'
 title_menu_default_counts = 'Default counts (see config.py)'
 
+menu_knmi_dayvalues_all        = 'knmi_dayvalues_all'
+menu_knmi_dayvalues_select     = 'knmi_dayvalues_select'
+menu_anim_download_images      = 'download_images'
+menu_anim_download_animation   = 'download_animation'
+menu_anim_images_fom_map       = 'animation_from_images_from_dir'
+
+menu_buienradar_forecast       = 'weather_buienradar_forecast'
+menu_buienradar_act_values     = 'weather_buienradar_current'
+menu_knmi_forecast             = 'weather_knmi_forecast'
+menu_knmi_forecast_model       = 'weather_knmi_model'
+menu_knmi_forecast_guidance    = 'weather_knmi_guidance'
+menu_knmi_act_values           = 'weather_knmi_current'
+
+menu_table_stats_diy           = 'table_stats_diy'
+menu_table_stats_winter        = 'table_stats_winter'
+menu_table_stats_summer        = 'table_stats_summer'
+menu_table_stats_winter_summer = 'table_stats_winter_summer'
+menu_table_stats_extremes      = 'table_stats_extremes'
+menu_table_stats_counts        = 'table_stats_counts'
+menu_table_stats_default_1     = 'table_stats_default_1'
+menu_table_stats_id_1          = 'table_stats_ID-1'
+
+menu_table_stats_per2_in_per1  = 'table_stats_per2_in_per1'
+menu_table_stats_compare       = 'table_stats_compare'
+
+menu_make_dayvalues            = 'make_dayvalues'
+menu_see_dayvalues             = 'see_dayvalues'
+menu_search_for_days           = 'search_for_days'
+
+menu_graph_period              = 'graph_period'
+
 lst_menu_download = [ 'DOWNLOAD', [ 
-    [ 'Download all dayvalues knmi stations', 'process_knmi_dayvalues_all' ],
-    [ 'Download selected dayvalues knmi stations', 'process_knmi_dayvalues_select' ]
+    [ 'Download all dayvalues knmi stations',        menu_knmi_dayvalues_all        ],
+    [ 'Download selected dayvalues knmi stations',   menu_knmi_dayvalues_select     ],
 ] ]
 
-lst_menu_animation = [ 'IMAGE ANIMATIONS TODO', [ 
-    [ 'Download images only', 'process_download_images' ],
-    [ 'Download and make an animation', 'process_download_animation' ],
-    [ 'Animation from images in map', 'process_animation_from_dir' ]
+lst_menu_animation = [ 'DOWNLOAD IMAGES AND MAKE ANIMATIONS', [ 
+    [ 'Download (weather) images only',              menu_anim_download_images      ],
+    [ 'Download and make an animation',              menu_anim_download_animation   ],
+    # [ 'Make an animation from images in a map', menu_anim_images_fom_map ]
 ] ]
 
 lst_menu_statistics = [ 'STATISTICS TABLES', [  
-    [ 'DIY cells statistics', 'table_stats_diy' ],
-    [ 'Winter statistics', 'table_stats_winter' ],
-    [ 'Summer statistics', 'table_stats_summer' ],
-    [ 'Winter & summer statistics', 'table_stats_winter_summer' ],
-    [ 'Default statistics (see config.py)', 'table_stats_default_1' ],
-    [ 'Default extremes (see config.py)', 'table_stats_extremes' ],
-    [ 'Default counts (see config.py)', 'table_stats_counts' ],
+    [ 'DIY cells statistics',                        menu_table_stats_diy           ],
+    [ 'Winter statistics',                           menu_table_stats_winter        ],
+    [ 'Summer statistics',                           menu_table_stats_summer        ],
+    [ 'Winter & summer statistics',                  menu_table_stats_winter_summer ],
+    [ 'Default statistics (see config.py)',          menu_table_stats_default_1     ],
+    [ 'Default extremes (see config.py)',            menu_table_stats_extremes      ],
+    [ 'Default counts (see config.py)',              menu_table_stats_extremes      ],
+    [ 'Day, month & period statistics in a period',  menu_table_stats_per2_in_per1  ],
+    [ 'Compare (day, month, year and season)',       menu_table_stats_compare       ],
 
     ####################################################################################
     ## Do you want to add more default lists with statistics in the menu ? 
@@ -158,31 +191,82 @@ lst_menu_statistics = [ 'STATISTICS TABLES', [
     # ID-1 is the connection ID between the text menu and the python function 
     
     # Uncomment next row, to let it show up in the menu
-    # [ 'My stats ID-1 (see config.py)', 'ID-1' ], 
+    # [ 'My stats ID-1 (see config.py)',   menu_table_stats_id_1 ], 
     ####################################################################################
-
-    [ 'Day, month & period statistics in a period', 'table_stats_period_in_period' ],
-    [ 'Compare (day, month, year and season)', 'table_stats_compare' ],
 ] ]
 
 lst_menu_days = [ 'DAYVALUES', [ 
-    [ 'Make dayvalues', 'make_dayvalues' ],
-    [ 'See dayvalues', 'see_dayvalues' ],
-    [ 'Search for days', 'search_for_days' ]
+    [ 'Make dayvalues',                     menu_make_dayvalues         ],
+    [ 'See dayvalues',                      menu_see_dayvalues          ],
+    [ 'Search for days',                    menu_search_for_days        ],
 ] ]
 
 lst_menu_graphs = [ 'GRAPHS', [ 
-    [ 'DIY period <beta>', 'graph_period' ]
+    [ 'DIY period',                         menu_graph_period           ],
 ] ]
 
 lst_menu_weather = [ 'WEATHER (dutch)', [ 
-    [ 'Buienradar Forecast', 'process_weather_buienradar_forecast' ],
-    [ 'Buienradar Stations NL', 'process_weather_buienradar_current' ],
-    [ 'KNMI Forecast weather', 'process_weather_knmi_forecast' ],
-    [ 'KNMI Forecast guidance short term', 'process_weather_knmi_guidance' ],
-    [ 'KNMI Forecast model long term', 'process_weather_knmi_model' ],
-    [ 'KNMI Stations NL', 'process_weather_knmi_current' ]
+    [ 'Buienradar Forecast',                menu_buienradar_forecast    ],
+    [ 'Buienradar Stations NL',             menu_buienradar_act_values  ],
+    [ 'KNMI Forecast weather',              menu_knmi_forecast          ],
+    [ 'KNMI Forecast guidance short term',  menu_knmi_forecast_guidance ],
+    [ 'KNMI Forecast model long term',      menu_knmi_forecast_model    ],
+    [ 'KNMI Stations NL',                   menu_knmi_act_values        ],
 ] ]
+
+# TODO
+lst_menu_database = [ 'DATABASES SQLITE TODO', [ 
+    [ 'Update database', 'process_database_update' ],
+    [ 'Input Query', 'process_database_query'      ],
+    [ 'Delete database', 'process_delete_database' ],
+] ]
+
+# Ask options
+ask_title          = 'title'
+ask_colspan        = 'colspan'
+ask_other_menu     = 'other-menu'
+ask_start_date     = 'start-datetime'
+ask_end_date       = 'end-datetime'
+ask_period         = 'period'
+ask_per1           = ask_period
+ask_per2           = 'periode-2'
+ask_per_compare    = 'period-cmp'
+ask_file_type      = 'file-type'
+ask_filename       = 'file-name'
+ask_download       = 'download'
+ask_download_url   = 'image-download-url'
+ask_download_interval = 'interval-download'
+ask_animation_name = 'animation-name'
+ask_animation_time = 'animation-time' 
+ask_rm_downloads   = 'remove-downloads' 
+ask_gif_compress   = 'gif-compress'
+ask_stations       = 'lst-stations'
+ask_select_cells   = 'lst-sel-cells'
+ask_diy_cells      = 'lst-diy-cells'
+ask_write_dayval   = 'write-dayvalues'
+ask_s4d_query      = 's4d-query'
+ask_clima_period   = 'clima-period'
+ask_verbose        = 'verbose'
+ask_graph_title    = 'graph-title'
+ask_graph_ylabel   = 'graph-y-label'
+ask_graph_default  = 'graph-default'
+ask_graph_width    = 'graph-width'
+ask_graph_height   = 'graph-height'
+ask_graph_cummul_val = 'graph-cummul-val'
+ask_graph_type     = 'graph-type'
+ask_graph_dpi      = 'graph-dpi'
+ask_graph_entities = 'graph-lst-entities-types'
+
+# Questions to ask
+lst_ask_stats           = [ask_stations, ask_period, ask_file_type, ask_filename]
+lst_ask_stats_diy       = [ask_stations, ask_period, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_stats_p1_p2_diy = [ask_stations, ask_per1, ask_per2, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_stats_compare   = [ask_stations, ask_period, ask_per_compare, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_download        = [ask_download_url, ask_start_date, ask_end_date, ask_download_interval]
+lst_ask_animation       = [ask_animation_name, ask_animation_time, ask_rm_downloads, ask_gif_compress]
+lst_ask_make_dayval     = [ask_stations, ask_period, ask_file_type, ask_write_dayval]
+lst_ask_see_dayval      = [ask_stations, ask_period, ask_file_type, ask_write_dayval]
+lst_ask_search_4_day    = [ask_stations, ask_period, ask_s4d_query, ask_file_type, ask_filename]
 
 # [ 'QUICK IO <TODO>',
 #     [ [ 'Quick statistics', cquick_stats_io ],
@@ -193,13 +277,29 @@ lst_menu_weather = [ 'WEATHER (dutch)', [
 # Menu texts
 menu_no_weather_stations = f'''
 No weatherstations found in stations file !
-Add one or more weatherstations in stations.py'''
+Add one or more weatherstations in stations.py
+'''
 
 menu_no_internet_no_data = '''
 No internet and no data! Not much can be done now.
 1)  Try to have a working internet connection.
 2)  Press a key to reload the menu or restart the application.
 3)  Download weatherdata in the download options in the menu.
+'''
+
+menu_image_download_examples = '''
+DOWNLOAD IMAGES EXAMPLES
+# KNMI
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windkracht.png 
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windsnelheid.png 
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/maxwindkm.png 
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/temperatuur.png 
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/relvocht.png 
+https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/zicht.png 
+# Weerplaza 
+https://oud.weerplaza.nl/gdata/10min/GMT_T10C_latest.png'  # Temp 10cm
+https://oud.weerplaza.nl/gdata/10min/nl_10min.jpg'         # Weather
+https://oud.weerplaza.nl/gdata/10min/GMT_TTTT_latest.png'  # Temp 2 meter
 '''
 
 menu_info_quick_calculations = '''
@@ -279,29 +379,37 @@ VVX   = Maximum visibility 0: <100 m, 1:100-200 m, 2:200-300 m,..., 49:4900-5000
 '''
 
 menu_info_td_cells = '''
-CELL STATISTICS
-INFO - format: inf_<option>
-Examples: inf_place, inf_province, inf_country, inf_period, inf_num, inf_period-2
-STATISTICS - format: <ave|sum>_<entity>
-Examples: ave_tg, sum_sq, sum_rh
-EXTREMES - format: <max|min>_<entity>
-Examples: max_tx, min_tn, min_t10n, max_rh, max_sq, max_rhx,
-max_px, min_px, min_pn, max_ux, max_ug, min_un
-INDEXES - format: ndx_<name>
-Examples: ndx_hellmann, ndx_frost-sum, ndx_heat-ndx, ndx_ijnsen
-COUNT DAYS - format: cnt_<entity>_<operator>_<value>
-Examples: cnt_tx_ge_25, cnt_tx_ge_30, cnt_tg_ge_20, cnt_sq_ge_10, 
-cnt_rh_ge_10, cnt_tx_lt_0, cnt_tn_lt_0, cnt_tn_lt_-5, 
-cnt_tn_lt_-20 
-Example: average temperature, maximum temperature, minimum temperature, total sum rain, 
-the tropical and the ice days: 
-inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>_30, cnt_tx_<_0
-Example: winter
-inf_place, inf_period, ave_tg, min_tx, min_tn, ndx_hellmann, ndx_frost-sum, cnt_tx_<_0, cnt_tg_<_0, cnt_tn_<_0
-Example: summer
-inf_place, inf_period, ave_tg, max_tx, max_tn, ndx_heat, sum_sq, sum_rh, cnt_tx_>_25, cnt_tx_>_30, cnt_tn_>_20
-Example short:
-inf_place, inf_period, ave_tg, max_tx, min_tn, sum_sq, sum_rh, cnt_tx_>=_20, cnt_tn_<_0
+TABLE CELLS INFO
+
+INFO format: inf_option
+inf_place, inf_province, inf_country, inf_period, inf_num, inf_period-2
+
+STATISTICS format: [ave|sum]_entity
+ave_tg, sum_sq, sum_rh
+
+EXTREMES format: [max|min]_entity
+max_tx, min_tn, min_t10n, max_rh, max_sq, max_rhx, max_px, min_px, min_pn, max_ux, max_ug, min_un
+
+INDEXES format: ndx_name
+ndx_hellmann, ndx_frost-sum, ndx_heat-ndx, ndx_ijnsen
+
+COUNT format: cnt_entity_operator_value
+cnt_tx_ge_25, cnt_tx_ge_30, cnt_tg_>=_20, cnt_sq_ge_10, cnt_rh_ge_10, cnt_tx_<_0, cnt_tn_lt_-5, cnt_tn_lt_-20 
+
+CLIMA format: clima_option_entity
+clima_ave_tg, clima_sum_sq, clima_sum_rh
+
+Example winter:
+inf_place, inf_period, ave_tg, clima_ave_tg, min_tx, min_tn, ndx_hellmann, ndx_frost-sum, sum_rh, 
+clima_sum_rh, cnt_rh_ge_10, cnt_tx_<_0, cnt_tg_<_0, cnt_tn_<_0, cnt_tn_<_0, cnt_tn_<_-5, cnt_tn_<_-10
+
+Example spring:
+inf_place, inf_province, inf_period, ave_tg, clima_ave_tg, ndx_heat, max_tx, min_tx, min_tn, sum_sq, clima_sum_sq, 
+cnt_sq_ge_8, sum_rh, clima_sum_rh, cnt_rh_ge_10, cnt_tx_>=_20, cnt_tx_>=_25, cnt_tn_<_0
+
+Example summer:
+inf_place, inf_period, ave_tg, clima_ave_tg, max_tx, max_tn, ndx_heat, sum_sq, clima_sum_sq, cnt_sq_ge_10, 
+sum_rh, clima_sum_rh, cnt_rh_ge_10, cnt_tx_>=_25, cnt_tx_>=_30, cnt_tx_>=_30, cnt_tn_>=_20
 '''
 
 quick_calc_inf = '''
@@ -395,45 +503,45 @@ lst_op_relat = lst_gt + lst_ge + lst_lt + lst_le + lst_eq + lst_ne
 lst_op_logic =  lst_or + lst_and 
 lst_op  = lst_gt + lst_ge + lst_lt + lst_le + lst_eq + lst_ne + lst_or + lst_and 
 
-lst_date = ['date', 'yyyymmdd']
+lst_yyyymmdd = lst_date = ['date', 'yyyymmdd']
 lst_count = ['cnt', 'counter', 'count']
-lst_ndx = ['ndx', 'idx']
+lst_ndx = ['index', 'ndx', 'idx']
 lst_info = ['inf', 'info']
-lst_clima = ['clima', 'clim']
+lst_clima = ['clima', 'clim', 'cli']
 lst_num = ['num']
-lst_max = ['max','up','high'] 
-lst_plus = ['+']
-lst_min = ['min','down','low', '-']
+lst_max = ['max', 'maximum', 'up', 'high'] 
+lst_min = ['min', 'minimum', 'down', 'low', '-', 'minus']
+lst_extremes = lst_max + lst_min
+lst_plus = ['plus', '+'] 
 lst_sum = ['sum', 'total', 'tot', 'Σ']
 lst_ave = ['ave', 'mean', 'average', '~']
 lst_home = ['home', 'place'] 
-lst_states = ['province','country'] 
+lst_states = ['province', 'country'] 
 lst_geo_places = lst_states + lst_home
-lst_period_1 = ['period','periode','period1','period-1']
-lst_period_2 = ['period2','period-2','periode-2']
-lst_temp = ['tx','tg','tn','t10n']
-lst_heat_ndx = ['heat-ndx','heat_ndx', 'heatndx', 'hndx','heat','fire'] 
-lst_helmmann = ['hmann', 'hellmann','hellman']
+lst_period_1 = ['period', 'periode', 'period1', 'period-1']
+lst_period_2 = ['period2', 'period-2', 'periode-2']
+lst_temp = ['temperature', 'temp', 'tx', 'tg', 'tn', 't10n']
+lst_heat_ndx = ['heatindex', 'heat-index', 'heat-ndx', 'heatndx', 'hndx', 'heat'] 
+lst_helmmann = ['hmann', 'hellmann', 'hellman']
 lst_ijnsen = ['ijnsen', 'ijns']
-lst_frost_sum = ['frost-sum', 'frost_sum', 'frostsum', 'fsum', 'frost_som', 'frostsom', 'frost-som', 'fsom']
+lst_frost_sum = ['frost-sum', 'frostsum', 'fsum', 'frostsom', 'frost-som', 'fsom']
 lst_cold_ndx = lst_helmmann + lst_ijnsen + lst_frost_sum
 lst_pressure = ['pg', 'pn', 'px']
-lst_copyright = ['copy','copyright']
-lst_sun = ['sun', 'sunshine', 'sq','sp']
-lst_rain = ['r','dr','rhx']
-lst_moist = ['ux', 'un', 'ug']
-lst_wind = ['fhvec', 'fg', 'fhx', 'fhn', 'fxx']
-lst_wind_direction = ['ddvec']
-lst_duration = [ 'sq', 'dr' ]
-lst_radiation = ['q'] 
-lst_view = ['vvn', 'vvx']
-list_fire = ['fire']
-lst_cloud = ['ng'] 
-lst_evaporation = ['ev24']
-lst_yyyymmdd = ['yyyymmdd']
+lst_copyright = ['copy', 'copyright']
+lst_sun = ['sun', 'sunshine', 'sq', 'sp']
+lst_rain = ['rain', 'rh', 'dr', 'rhx']
+lst_moist = ['moist', 'ux', 'un', 'ug']
+lst_wind = ['wind', 'fhvec', 'fg', 'fhx', 'fhn', 'fxx']
+lst_wind_direction = ['direction', 'ddvec', 'wind-direction']
+lst_duration = [ 'duration', 'sq', 'dr' ]
+lst_radiation = ['radiation', 'q'] 
+lst_view = ['view', 'vvn', 'vvx']
+lst_fire = ['fire']
+lst_cloud = ['cloud', 'ng'] 
+lst_evaporation = ['evaporation', 'ev24']
 lst_day = ['day', 'mmdd']
 lst_month = ['month','mm', 'm', 'mmm', 'mmmm']
-lst_year = ['yyyy', 'year', 'yy']
+lst_year = ['year', 'yyyy', 'yy']
 lst_season = ['season']
 
 # Padding text values for text output
@@ -468,6 +576,7 @@ pad_cnt = 10
 pad_day = 10
 pad_max = 10 + 12
 pad_min = 10 + 12
+pad_extreme = 10 + 12
 pad_home = 15
 pad_states = 15
 pad_place = 15
@@ -825,11 +934,11 @@ def day_ent_lst(sep=',', kol = False, kol_width = False):
     t = option_lst( l, '', kol, kol_width )
     return t
 
-def fix_ent(val, entity):
+def fix_ent( val, entity ):
     '''Function adds correct post/prefixes for weather entities'''
     # No measurement or false measurement
     if not daydata.check(val):
-        return cfg.txt_no_data # Return '.'
+        return cfg.no_val # Return '.'
 
     e = entity.strip().lower()
     f = daydata.process_value(val, e) # Format correct for entity
@@ -1161,7 +1270,7 @@ def title_mean(t=''):
 
 ##########################################################################################
 # TRANSLATIONS 
-# TODO
+# TODO 
 EN = 0
 NL = 1
 
