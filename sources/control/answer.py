@@ -13,7 +13,7 @@ import sources.view.text as text
 # Makes versatile answers possible (list or string)
 def lst_to_str(answ):
     if type(answ) == list:
-        answ = str(answ[0]) if len(answ) > 0 else cfg.empthy
+        answ = str(answ[0]) if len(answ) > 0 else cfg.e
 
     return answ
 
@@ -53,7 +53,7 @@ def is_no(answ):
 def is_empty(answ):
     if type(answ) == list:
         if answ == []:
-            answ = cfg.empthy
+            answ = cfg.e
         else:
             answ = lst_to_str(answ)
     else:
