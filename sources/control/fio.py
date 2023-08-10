@@ -41,7 +41,7 @@ def check(path, verbose=cfg.verbose):
                 cnsl.log('File does not exist', verbose)
     return ok
 
-def write(path='dummy.txt', content=cfg.empthy, encoding='utf-8', prefix='w', verbose=cfg.verbose):
+def write(path='dummy.txt', content=cfg.e, encoding='utf-8', prefix='w', verbose=cfg.verbose):
     '''Function writes content to a file'''
     ok = False
     cnsl.log(f'[{ymd.now()}] write a file', verbose)
@@ -55,17 +55,17 @@ def write(path='dummy.txt', content=cfg.empthy, encoding='utf-8', prefix='w', ve
         except Exception as e:
             cnsl.log(f'Error writing file\n{e}', cfg.error)
         else:
-            cnsl.log('Write file success', verbose)
+            cnsl.log(f'[{ymd.now()}] Write file success', verbose)
             ok = True
     return ok
 
-def save(path='dummy.txt', content=cfg.empthy, encoding='utf-8', prefix='w', verbose=cfg.verbose):
+def save(path='dummy.txt', content=cfg.e, encoding='utf-8', prefix='w', verbose=cfg.verbose):
     '''Function writes content to a file'''
     return write(path, content, encoding, prefix, verbose)
 
 def read(path, encoding='utf-8', verbose=cfg.verbose):
     '''Function reads the content in a file'''
-    ok, t, paths = False, cfg.empthy, convert.to_lst(path)
+    ok, t, paths = False, cfg.e, convert.to_lst(path)
     cnsl.log(f'[{ymd.now()}] Read a file', verbose)
     cnsl.log(f'File(s) {str(paths)}', verbose)
 
@@ -78,13 +78,13 @@ def read(path, encoding='utf-8', verbose=cfg.verbose):
                 except Exception as e:
                     cnsl.log(f'Error reading a file\n{e}', cfg.error)
                 else:
-                    cnsl.log('Read file success', verbose)
+                    cnsl.log(f'[{ymd.now()}] Read file success', verbose)
                     ok = True
     return ok, t
 
 def readlines(path, encoding='utf-8',verbose=cfg.verbose):
     '''Function reads the content from a file into a list'''
-    l, ok, t, paths = [], False, cfg.empthy, convert.to_lst(path)
+    l, ok, t, paths = [], False, cfg.e, convert.to_lst(path)
     cnsl.log(f'[{ymd.now()}] Read file(s) into a list', verbose)
     cnsl.log(f'File(s) {str(paths)}', verbose)
 
@@ -97,7 +97,7 @@ def readlines(path, encoding='utf-8',verbose=cfg.verbose):
                 except Exception as e:
                     cnsl.log(f'Error reading a file\n{e}', cfg.error)
                 else:
-                    cnsl.log('Read file success', verbose)
+                    cnsl.log(f'[{ymd.now()}] Read file success', verbose)
                     ok = True
     return ok, l
 
@@ -115,7 +115,7 @@ def delete(path, verbose=cfg.verbose):
                 except Exception as e:
                     cnsl.log(f'Error deleting a file\n{e}', cfg.error)
                 else:
-                    cnsl.log('Delete file success', verbose)
+                    cnsl.log(f'[{ymd.now()}] Delete file success', verbose)
                     ok = True
             else:
                 cnsl.log(f'Cannot delete. File does not exist', verbose)
@@ -142,7 +142,7 @@ def mk_dir(dir, verbose=cfg.verbose):
             except Exception as e:
                 cnsl.log(f'Error make directory\n{e}', cfg.error)
             else:
-                cnsl.log(f'Make directory {path} successful', verbose)
+                cnsl.log(f'[{ymd.now()}] Make directory {path} successful', verbose)
                 ok = True
 
     return ok
@@ -164,7 +164,7 @@ def rm_dir(
                 except Exception as e:
                     cnsl.log(f'Error removing map\n{e}', cfg.error)
                 else:
-                    cnsl.log('Remove map {path} successful', verbose)
+                    cnsl.log(f'[{ymd.now()}] Remove map {path} successful', verbose)
                     ok = True
             else:
                 cnsl.log('Cannot remove {path}.\nMap does not exist.', verbose)
@@ -196,7 +196,7 @@ def unzip(zip, txt, verbose=cfg.verbose):
         except Exception as e:
             cnsl.log(f'Error unzip\n{e}', cfg.error)
         else:
-            cnsl.log('Unzip success', verbose)
+            cnsl.log(f'[{ymd.now()}] Unzip success', verbose)
             ok = True
     return ok
 
@@ -217,14 +217,14 @@ def download(
         ok = True
     else:
         with threading.Lock():
-            if url_exists(url, verbose): # Check if a url exists
+            if url_exists(url, False): # Check if a url exists
                 try:
-                    mk_dir(os.path.dirname(path), verbose) # Make map if not exists
+                    mk_dir(os.path.dirname(path), False) # Make map if not exists
                     urllib.request.urlretrieve( url, path ) # Download file
                 except Exception as e:
                     cnsl.log(f'Error in download {e}', cfg.error)
                 else:
-                    cnsl.log('Download success', verbose)
+                    cnsl.log(f'[{ymd.now()}] Download success', verbose)
                     ok = True
             else:
                 cnsl.log(f'Url {url} does not exist', True)
@@ -240,7 +240,7 @@ def download(
 
 def download_read_file(url, file, verbose=cfg.verbose):
     '''Function downloads a file, read the file and return the content of the file'''
-    ok, t = False, cfg.empthy
+    ok, t = False, cfg.e
     cnsl.log(f'[{ymd.now()}] download and read', verbose)
     cnsl.log(f'Url: {url}', verbose)
     cnsl.log(f'To file: {url}', verbose)
@@ -257,7 +257,7 @@ def request(url, type='txt', verbose=cfg.verbose):
     '''Function makes the request based on the url given as parameter
        The return values are: ok, True if success else False... And the text From
        the request.'''
-    ok, t = False, cfg.empthy
+    ok, t = False, cfg.e
     cnsl.log(f'[{ymd.now()}] {type} - request', verbose)
     cnsl.log(f'Url: {url}', verbose)
     with threading.Lock():
@@ -271,7 +271,7 @@ def request(url, type='txt', verbose=cfg.verbose):
         except Exception as e:
             cnsl.log(f'Error request\n{e}', cfg.error)
         else:
-            cnsl.log('Request success', verbose)
+            cnsl.log(f'[{ymd.now()}] Request success', verbose)
             ok = True
     return ok, t
 
@@ -417,8 +417,8 @@ def lst_maps(map, recursive=True, secret=True, verbose=cfg.verbose):
 
 def lst_files_dir(
         dir,             # Dir to search for files
-        extensions = cfg.empthy, # <optional> List of extensions or one string ext to search the map for
-        keywords   = cfg.empthy, # <optional> List of keyword or one string to search the directory for
+        extensions = cfg.e, # <optional> List of extensions or one string ext to search the map for
+        keywords   = cfg.e, # <optional> List of keyword or one string to search the directory for
         case_insensitive = True, # <optional> Search case insensitive. True by default.
         verbose = cfg.verbose  # <optional> Overwrite verbose option
     ):
