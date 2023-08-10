@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.2'
+__version__    =  '0.1.3'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -24,22 +24,22 @@ path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data
 
 def calculate(options):
     ok = True
-    cnsl.log(f'[{ymd.now()}] Start {options["title"]}', True)
+    cnsl.log(f'[{ymd.now()}] Start {options[text.ask_title]}', True)
     path_ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
-    ftyp = options['file-type']
+    ftyp = options[text.ask_file_type]
     # input(ftyp)
 
-    for station in options['lst-stations']:
+    for station in options[text.ask_stations]:
         cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
 
-        if options['download']:
+        if options[text.ask_download]:
             daydata.process_data( station )
 
         ok, np_data_2d = daydata.read(station) # Read data stations
-        days = stats.Days(station, np_data_2d, options['period']) # Get Days object with correct days
+        days = stats.Days(station, np_data_2d, options[text.ask_period]) # Get Days object with correct days
 
         # Make base path and wmo dir
-        base_dir = ''
+        base_dir = cfg.e
         if   ftyp in text.lst_output_htm: base_dir = cfg.dir_dayvalues_htm
         elif ftyp in text.lst_output_txt: base_dir = cfg.dir_dayvalues_txt
         wmo_dir = fio.mk_path(base_dir, station.wmo)
@@ -57,13 +57,13 @@ def calculate(options):
             # input(path)
 
             # Skip ?
-            if options['write'] == 'add':
+            if options[text.ask_write_dayval] == 'add':
                 if fio.check(path, verbose=False):  # Check if there is a file
-                    t  = f'[{ymd.now()}] Skipped {options["file-type"]} dayvalues for {station.place} ...{path[-57:]}'
+                    t  = f'[{ymd.now()}] Skipped {options[text.ask_file_type]} dayvalues for {station.place} ...{path[-57:]}'
                     cnsl.log_r(t, True)
                     continue # If already there skip 
     
-            t  = f'[{ymd.now()}] Write {options["file-type"]} dayvalues for {station.place} ...{path[-57:]}'
+            t  = f'[{ymd.now()}] Write {options[text.ask_file_type]} dayvalues for {station.place} ...{path[-57:]}'
             cnsl.log_r(t, True)
 
             # Get all data elements from a dayc
@@ -74,8 +74,8 @@ def calculate(options):
             # input(stn)
 
             # Make text or htm for entities given in 'lst-sel-cells'
-            htm, txt = '', ''
-            for cell in options['lst-sel-cells']:
+            htm, txt = cfg.e, cfg.e
+            for cell in options[text.ask_select_cells]:
                 if ftyp in text.lst_output_htm:
                     if   cell == 'tx':    htm += html.day_value_tx(tx,txh)
                     elif cell == 'tg':    htm += html.day_value_tg(tg)
