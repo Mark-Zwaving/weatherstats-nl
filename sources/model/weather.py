@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.6'
+__version__    =  '0.0.8'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -21,15 +21,15 @@ def buienradar_table_stations(lst, cols=8, spaces=33):
                  'precipitation', 'humidity', 'airpressure', 'sunpower' ]
                  # 'winddirectiondegrees',
     title_pad, value_pad = 16, 18
-    t, ndx, end, max = '', 0, cols, len(lst)
+    t, ndx, end, max = cfg.e, 0, cols, len(lst)
     
     while True:
         part = lst[ndx:end]
         for enties in entities:
             if enties == 'weatherdescription':
-                enties = enties.replace('weather', '')
+                enties = enties.replace('weather', cfg.e)
             title = enties + ' '
-            post_fix = ''
+            post_fix = cfg.e
             if enties in ['temperature', 'feeltemperature']:
                 post_fix = '°C'
             elif enties == 'humidity':
@@ -44,17 +44,17 @@ def buienradar_table_stations(lst, cols=8, spaces=33):
                 post_fix = 'mm'
 
             t += text.padding( title, align='right', spaces=title_pad )
-            el_t = ''
+            el_t = cfg.e
             for station in part:
                 if enties in station:
                     el = str(station[enties])
-                    if el == '':
+                    if el == cfg.e:
                         el = '....'
                     else:
                         if enties == 'timestamp':
                             el = el.replace('T', ' ')[:-3]
                         elif enties == 'stationname':
-                            el = el.replace('Meetstation','')
+                            el = el.replace('Meetstation',cfg.e)
                         el += post_fix
                 else:
                     el = '....'
@@ -74,7 +74,7 @@ def buienradar_table_forecast(lst, spaces=30):
     entities = [ 'day', 'maxtemperature', 'mintemperature', 'rainChance',
                  'sunChance', 'windDirection', 'wind' ] #'weatherdescription'
     title_pad, value_pad = 15, 12
-    t = ''
+    t = cfg.e
     for enties in entities:
         # Make title and post fix
         title, post_fix = enties + ' ', ' '
@@ -90,10 +90,10 @@ def buienradar_table_forecast(lst, spaces=30):
             post_fix = 'hPa'
 
         t += text.padding( title, align='right', spaces=title_pad )
-        el_t = '' # Alsways one space separator
+        el_t = cfg.e # Alsways one space separator
         for day in lst:
             el = str(day[enties])
-            el = cfg.no_data_given if el == '' else el + post_fix
+            el = cfg.no_val if el == cfg.e else el + post_fix
 
             if enties == 'day': el = el[:10]
             el_t += text.padding(el, align='center', spaces=value_pad)
@@ -134,16 +134,16 @@ def buienradar_weather_json(verbose=cfg.verbose):
         t = t.replace('&nbsp;', ' ')
         t = text.clean(t)
 
-        tt, sentence, cnt, max_sentence, max_len = '', '', 1, 8, 64  # Count words
+        tt, sentence, cnt, max_sentence, max_len = cfg.e, cfg.e, 1, 8, 64  # Count words
         for word in t.split(' '):
             sentence += word + ' ' # Make sentences of words
             if word[-1] == '.' and cnt >= max_sentence: # End of paragraph
                 tt += sentence + '\n\n' # Add white row
-                sentence = '' # Reset sentence
+                sentence = cfg.e # Reset sentence
                 cnt = 1 # Reset counter
             elif len(sentence) > max_len: # Not (much) longer than X chars
                 tt += sentence + '\n' # Add enter
-                sentence = '' # Reset sentence
+                sentence = cfg.e # Reset sentence
                 cnt += 1 # Count rows 
         tt += sentence # Add left over   
 
@@ -165,13 +165,13 @@ def knmi_table_stations(lst, cols=8, spaces=33):
                  'humidity', 'wind_direction', 'wind_strength',
                  'visibility', 'air_pressure' ]
     title_pad, value_pad = 14, 16
-    t, ndx, end, max = '', 0, cols, len(lst)
+    t, ndx, end, max = cfg.e, 0, cols, len(lst)
     while True:
         part = lst[ndx:end]
         for enties in entities:
 
-            title = enties.replace('_','') + ' '
-            post_fix = ''
+            title = enties.replace('_',cfg.e) + ' '
+            post_fix = cfg.e
             if enties in ['temperature', 'windchill']: post_fix = '°C'
             elif enties == 'humidity':      post_fix = '%'
             elif enties == 'wind_strength': post_fix = 'bft'
@@ -179,12 +179,12 @@ def knmi_table_stations(lst, cols=8, spaces=33):
             elif enties == 'air_pressure':  post_fix = 'hPa'
 
             t += text.padding(title, align='right', spaces=title_pad)
-            el_t = ''
+            el_t = cfg.e
             for station in part:
-                el = ''
+                el = cfg.e
                 if enties in station:
                     el = str(station[enties])
-                el = cfg.no_data_given if el == '' else el + post_fix
+                el = cfg.no_val if el == cfg.e else el + post_fix
                 el_t += text.padding(el[:value_pad-2], align='center', spaces=value_pad)
             t += el_t + '\n'
         t += '\n'
@@ -199,7 +199,7 @@ def knmi_table_stations(lst, cols=8, spaces=33):
     return t
 
 def knmi_stations_json(verbose=cfg.verbose):
-    t = ''
+    t = cfg.e
     url = cfg.knmi_json_data_10min
     ok, js = fio.request_json( url, verbose=verbose)
     if ok: # If download is oke, prepare the results
@@ -221,7 +221,7 @@ def knmi_stations_json(verbose=cfg.verbose):
     return ok, t
 
 def process_knmi(url, path, verbose=cfg.verbose):
-    ok, t = False, ''
+    ok, t = False, cfg.e
     ok = fio.mk_dir(dir, verbose=verbose) # Make map
     wget.download(url, path, bar=None)  # Download
 
