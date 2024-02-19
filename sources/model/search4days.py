@@ -175,7 +175,7 @@ def calculate(places, period, query, type, fname):
 
     # Make path if it is a html or txt file
     dir = utils.mk_path(cfg.dir_search4days, type)
-    path = utils.mk_path(dir, f'{fname}.{type}')
+    path_to_file = utils.mk_path(dir, f'{fname}.{type}')
     fio.mk_dir(dir)
 
     if type =='html':
@@ -308,24 +308,24 @@ def calculate(places, period, query, type, fname):
         </table>
         '''
 
-        path_to_root = './../../' # Path to html root
         cnsl.log('\nWrite/print results... ', True)
 
         # Write to html, screen, console
-        page           =  vhtml.Template()
-        page.title     =  title
-        page.main      =  html
-        page.strip     =  True
-        page.path_to_root = path_to_root
-        page.file_path = path
+        page       =  vhtml.Template()
+        page.title =  title
+        page.main  =  html
+        page.strip =  True
+        page.path_to_root = cfg.path_to_html_root
+        page.path_to_thirdparty = cfg.path_to_thirdparty
+        page.path_to_file = path_to_file
         # Styling
-        page.css_files = [ f'{path_to_root}search4days/css/default.css',
-                           f'{path_to_root}static/css/table-statistics.css',
-                           f'{path_to_root}search4days/css/search4days.css' ]
+        page.css_files = [ f'{cfg.path_to_html_root}css/default.css',
+                           f'{cfg.path_to_html_root}css/table-statistics.css',
+                           f'{cfg.path_to_html_root}css/search4days.css' ]
         # Scripts
-        page.script_files = [ f'{path_to_root}search4days/js/search4days.js',
-                              f'{path_to_root}static/js/sort-col.js',
-                              f'{path_to_root}static/js/default.js' ]
+        page.script_files = [ f'{cfg.path_to_html_root}js/search4days.js',
+                              f'{cfg.path_to_html_root}js/sort-col.js',
+                              f'{cfg.path_to_html_root}js/default.js' ]
         page.save()
 
     elif type == 'text':
@@ -335,4 +335,4 @@ def calculate(places, period, query, type, fname):
         # TODO
         pass
 
-    return path
+    return path_to_file
