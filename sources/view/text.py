@@ -206,12 +206,14 @@ lst_menu_graphs = [ 'GRAPHS', [
 ] ]
 
 lst_menu_weather = [ 'WEATHER (dutch)', [ 
+    # Klasse!
     [ 'Buienradar Forecast',                menu_buienradar_forecast    ],
     [ 'Buienradar Stations NL',             menu_buienradar_act_values  ],
-    [ 'KNMI Forecast weather',              menu_knmi_forecast          ],
-    [ 'KNMI Forecast guidance short term',  menu_knmi_forecast_guidance ],
-    [ 'KNMI Forecast model long term',      menu_knmi_forecast_model    ],
-    [ 'KNMI Stations NL',                   menu_knmi_act_values        ],
+    # :( Oke jammer, ftp pub knmi opgeheven
+    # [ 'KNMI Forecast weather',              menu_knmi_forecast          ],
+    # [ 'KNMI Forecast guidance short term',  menu_knmi_forecast_guidance ],
+    # [ 'KNMI Forecast model long term',      menu_knmi_forecast_model    ],
+    # [ 'KNMI Stations NL',                   menu_knmi_act_values        ],
 ] ]
 
 # TODO
@@ -222,51 +224,83 @@ lst_menu_database = [ 'DATABASES SQLITE TODO', [
 ] ]
 
 # Ask options
-ask_title          = 'title'
-ask_colspan        = 'colspan'
-ask_other_menu     = 'other-menu'
-ask_start_date     = 'start-datetime'
-ask_end_date       = 'end-datetime'
-ask_period         = 'period'
-ask_per1           = ask_period
-ask_per2           = 'periode-2'
-ask_per_compare    = 'period-cmp'
-ask_file_type      = 'file-type'
-ask_filename       = 'file-name'
-ask_download       = 'download'
-ask_download_url   = 'image-download-url'
+ask_title             = 'title'
+ask_colspan           = 'colspan'
+ask_other_menu        = 'other-menu'
+ask_start_datetime    = 'start-datetime'
+ask_end_datetime      = 'end-datetime'
+ask_period            = 'period'
+ask_per1              = ask_period
+ask_per2              = 'periode-2'
+ask_per_compare       = 'period-cmp'
+ask_file_type         = 'file-type'
+ask_filename          = 'file-name'
+ask_download          = 'download'
+ask_download_url      = 'image-download-url'
 ask_download_interval = 'interval-download'
-ask_animation_name = 'animation-name'
-ask_animation_time = 'animation-time' 
-ask_rm_downloads   = 'remove-downloads' 
-ask_gif_compress   = 'gif-compress'
-ask_stations       = 'lst-stations'
-ask_select_cells   = 'lst-sel-cells'
-ask_diy_cells      = 'lst-diy-cells'
-ask_write_dayval   = 'write-dayvalues'
-ask_s4d_query      = 's4d-query'
-ask_clima_period   = 'clima-period'
-ask_verbose        = 'verbose'
-ask_graph_title    = 'graph-title'
-ask_graph_ylabel   = 'graph-y-label'
-ask_graph_default  = 'graph-default'
-ask_graph_width    = 'graph-width'
-ask_graph_height   = 'graph-height'
-ask_graph_cummul_val = 'graph-cummul-val'
-ask_graph_type     = 'graph-type'
-ask_graph_dpi      = 'graph-dpi'
-ask_graph_entities = 'graph-lst-entities-types'
+ask_animation_name    = 'animation-name'
+ask_animation_time    = 'animation-time' 
+ask_rm_downloads      = 'remove-downloads' 
+ask_gif_compress      = 'gif-compress'
+ask_stations          = 'lst-stations'
+ask_select_cells      = 'lst-sel-cells'
+ask_diy_cells         = 'lst-diy-cells'
+ask_write_dayval      = 'write-dayvalues'
+ask_s4d_query         = 's4d-query'
+ask_clima_period      = 'clima-period'
+ask_entities          = 'lst-entities'
+ask_verbose           = 'verbose'
+
+# Graph specific
+ask_graph_title       = 'graph-title'
+ask_graph_ylabel      = 'graph-y-label'
+ask_graph_default     = 'graph-default'
+ask_graph_width       = 'graph-width'
+ask_graph_height      = 'graph-height'
+ask_graph_cummul_val  = 'graph-cummul-val'
+ask_graph_type        = 'graph-type'
+ask_graph_dpi         = 'graph-dpi'
+ask_graph_extension   = 'graph-extension'
+
+ask_graph_entities                      = 'graph-entities'
+ask_graph_entities_options              = 'graph-entities-options'
+ask_graph_entity                        = 'graph_entity'
+ask_graph_entity_type                   = 'graph_type'
+ask_graph_entity_line_width             = 'graph_line-width'
+ask_graph_entity_marker_size            = 'graph_marker-size'
+ask_graph_entity_marker_text            = 'graph_marker-text'
+ask_graph_entity_min_max                = 'graph_min-max-period'
+ask_graph_entity_climate_ave            = 'graph_climate-ave'
+ask_graph_entity_climate_ave_marker_txt = 'graph_climate-ave-marker-txt'
+ask_graph_entity_climate_yyyy_start     = 'graph_climate-yyyy-start'
+ask_graph_entity_climate_yyyy_end       = 'graph_climate-yyyy-end'
+ask_graph_entity_climate_period         = 'graph_climate-periode'
+
 
 # Questions to ask
-lst_ask_stats           = [ask_stations, ask_period, ask_file_type, ask_filename]
-lst_ask_stats_diy       = [ask_stations, ask_period, ask_select_cells, ask_file_type, ask_filename]
-lst_ask_stats_p1_p2_diy = [ask_stations, ask_per1, ask_per2, ask_select_cells, ask_file_type, ask_filename]
-lst_ask_stats_compare   = [ask_stations, ask_period, ask_per_compare, ask_select_cells, ask_file_type, ask_filename]
-lst_ask_download        = [ask_download_url, ask_start_date, ask_end_date, ask_download_interval]
-lst_ask_animation       = [ask_animation_name, ask_animation_time, ask_rm_downloads, ask_gif_compress]
-lst_ask_make_dayval     = [ask_stations, ask_period, ask_file_type, ask_write_dayval]
-lst_ask_see_dayval      = [ask_stations, ask_period, ask_file_type, ask_write_dayval]
-lst_ask_search_4_day    = [ask_stations, ask_period, ask_s4d_query, ask_file_type, ask_filename]
+lst_ask_stats           = [ ask_stations, ask_period, ask_file_type, ask_filename]
+lst_ask_stats_diy       = [ ask_stations, ask_period, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_stats_p1_p2_diy = [ ask_stations, ask_per1, ask_per2, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_stats_compare   = [ ask_stations, ask_period, ask_per_compare, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_download        = [ ask_download_url, ask_start_datetime, ask_end_datetime, ask_download_interval]
+lst_ask_animation       = [ ask_animation_name, ask_animation_time, ask_rm_downloads, ask_gif_compress]
+lst_ask_make_dayval     = [ ask_stations, ask_period, ask_file_type, ask_write_dayval]
+lst_ask_see_dayval      = [ ask_stations, ask_period, ask_file_type, ask_write_dayval]
+lst_ask_search_4_day    = [ ask_stations, ask_period, ask_s4d_query, ask_file_type, ask_filename]
+lst_ask_graph = [ 
+    ask_stations, ask_period, ask_graph_entities, ask_filename, ask_file_type, 
+    ask_graph_title, ask_graph_ylabel, ask_graph_default, ask_graph_width, 
+    ask_graph_height, ask_graph_cummul_val, ask_graph_dpi, ask_graph_entities_options 
+]
+lst_ask_graph_entities = [
+    ask_graph_entity_type, ask_graph_entity_marker_text, ask_graph_entity_min_max, 
+    ask_graph_entity_climate_ave, ask_graph_entity_climate_ave_marker_txt, ask_graph_entity_climate_period, 
+    ask_graph_entity_climate_yyyy_start, ask_graph_entity_climate_yyyy_end
+]
+
+# 'lst-stations', 'period', 'lst-entities', 'file-name', 'graph-type',
+# 'graph-title', 'graph-y-label', 'graph-default','graph-width',
+# 'graph-height', 'graph-cummul-val','graph-dpi', 'graph-lst-entities-types'
 
 # [ 'QUICK IO <TODO>',
 #     [ [ 'Quick statistics', cquick_stats_io ],
@@ -288,18 +322,24 @@ No internet and no data! Not much can be done now.
 '''
 
 menu_image_download_examples = '''
-DOWNLOAD IMAGES EXAMPLES
+DOWNLOAD EXAMPLE URLS
 # KNMI
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windkracht.png 
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windsnelheid.png 
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/maxwindkm.png 
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/temperatuur.png 
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/relvocht.png 
-https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/zicht.png 
+Temperature:         https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/temperatuur.png  
+Windforce:           https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windkracht.png 
+Windspeed:           https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/windsnelheid.png 
+Windblast:           https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/maxwindkm.png 
+Moisture:            https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/relvocht.png 
+View:                https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/zicht.png 
+
 # Weerplaza 
-https://oud.weerplaza.nl/gdata/10min/GMT_T10C_latest.png'  # Temp 10cm
-https://oud.weerplaza.nl/gdata/10min/nl_10min.jpg'         # Weather
-https://oud.weerplaza.nl/gdata/10min/GMT_TTTT_latest.png'  # Temp 2 meter
+Temperature:         https://oud.weerplaza.nl/gdata/10min/GMT_TTTT_latest.png
+Temperature (10cm):  https://oud.weerplaza.nl/gdata/10min/GMT_T10C_latest.png
+Current weather:     https://oud.weerplaza.nl/gdata/10min/nl_10min.jpg
+Windforce:           https://oud.weerplaza.nl/gdata/10min/GMT_FFFF_latest.png 
+Windblast:           https://oud.weerplaza.nl/gdata/10min/GMT_FXFF_latest.png
+Cloud cover:         https://oud.weerplaza.nl/gdata/10min/GMT_NNNN_latest.png 
+Moisture:            https://oud.weerplaza.nl/gdata/10min/GMT_RHRH_latest.png
+View:                https://oud.weerplaza.nl/gdata/10min/GMT_VVVV_latest.png 
 '''
 
 menu_info_quick_calculations = '''
