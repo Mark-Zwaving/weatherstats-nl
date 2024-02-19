@@ -18,10 +18,6 @@ import sources.control.fio as fio
 import sources.view.console as cnsl
 import sources.model.ymd as ymd
 
-# Relative from the made html station dayvalues files 
-# Example: /280/2024/04/dayvalues-280-2024-01-01.html
-path_to_dayvalues_html = './../../..' # Three time up (wmo/year/month) from data html file 
-
 def calculate(options):
     ok = True
     cnsl.log(f'[{ymd.now()}] Start {options[text.ask_title]}', True)
@@ -52,18 +48,18 @@ def calculate(options):
             # Make path. Get year, month and day
             y, m, d = ymd.split_yyyymmdd(day[daydata.etk('yyyymmdd')])
             ym_dir = fio.mk_path(wmo_dir, f'{y}/{m}') # Make path year/month
-            path = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}{text.file_extension(ftyp)}')
+            path_to_file = fio.mk_path(ym_dir, f'dayvalues-{station.wmo}-{y}-{m}-{d}{text.file_extension(ftyp)}')
 
-            # input(path)
+            # input(path_to_file)
 
             # Skip ?
             if options[text.ask_write_dayval] == 'add':
-                if fio.check(path, verbose=False):  # Check if there is a file
-                    t  = f'[{ymd.now()}] Skipped {options[text.ask_file_type]} dayvalues for {station.place} ...{path[-57:]}'
+                if fio.check(path_to_file, verbose=False):  # Check if there is a file
+                    t  = f'[{ymd.now()}] Skipped {options[text.ask_file_type]} dayvalues for {station.place} ...{path_to_file[-57:]}'
                     cnsl.log_r(t, True)
                     continue # If already there skip 
     
-            t  = f'[{ymd.now()}] Write {options[text.ask_file_type]} dayvalues for {station.place} ...{path[-57:]}'
+            t  = f'[{ymd.now()}] Write {options[text.ask_file_type]} dayvalues for {station.place} ...{path_to_file[-57:]}'
             cnsl.log_r(t, True)
 
             # Get all data elements from a dayc
@@ -128,11 +124,13 @@ def calculate(options):
 
             # HTML object
             page = html.Template()
-            page.add_js_file(f'{path_to_dayvalues_html}/js/default.js') # Add own content
+            page.add_js_file(f'{cfg.path_to_html_root}js/default.js') # Add own content
             page.template = cfg.html_template_dayvalues
             page.verbose = False
-            page.strip  = True
-            page.path = path
+            page.strip = True
+            page.path_to_file = path_to_file
+            page.path_to_root = cfg.path_to_html_root
+            page.path_to_thirdparty = cfg.path_to_thirdparty
             page.add_description(f'Dayvalues for {station.wmo} {station.place} on {datestring}' )
             page.title  = f'{station.wmo} {station.place} {datestring}'
             page.header = header
@@ -145,4 +143,4 @@ def calculate(options):
 
         cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', True)
 
-    return ok, path_ndx_html # Make link html only. NOPE
+    return ok, path_ndx_html # Make link html only. 
