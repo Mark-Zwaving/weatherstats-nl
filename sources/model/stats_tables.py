@@ -58,9 +58,9 @@ def calculate(options, type='normal'):
     csv = f'{head_csv}\n{body_csv}\n{foot_csv}' # Csv data
 
     # Output to screen or file(s) 
-    ok, path = output(htm, txt, csv, options)
+    ok, path_to_file = output(htm, txt, csv, options)
 
-    return ok, path
+    return ok, path_to_file
 
 def js_script_fn( option, sort_type, sort_dir, row_num, col_num ):
     '''Function makes an JavaScript object to handle a function call for sorting the table column'''
@@ -393,7 +393,7 @@ def foot(options):
 
 def output(htm, txt, csv, options):
     '''Make output to screen or file(s)'''
-    ok, path, ftyp = True, cfg.e, options[text.ask_file_type] 
+    ok, path_to_file, ftyp = True, cfg.e, options[text.ask_file_type] 
     # input(ftyp)
 
     if ftyp in text.lst_output_cnsl or cfg.console:  # For console
@@ -407,14 +407,16 @@ def output(htm, txt, csv, options):
         elif ftyp in text.lst_output_csv:   data, map = csv, cfg.dir_stats_csv
         elif ftyp in text.lst_output_excel: data, map = csv, cfg.dir_stats_excel
 
-        path, map, _ = utils.mk_path_with_dates(map, fname) # Update dir with date maps
+        path_to_file, map, _ = utils.mk_path_with_dates(map, fname) # Update dir with date maps
         fio.mk_dir( map, verbose=False ) # Make dir if not there yet 
 
         if ftyp in text.lst_output_htm: # Create html file
             page = html.Template()
             page.template = cfg.html_template_statistics
             page.verbose = False
-            page.path  = path
+            page.path_to_file = path_to_file
+            page.path_to_root = cfg.path_to_html_root
+            page.path_to_thirdparty = cfg.path_to_thirdparty
             page.title = options[text.ask_title]
             page.add_description(f'{options[text.ask_title]} {", ".join(options[text.ask_select_cells])}')
             page.main = data
@@ -423,10 +425,10 @@ def output(htm, txt, csv, options):
                 cnsl.log( f'Save {ftyp} file failed!', cfg.error )
 
         elif ftyp in text.lst_output_txt + text.lst_output_csv: # text, csv
-            ok = fio.save( path, data, verbose=True )  # Schrijf naar bestand
+            ok = fio.save( path_to_file, data, verbose=True )  # Schrijf naar bestand
 
         elif ftyp in text.lst_output_excel: # Convert csv to excel 
             csv_data = pd.read_table(data, sep=cfg.csv_sep ) # Read the csv data with panda
-            csv_data.to_excel(path, index = None, header=True) # Write excel file
+            csv_data.to_excel(path_to_file, index = None, header=True) # Write excel file
 
-    return ok, path
+    return ok, path_to_file
