@@ -306,13 +306,8 @@ def graph_period():
 
         # Ask list with questions
         title = 'graph statistics'
-        lst_ask = [
-            'lst-stations', 'period', 'lst-entities', 'file-name', 'graph-type',
-            'graph-title', 'graph-y-label', 'graph-default','graph-width',
-            'graph-height', 'graph-cummul-val','graph-dpi', 'graph-lst-entities-types'
-        ]
-        options = ask.lst(lst_ask, title, default=cfg.e, back=True, prev=True, exit=True, spacer=True)
-        options[text.ask_file_type] = options[text.ask_graph_type] # For use in execute with default app
+        options = ask.lst(text.lst_ask_graph, title, default=cfg.e, back=True, prev=True, exit=True, spacer=True)
+        options[text.ask_file_type] = options[text.ask_graph_extension] # For use in execute with default app
 
         if answer.is_back(text.ask_other_menu): break # Go back to menu
 
@@ -572,10 +567,13 @@ def select_menu_option( option ):
     # Weather
     elif option == text.menu_buienradar_forecast:         weather_buienradar_forecast()
     elif option == text.menu_buienradar_act_values:       weather_buienradar_current()
+
+    # Oke jammer! ftp pub opgeheven
     elif option == text.menu_knmi_forecast:               weather_knmi_forecast()
     elif option == text.menu_knmi_forecast_model:         weather_knmi_model()
     elif option == text.menu_knmi_forecast_guidance:      weather_knmi_guidance()
     elif option == text.menu_knmi_act_values:             weather_knmi_current()
+
     # Animations
     elif option == text.menu_anim_download_animation:     download_animation()
     elif option == text.menu_anim_download_images:        download_images()
