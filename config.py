@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.1.0' 
+__version__    = '0.1.1' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -49,24 +49,21 @@ html_strip = True
 ################################################################################
 # Config base maps
 dir_app            = os.path.abspath(os.path.dirname(__file__))
-dir_www            = os.path.abspath('/var/www/html')  # For a webserver
 dir_data           = os.path.join(dir_app,  'data')
-dir_statistics     = os.path.join(dir_data, 'statistics')
 dir_templates      = os.path.join(dir_data, 'templates')
-dir_forecasts      = os.path.join(dir_data, 'forecasts')    # Downloaded forecasts
-dir_thirdparty     = os.path.join(dir_data, 'thirdparty')
+dir_forecasts      = os.path.join(dir_data, 'forecasts')  # Downloaded forecasts
+dir_thirdparty     = os.path.join(dir_data, 'thirdparty') 
 dir_graphs         = os.path.join(dir_data, 'graphs')
 dir_download       = os.path.join(dir_data, 'downloads')
 dir_animation      = os.path.join(dir_data, 'animations')
 dir_database       = os.path.join(dir_data, 'database')
-
 dir_dayvalues      = os.path.join(dir_data, 'dayvalues') # Dayvalues
 dir_dayvalues_zip  = os.path.join(dir_dayvalues, 'zip')  # knmi zip files
 dir_dayvalues_txt  = os.path.join(dir_dayvalues, 'txt')  # knmi text files
 dir_dayvalues_htm  = os.path.join(dir_dayvalues, 'html') # knmi html files from text
-
-dir_stats_txt      = os.path.join(dir_statistics, 'text')
+dir_statistics     = os.path.join(dir_data, 'statistics')
 dir_stats_htm      = os.path.join(dir_statistics, 'html')
+dir_stats_txt      = os.path.join(dir_statistics, 'text')
 dir_stats_csv      = os.path.join(dir_statistics, 'csv')
 dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 
@@ -74,8 +71,41 @@ dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 html_template_dayvalues  = os.path.join(dir_templates, 'dayvalues.html')
 html_template_statistics = os.path.join(dir_templates, 'statistics.html')
 
-# Path database TODO maybes
+# Hom many dir up is the html root, in the data/statistics map ?
+# Paths for css, im and js files, relatieve to the made html files 
+# Example: /280/2024/04/dayvalues-280-2024-01-01.html
+path_to_html_root = './../../../' # Three times up: day, month and wmo num
+
+# How many dirs up is the thirdparty map ?
+# Used for references to the thirdparty map in the html files
+# E.g: dayvalues/html/yyyy/mm/dd/ (=5x up)
+# E.g: statistics/html/yyyy/mm/dd/ (=5x up)
+# Dayvalues en statistics maps are alway the same
+path_to_thirdparty = './../../../../../' 
+
+# Path database TODO maybe later
 db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
+
+# Webserver 
+webserver = True  # Set to true to save the html files to a (local) webserver 
+dir_www = os.path.abspath('/var/www/html/weatherstats') # Enter a map for a webserver
+# ! If webserver set to True. 
+# Do not forget to copy/move the whole thirdparty directory (with bootstrap, js-files et cet.) 
+# to your webserver directory too.
+# For statistics (html)
+#  - Copy the css, img en js maps in the data/statistics map 
+#    to the statistics map on the webserver
+# For dayvalues (html)
+#  - Copy the css, img en js maps and the files index.html and dummy.html 
+#    to the dayvalues map on the webserver.
+#    In the html files update the paths to the thirdparty maps
+
+if webserver: # Oké, let's save the html files on the webserver
+    dir_dayvalues_htm = os.path.join(dir_www, 'dayvalues') # knmi html files from text
+    dir_stats_htm  = os.path.join(dir_www, 'statistics')
+    dir_thirdparty = os.path.join(dir_www, 'thirdparty')
+    # Update path (relative) to your thirdparty map on the webserver 
+    path_to_thirdparty  = './../../../../'
 
 ################################################################################
 # KNMI Weather
