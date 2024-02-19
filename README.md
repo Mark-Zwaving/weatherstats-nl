@@ -37,7 +37,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 #### Install (possible) missing libraries for python3.8
 ```sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev -y ```
 #### Configure source code 
- ./configure --enable-optimizations --with-lto --enable-shared
+``` ./configure --enable-optimizations --with-lto --enable-shared ``` 
 #### Compile the source code
 ```make```
 #### Make an alternative install for python3.8
@@ -45,7 +45,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 #### Add the shared python3.8 map to the shared dynamic linker
 ```sudo ldconfig /usr/local/share/python3.9```
 #### Check the new python3.8 installation
-```python3.9 --version```
+```python3.8 --version```
   
 #### Install necessary python3 libraries for weatherstats-nl 
 #### Which python3 libraries are needed?  
@@ -64,7 +64,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 ```python3.8 -m venv venv-py3.8```  
 
 #### Activate the virtual environment 
-```source venv-py37/bin/activate```  
+```source venv-py3.8/bin/activate```  
 
 #### Install all the needed python3 libraries from the file requirements.txt 
 ```python -m pip install -r requirements.txt ```  
