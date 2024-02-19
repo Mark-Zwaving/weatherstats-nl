@@ -315,7 +315,7 @@ remove_download = False       # Delete the dowloaded images after the aniamtion 
 # Plotting default values
 # Use of default values (below) ? Or add values at runtime ?
 plot_default = 'y'
-plot_show = 'y'  # Show the plot directly -> matplotlib.show(). yess (y) or no (n)
+plot_show = 'n'  # Show the graph directly after it is made. yess (y) or no (n)
 plot_tight_layout = 'y'  # Use of matplotlib.tight_layout(). yess (y) or no (n)
 # Plot resolutions default.
 # Example month -> width 1600 x height 900. More days may need more width
@@ -438,6 +438,9 @@ e = empthy     = ''
 nv = no_val    = '.'  # Replacement for no output
 txt_data_error = 'x' 
 date_false     = -1 
+T = True
+F = False
+e = empthy     = '' 
 
 # Descending min or max
 html_max = True
