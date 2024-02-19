@@ -3,7 +3,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.5'
+__version__    =  '0.1.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -12,7 +12,6 @@ import statistics
 import math, sys, numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
-from threading import Thread
 import sources.model.stats as stats
 import sources.model.daydata as daydata
 import sources.model.utils as utils
@@ -30,42 +29,6 @@ def text_diff( l ):
     return (mp - mm) / 15.0
 
 def calculate( options ):
-    # { 
-    # 'title': name, 
-    # 'lst-stations': stations,
-    # 'period': per_1, 
-    # 'period-2': per_2, 
-    # 'period-cmp': per_cmp,
-    # 'lst-sel-cells': lst_sel_cel,
-    # 's4d-query': s4d, 
-    # 'rewrite': rewrite, 
-    # 'file-type': f_type,
-    # 'file-name': f_name,
-    # 'graph-title': graph_title,
-    # 'graph-y-label': graph_y_label, 
-    # 'graph-default': graph_default,
-    # 'graph-width': graph_width,
-    # 'graph-height': graph_height,
-    # 'graph-cummul-val': graph_cummul_val,
-    # 'graph-type': graph_type,
-    # 'graph-dpi': graph_dpi, 
-    # 'graph-lst-entities-options': graph_lst_entities_options,
-    # 'quit': quit
-    # } 
-    # {
-    # 'entity': entity, 
-    # 'line-bar': line_bar, 
-    # 'line-width': line_width, 
-    # 'marker-size': marker_size, 
-    # 'marker-text': marker_txt,
-    # 'min-max-ave-period': min_max_ave_period,  yn
-    # 'climate-ave': climate_ave, yn
-    # 'climate-ave-marker-txt': climate_ave_marker_txt,  yn
-    # 'climate-yyyy-start': climate_yyyy_start, 
-    # 'climate-yyyy-end': climate_yyyy_end,
-    # 'climate-periode': climate_periode
-    # }
-
     ok = True 
     t = f'[{ymd.now()}] Create <{options[text.ask_title]}>'
     cnsl.log(t, True)
@@ -101,8 +64,13 @@ def calculate( options ):
         days = stats.Days( station, np_data_2d, options[text.ask_period] )
         lst_ymd = days.lst_yyyymmdd() # Date lst
 
-        for graph in options[text.ask_graph_entities]:
-            entity = graph['entity'].upper()
+        # input(options[text.ask_graph_entities_options])
+
+        for graph in options[text.ask_graph_entities_options]:
+            entity = graph[text.ask_graph_entity].upper()
+
+            # input(f"\n{entity}\n")
+
             cnsl.log( f'Process weatherdata {station.place} for {entity}', cfg.verbose )
             np_entity_1d = days.np_period_2d[:, daydata.etk(entity)] # Get the values needed for the graph
 
@@ -120,7 +88,8 @@ def calculate( options ):
             if min_act < min_all: min_all = min_act
             if max_act > max_all: max_all = max_act
 
-            if answer.is_yes(graph['min-max-ave-period']):
+            # Min, max extremes
+            if answer.is_yes(graph[text.ask_graph_entity_min_max]):
                 # Calculate extremes and make correct output    
                 min_act, min_day, _ = days.min(entity)
                 max_act, max_day, _ = days.max(entity)        
@@ -139,7 +108,8 @@ def calculate( options ):
                 cnsl.log(ttt, cfg.verbose)
                 sub_txt += ttt + '\n'
  
-            if answer.is_yes( graph['climate-ave'] ):
+            # Calculation of climate averages
+            if answer.is_yes( graph[text.ask_graph_entity_climate_ave] ):
                 label_clima = f'Day climate {station.place} {text.ent_to_txt(entity)}'
                 ttt = f'Calculate climate value {entity} for {station.place}...'
                 cnsl.log(ttt, True)
@@ -148,14 +118,14 @@ def calculate( options ):
                 for yyyymmdd in lst_ymd:
                     mmdd = yyyymmdd[4:8]  # What day it is ? 
 
-                    period_days = f'{graph["climate-yyyy-start"]}-{graph["climate-yyyy-end"]}{mmdd}*'
+                    period_days = f'{graph[text.ask_graph_entity_climate_yyyy_start]}-{graph[text.ask_graph_entity_climate_yyyy_end]}{mmdd}*'
                     days_clima = stats.Days(station, np_data_2d, period_days) # Make new object
                     ave_raw, _ = days_clima.average(entity)
 
                     lst_clima.append(ave_raw) # Append raw data with)out correct rounding
                     txt_mmdd = datetime.strptime(yyyymmdd, '%Y%m%d' ).strftime('%B %d').lower()
 
-                    ttt  = f'Climate value {entity} for <{txt_mmdd}> in period <{graph["climate-periode"]}> '
+                    ttt  = f'Climate value {entity} for <{txt_mmdd}> in period <{graph[text.ask_graph_entity_climate_period]}> '
                     ttt += f'is { text.fix_ent(ave_raw, entity) }'
                     cnsl.log(ttt, cfg.verbose)
 
@@ -163,7 +133,7 @@ def calculate( options ):
                 if len(lst_clima) > 0:
                     clima_ave = statistics.mean(lst_clima) # Calculate average
                     ttt  = f'{station.place} {entity} mean={text.fix_ent(clima_ave, entity)} climate period '
-                    ttt += f'from { graph["climate-yyyy-start"] } to { graph["climate-yyyy-end"] }'
+                    ttt += f'from { graph[text.ask_graph_entity_climate_yyyy_start] } to { graph[text.ask_graph_entity_climate_yyyy_end] }'
                     cnsl.log(ttt, cfg.verbose)
                     sub_txt += ttt + '\n'
                 else:
@@ -173,7 +143,7 @@ def calculate( options ):
                 lst_clima = [ daydata.rounding(val, entity) for val in lst_clima ]
                 cnsl.log(' ', cfg.verbose)
 
-            if graph['line-bar'] == 'line':
+            if graph[text.ask_graph_entity_type] == 'line':
                 plt.plot( 
                     lst_ymd,
                     lst_val,
@@ -186,7 +156,7 @@ def calculate( options ):
                     alpha      = 0.7 
                 )
 
-            elif graph['line-bar'] == 'bar':
+            elif graph[text.ask_graph_entity_type] == 'bar':
                 plt.bar( 
                     lst_ymd, 
                     lst_val, 
@@ -196,7 +166,7 @@ def calculate( options ):
                 )
 
             # Climate averages always dotted lines
-            if answer.is_yes(graph['climate-ave']):
+            if answer.is_yes(graph[text.ask_graph_entity_climate_ave]):
                 plt.plot(
                     lst_ymd, 
                     lst_clima,
@@ -210,8 +180,8 @@ def calculate( options ):
                 )
 
             # Marker texts
-            diff = 0.2 if graph['line-bar'] == 'line' else 0.1
-            if answer.is_yes( graph['marker-text'] ):
+            diff = 0.2 if graph[text.ask_graph_entity_type] == 'line' else 0.1
+            if answer.is_yes( graph[text.ask_graph_entity_marker_text] ):
                 # TODO No negative values for when graph is a bar
 
                 for lst_yyyymmdd, lst_values, lst_txt in zip( lst_ymd, lst_val, lst_val ):
@@ -222,7 +192,7 @@ def calculate( options ):
                         alpha = cfg.plot_marker_alpha 
                     )
 
-            if answer.is_yes( graph['climate-ave-marker-txt'] ):
+            if answer.is_yes(graph[text.ask_graph_entity_climate_ave_marker_txt]):
                 for lst_yyyymmdd, lst_values, lst_txt in zip( lst_ymd, lst_clima, lst_clima ):
                     plt.text(
                         lst_yyyymmdd, lst_values+diff, lst_txt,
@@ -314,10 +284,10 @@ def calculate( options ):
         plt.tight_layout()
 
     # Make path and save image
-    fname = f'{options[text.ask_filename]}.{options[text.ask_graph_type]}' 
+    fname = f'{options[text.ask_filename]}.{options[text.ask_graph_extension]}' 
     path, dir, _ = utils.mk_path_with_dates( cfg.dir_graphs, fname )
     fio.mk_dir( dir, verbose=False ) # Create map always
-    plt.savefig( path, dpi=options[text.ask_graph_dpi], format=options[text.ask_graph_type] )
+    plt.savefig( path, dpi=options[text.ask_graph_dpi], format=options[text.ask_graph_extension] )
 
     if answer.is_yes( cfg.plot_show ): 
         plt.show()
