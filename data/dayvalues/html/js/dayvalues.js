@@ -1,7 +1,7 @@
 /**
  * Menu for possible
  * @author   M.Zwaving
- * @license  MIT-license
+ * @license  GPLv3
  * @version  0.0.6
  */
  'use strict'
