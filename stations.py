@@ -97,6 +97,10 @@ lst.append(Station('377', 'Ell', 'Limburg', ''))
 lst.append(Station('391', 'Arcen', 'Limburg', ''))
 lst.append(Station('242', 'Vlieland', 'Friesland', ''))
 
+# Sort station list on place name, using numpy
+lst = np.array( sorted( np.array(lst), key=lambda station: station.place ) ).tolist()
+
+
 # Below an example how to add your your (own) station
 # Rules for your data file.
 # 1. Keep knmi structure and order. So restructure data in a KNMI way
@@ -119,6 +123,3 @@ lst.append(Station('242', 'Vlieland', 'Friesland', ''))
 # Borkum.dayvalues_file_txt      =  os.path.join( Borkum.dir_dayvalues, 'tag.txt' )
 # Borkum.data_url                =  r'https://my.borkum.de/data/tag.zip'
 # lst.append( Borkum ) # Add to list
-
-# Sort station list on place name, using numpy
-lst = np.array( sorted( np.array(lst), key=lambda station: station.place ) ).tolist()

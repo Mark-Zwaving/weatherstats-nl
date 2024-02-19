@@ -9,7 +9,7 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import sys, config as cfg
-import validators
+# import validators
 import sources.view.text as text
 import sources.model.weather_stations as weather_stations
 import sources.model.utils as utils
@@ -564,30 +564,43 @@ def date_time(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False
     return answ
 
 def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
-    # Max options to aks in this function
-    lst_stations, lst_sel_cel, lst_entity, quit = [], [], [], False
-    s4d, per_1, per_2, per_cmp, f_type, f_name = cfg.e, cfg.e, cfg.e, cfg.e, cfg.e, name
-    write, other = cfg.e, cfg.e
-    # Make option default list
-    graph_title, graph_y_label = cfg.e, cfg.e 
-    graph_default = cfg.plot_default
-    graph_width = cfg.plot_width
-    graph_height = cfg.plot_height
-    graph_cummul_val = cfg.plot_cummul_val
-    graph_type = cfg.plot_image_type
-    graph_dpi = cfg.plot_dpi
-    graph_lst_entities_options = []
 
-    # Animations
-    anim_image_download_url = cfg.e
-    anim_start_datetime = cfg.e
-    anim_end_datetime = cfg.e
-    anim_interval_download = cfg.e
-    anim_animation_name = cfg.e
-    anim_animation_time = cfg.e
-    anim_remove_downloads = cfg.e
-    anim_gif_compress = cfg.e
-    anim_verbose = cfg.e
+    # Options to ask in this function
+    lst_stations     = []
+    lst_sel_cel      = []
+    lst_entity       = []
+    s4d_querie       = cfg.e
+    period1          = cfg.e
+    period2          = cfg.e 
+    period_compare   = cfg.e 
+    filetype         = cfg.e 
+    filename         = name
+    write_dayval     = cfg.e
+    other            = cfg.e
+
+    # Make option default list
+    graph_title      = cfg.e
+    graph_y_label    = cfg.e 
+    graph_default    = cfg.plot_default 
+    graph_width      = cfg.plot_width 
+    graph_height     = cfg.plot_height 
+    graph_cummul_val = cfg.plot_cummul_val 
+    graph_extension  = cfg.plot_image_type 
+    graph_dpi        = cfg.plot_dpi 
+    graph_entities   = cfg.e 
+    graph_entities_options = []
+
+    # Animations and download images
+    animation_download_url = cfg.e
+    animation_start_dt     = cfg.e
+    animation_end_dt       = cfg.e
+    animation_download_interval = cfg.e
+    animation_filename     = cfg.e
+    animation_time         = cfg.e
+    animation_verbose      = cfg.e
+
+    rm_downloads = cfg.e
+    gif_compress = cfg.e
 
     i, max = 0, len(lst_ask)
     while i < max:
@@ -595,73 +608,87 @@ def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer
         answ, quest = cfg.e, lst_ask[i]
 
         if quest == text.ask_download_url: 
-            answ = anim_image_download_url = image_download_url(
-                'Give a download image/url\n', cfg.e, back, prev_act, exit, spacer
+            answ = animation_download_url = image_download_url(
+                'Give a (image) download url ?', cfg.e, back, prev_act, exit, spacer
             )
-            
-        elif quest == text.ask_start_date: 
+
+        elif quest == text.ask_start_datetime: 
             add_seconds = 180 # Add seconds for start date and time
             yy, mm, dd = ymd.split_yyyymmdd( ymd.yyyymmdd_plus_second( second=add_seconds ) )
             HH, MM, SS = ymd.split_hh_mm_ss( ymd.hh_mm_ss_plus_second( second=add_seconds ) )
-            answ = anim_start_datetime = date_time( 
+            answ = animation_start_dt = date_time( 
                 'start', f'{yy}-{mm}-{dd} {HH}:{MM}:{SS}', back, prev_act, exit, spacer 
             )
 
-        elif quest == text.ask_end_date: 
+        elif quest == text.ask_end_datetime: 
             add_seconds = 780 # Add seconds for end date and time
             yy, mm, dd = ymd.split_yyyymmdd( ymd.yyyymmdd_plus_second( second=add_seconds ) )
             HH, MM, SS = ymd.split_hh_mm_ss( ymd.hh_mm_ss_plus_second( second=add_seconds ) )
-            answ = anim_end_datetime = date_time( 
+            answ = animation_end_dt = date_time( 
                 'end', f'{yy}-{mm}-{dd} {HH}:{MM}:{SS}', back, prev_act, exit, spacer 
             )
 
         elif quest == text.ask_download_interval: 
             default = 10
-            answ = anim_interval_download = integer(
-                'Give the interval download time in minutes', default, back, prev, exit, spacer 
+            answ = animation_download_interval = integer(
+                'Give the interval download time in minutes ?', default, back, prev_act, exit, spacer 
             ) 
 
         elif quest == text.ask_animation_name: 
             gif_ext = f'.{cfg.animation_ext}' # Animation extension
-            default = f'animation-{ymd.yyyymmdd_now()}-{ymd.hhmmss_now()}{gif_ext}'
-            answ = anim_animation_name = question(
-                'Give a name for the animation file or press enter for default', default, back, prev, exit, spacer 
+            default = f'animation-{ymd.yyyymmdd_now()}-{ymd.hhmmss_now()}.{gif_ext}'
+            answ = animation_filename = question(
+                'Give a name for the animation file or press enter for default ?', default, back, prev_act, exit, spacer 
             )
-            if not anim_animation_name.lower().endswith( gif_ext ):
-                anim_animation_name += gif_ext
+            if not animation_filename.lower().endswith( gif_ext ):
+                animation_filename += gif_ext 
 
         elif quest == text.ask_animation_time: 
-            answ = anim_animation_time = float( question(
-                'Give a animation time for in the animation self <float>', cfg.animation_time, back, prev_act, exit, spacer 
-            ) )
-        elif quest == text.ask_rm_downloads: 
-            answ = anim_remove_downloads = is_yes(
-                'Do you want to remove the downloaded images?', 'n', back, prev_act, exit, spacer
+            answ = animation_time = float( 
+                question( 
+                    'Give a animation time for in the animation self <float> ?', cfg.animation_time, back, prev_act, exit, spacer 
+                ) 
             )
-        elif quest == text.ask_gif_compress: 
-            answ = anim_gif_compress = is_yes(
-                'Do you want compress the animation file ?\nSoftware gifsicle needs to be installed on your OS',
-                 'n', back, prev_act, exit, spacer 
-            )
+
         elif quest == text.ask_verbose: 
-            answ = anim_verbose = is_yes(
+            answ = animation_verbose = is_yes(
                 'Do you want to use the verbose option ?\n'
                 'With verbose enabled the programm cannot do something else.\n'
                 'Although wsstats can be started in another console.', 
                 'y', back, prev_act, exit, spacer 
             )
+
+        elif quest == text.ask_rm_downloads: 
+            answ = rm_downloads = is_yes(
+                'Do you want to remove the downloaded images ?', 'n', back, prev_act, exit, spacer
+            )
+
+        elif quest == text.ask_gif_compress: 
+            answ = gif_compress = is_yes(
+                'Do you want compress the animation file ?\nSoftware gifsicle needs to be installed on your OS...',
+                 'n', back, prev_act, exit, spacer 
+            )
+
         elif quest == text.ask_stations: # Ask for one or more stations
             answ = lst_stations = lst_places(
                 'Select one (or more) weather station(s) ?', cfg.e, back, prev_act, exit, spacer 
             )
+
         elif quest == text.ask_per1: # Ask for period
-            answ = per_1 = period_1(
-                f'Give the period for the calculation of {name}', default, back, prev_act, exit, spacer 
+            answ = period1 = period_1(
+                f'Give the period for the calculation of {name} ?', default, back, prev_act, exit, spacer 
             ) 
+
+        elif quest == text.ask_per2:
+            answ = period2 = period_2(
+                'Select a (day, month or period) in a period ?', default, back, prev_act, exit, spacer
+            )
+            
         elif quest == text.ask_per_compare:
-            answ = per_cmp = period_compare(
+            answ = period_compare = period_compare(
                 'Give the period to compare ?', default, back, prev_act, exit, spacer 
             )
+
         elif quest == text.ask_diy_cells:
             answ = lst_sel_cel = lst_diy_cells(cfg.e, default, back, prev_act, exit, spacer)
             # Period 2 or not!
@@ -673,210 +700,240 @@ def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer
             answ = lst_sel_cel = lst_sel_cells(
                 'What will be the statistics cells ?', default, back, prev_act, exit, spacer 
             )
+
         elif quest == text.ask_write_dayval: # Rewrite or only make new non-existing files
-            answ = write = type_options(
+            answ = write_dayval = type_options(
                 'Do you want to add only new files or rewrite it all ?', 
                 ['add', 'rewrite'], 'add', back, prev_act, exit, spacer
             )
+
         elif quest == text.ask_s4d_query:
-            answ = s4d = s4d_query(
+            answ = s4d_querie = s4d_query(
                 'Type in a query to search for days ?', default, back, prev_act, exit, spacer
             )
+
         elif quest == text.ask_file_type: # Ask for a file types
-            answ = f_type = file_type(
+            answ = filetype = file_type(
                 'Select output file type ?', cfg.default_output, back, prev_act, exit, spacer
             )
-        elif quest == text.ask_per2:
-            answ = per_2 = period_2(
-                'Select a (day, month or period) period', default, back, prev_act, exit, spacer
-            )
+
         elif quest == text.ask_filename: # Ask for a name
-            if f_type not in text.lst_output_cnsl:  # Add query to title if there
-                squery = f'-{text.query_sign_to_text(s4d)}' if s4d else cfg.e 
-                tmp_per = f'-{per_2}' if per_2 else cfg.e
-                tmp_name = f'{name}{squery}-{per_1}{tmp_per}-{utils.now_for_file()}' 
+            if filetype not in text.lst_output_cnsl:  # Add query to title if there
+                squery = f'-{text.query_sign_to_text(s4d_querie)}' if s4d_querie else cfg.e 
+                tmp_per = f'-{period2}' if period2 else cfg.e
+                tmp_name = f'{name}{squery}-{period1}{tmp_per}-{utils.now_for_file()}' 
                 tmp_name = tmp_name.replace(' ', '-').replace('*', 'x').lower()
-                answ = f_name = file_name(
-                    'Give a name for the output file ? <optional>', 
-                    tmp_name, back, prev_act, exit, spacer 
+                answ = filename = file_name(
+                    'Give a name for the output file ? <optional>', tmp_name, back, prev_act, exit, spacer 
                 )
             else:
-                f_name=cfg.e
-        elif quest == text.ask_graph_entities:
-            answ = lst_entity = lst_entities(
-                'Select weather entity(s) ?', default, back, prev_act, exit, spacer
-            )
+                filename=cfg.e
+
+        # Graphs
         elif quest == text.ask_graph_title:
             answ = graph_title = question(
-                'Give a title for the graph', 'My Graph Title', back, prev_act, exit, spacer )
+                'Give a title for the graph ?', 'My Graph Title', back, prev_act, exit, spacer 
+            )
+
         elif quest == text.ask_graph_ylabel:
             answ = graph_y_label = question(
-                'Give a y-as label for the graph', 'weatherdata', back, prev_act, exit, spacer 
+                'Give a y-as label for the graph ?', 'weatherdata', back, prev_act, exit, spacer 
             )
+
         elif quest == text.ask_graph_default:
             answ = graph_default = y_or_n(
                 'Do you want to use default values ? See file -> config.py', cfg.plot_default, back, prev_act, exit, spacer
             )
-        elif answer.is_no(graph_default) and quest == text.ask_graph_width:
+
+        elif quest == text.ask_graph_width and answer.is_no(graph_default):
             answ = graph_width = integer(
                 'Give the width (in pixels) for the graph ?', cfg.plot_width, back, prev_act, exit, spacer
             )
 
-        elif answer.is_no(graph_default) and quest == text.ask_graph_height:
+        elif quest == text.ask_graph_height and answer.is_no(graph_default):
             answ = graph_height = integer(
                 'Give the height (in pixels) for the graph ?', cfg.plot_height, back, prev_act, exit, spacer
             )
 
-        elif answer.is_no(graph_default) and quest == text.ask_graph_cummul_val:
+        elif quest == text.ask_graph_cummul_val and answer.is_no(graph_default):
             answ = graph_cummul_val = y_or_n(
                 'Do you want cummulative values for the graph ?', cfg.plot_cummul_val, back, prev_act, exit, spacer 
             )
 
-        elif answer.is_no(graph_default) and quest == text.ask_graph_type:
+        elif quest == text.ask_graph_type and answer.is_no(graph_default):
             answ = graph_type = type_options(
                 'What type of image ?', ['png', 'jpg', 'ps', 'pdf', 'svg'], cfg.plot_image_type, back, prev_act, exit, spacer 
             )
 
-        elif answer.is_no(graph_default) and quest == text.ask_graph_dpi:
+        elif quest == text.ask_graph_dpi and answer.is_no(graph_default):
             answ = graph_dpi = integer(
                 'Give the dpi ?', cfg.plot_dpi, back, prev_act, exit, spacer
             )
 
         elif quest == text.ask_graph_entities:
+            answ = graph_entities = lst_entities(
+                'Select weather entity(s) for the graph ?', default, back, prev_act, exit, spacer
+            )
+
+        elif quest == text.ask_graph_entities_options: 
             j = 0 
-            while j < len(lst_entity):
-                entity = lst_entity[j]
-
+            graph_entities_options = [] 
+            while j < len(graph_entities):
+                graph_entity = graph_entities[j]
                 # Defaults
-                line_bar = cfg.plot_graph_type 
-                line_width = cfg.plot_line_width
-                marker_size = cfg.plot_marker_size
-                marker_txt = cfg.plot_marker_txt
-                min_max_ave_period = cfg.plot_min_max_ave_period
-                climate_yyyy_start = cfg.e
-                climate_yyyy_end = cfg.e
-                climate_ave = cfg.plot_climate_ave
-                climate_ave_marker_txt = cfg.plot_climate_marker_txt
-                climate_periode = cfg.e
-                lst_ask_graph = [ 
-                    'line-bar', 'marker-txt', 'min-max-ave-period', 'climate-ave', 
-                    'climate-ave-marker-txt', 'climate-periode', 'climate-yyyy-start', 'climate-yyyy-end'
-                ]
-                k, max = 0, len( lst_ask_graph )
-                while k < max:
-                    quest = lst_ask_graph[k]
+                graph_type                    = cfg.plot_graph_type  
+                graph_line_width              = cfg.plot_line_width
+                graph_marker_size             = cfg.plot_marker_size
+                graph_marker_txt              = cfg.plot_marker_txt
+                graph_min_max_ave             = cfg.plot_min_max_ave_period
+                graph_climate_yyyy_start      = cfg.climate_start_year
+                graph_climate_yyyy_end        = cfg.climate_end_year
+                graph_climate_ave             = cfg.plot_climate_ave
+                graph_climate_ave_marker_txt  = cfg.plot_climate_marker_txt
+                graph_climate_periode         = f'{cfg.climate_start_year}-{cfg.climate_end_year}'
 
-                    if quest == 'line-bar':
-                        answ = line_bar = type_options(
-                            f'Which type graph do you want to use for {entity} ?', 
-                            ['line', 'bar'],
+                # Questions for traits of the entity
+                k, max = 0, len( text.lst_ask_graph_entities )
+                while k < max:
+                    quest = text.lst_ask_graph_entities[k]
+
+                    if quest == text.ask_graph_entity_type: 
+                        answ = graph_type = type_options(
+                            f'Which type graph do you want to use for {graph_entity} ?', ['line', 'bar'], 
                             cfg.plot_graph_type, back, prev_act, exit, spacer
                         )
-                    elif quest == 'marker-txt':
-                        answ = marker_txt = y_or_n(
-                            f'Values next to the markers for {entity} ?', cfg.plot_marker_txt, back, prev_act, exit, spacer
-                        )
-                    elif quest == 'min-max-ave-period': 
-                        answ = min_max_ave_period = y_or_n(
-                            f'Calculate min, max and average value for {entity} ?', cfg.plot_min_max_ave_period, back, prev_act, exit, spacer
-                        )
-                    elif quest == 'climate-ave':
-                        answ = climate_ave = y_or_n(
-                            f'Calculate and plot the climate averages for {entity} ?', cfg.plot_climate_ave, back, prev_act, exit, spacer
-                        )
-                    elif answer.is_yes(climate_ave) and quest == 'climate-ave-marker-txt':
-                        answ = climate_ave_marker_txt = y_or_n(
-                            f'Values next to the markers for climate averages for {entity} ?', cfg.plot_climate_marker_txt, back, prev_act, exit, spacer
-                        )
-                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-start':
-                        sy, ey = cfg.climate_period.split('-')
-                        answ = climate_yyyy_start = integer(
-                            f'Give a start year for the calculation of climate averages <yyyy> for {entity} ?', sy, back, prev_act, exit, spacer
-                        )
-                    elif answer.is_yes(climate_ave) and quest == 'climate-yyyy-end':
-                        answ = climate_yyyy_end = integer(
-                            f'Give an end year for the calculation of climate average <yyyy> for {entity} ?', ey, back, prev_act, exit, spacer
+
+                    elif quest == text.ask_graph_entity_marker_text: 
+                        answ = graph_marker_txt = y_or_n(
+                            f'Values next to the markers for {graph_entity} ?', 
+                            cfg.plot_marker_txt, back, prev_act, exit, spacer
                         )
 
-                    if prev and answer.is_prev(answ):
+                    elif quest == text.ask_graph_entity_min_max: 
+                        answ = graph_min_max_ave = y_or_n(
+                            f'Calculate min, max and average value for {graph_entity} ?', 
+                            cfg.plot_min_max_ave_period, back, prev_act, exit, spacer
+                        )
+
+                    elif quest == text.ask_graph_entity_climate_ave:
+                        answ = graph_climate_ave = y_or_n(
+                            f'Calculate and plot the climate averages for {graph_entity} ?', 
+                            cfg.plot_climate_ave, back, prev_act, exit, spacer
+                        )
+
+                    elif quest == text.ask_graph_entity_climate_ave_marker_txt and answer.is_yes(graph_climate_ave):
+                        answ = graph_climate_ave_marker_txt = y_or_n(
+                            f'Values next to the markers for climate averages for {graph_entity} ?', 
+                            cfg.plot_climate_marker_txt, back, prev_act, exit, spacer
+                        )
+
+                    elif quest == text.ask_graph_entity_climate_yyyy_start and answer.is_yes(graph_climate_ave):
+                        sy, ey = cfg.climate_period.split('-')
+                        answ = graph_climate_yyyy_start = integer(
+                            f'Give a start year for the calculation of climate averages <yyyy> for {graph_entity} ?', 
+                            sy, back, prev_act, exit, spacer
+                        )
+
+                    elif quest == text.ask_graph_entity_climate_yyyy_end and answer.is_yes(graph_climate_ave):
+                        answ = graph_climate_yyyy_end = integer(
+                            f'Give an end year for the calculation of climate average <yyyy> for {graph_entity} ?', 
+                            ey, back, prev_act, exit, spacer
+                        )
+
+                    if prev_act and answer.is_prev(answ):
                         k -= 1
                         if k < 0:
-                            break 
+                            j -= 1
+                            break # Break this loop for now. Go back to above loop
+
                     elif back and answer.is_back(answ):
-                        other = answer
+                        other = text.lst_back[0]
+                        k = -1
+
                     else: # Next question
                         k += 1 
 
-                graph_lst_entities_options.append( {
-                    'entity': entity, 
-                    'line-bar': line_bar, 
-                    'line-width': line_width, 
-                    'marker-size': marker_size, 
-                    'marker-text': marker_txt,
-                    'min-max-ave-period': min_max_ave_period, 
-                    'climate-ave': climate_ave, 
-                    'climate-ave-marker-txt': climate_ave_marker_txt,
-                    'climate-yyyy-start': climate_yyyy_start, 
-                    'climate-yyyy-end': climate_yyyy_end,
-                    'climate-periode': f'{climate_yyyy_start}-{climate_yyyy_end}'
-                } )
+                graph_climate_periode = f'{graph_climate_yyyy_start}-{graph_climate_yyyy_end}'
 
-                if prev and answer.is_prev(answ):
+                if k != -1:
+                    graph_entities_options.append( 
+                    {
+                        text.ask_graph_entity:                         graph_entity, 
+                        text.ask_graph_entity_type:                    graph_type, 
+                        text.ask_graph_entity_line_width :             graph_line_width, 
+                        text.ask_graph_entity_marker_size:             graph_marker_size, 
+                        text.ask_graph_entity_marker_text:             graph_marker_txt,
+                        text.ask_graph_entity_min_max:                 graph_min_max_ave, 
+                        text.ask_graph_entity_climate_ave:             graph_climate_ave, 
+                        text.ask_graph_entity_climate_ave_marker_txt:  graph_climate_ave_marker_txt,
+                        text.ask_graph_entity_climate_yyyy_start:      graph_climate_yyyy_start, 
+                        text.ask_graph_entity_climate_yyyy_end:        graph_climate_yyyy_end,
+                        text.ask_graph_entity_climate_period:          graph_climate_periode
+                    } )
+                else:
+                    continue
+
+                if prev_act and answer.is_prev(answ):
                     j -= 1
                     if j < 0:
+                        i -= 1
                         break
+
                 elif back and answer.is_back(answ):
-                    other = answer
-                else: # Next question
+                    other = text.lst_back[0]
+
+                else: # Next question (graphs)
                     j += 1
 
         if back and answer.is_back(answ):
             other = text.lst_back[0]
 
-        elif prev and answer.is_prev(answ):
-            i = i - 1 if i > 0 else 0 
+        elif prev_act and answer.is_prev(answ):
+            i -= 1 
 
         else:
-            i += 1 # Next question
+            i += 1 # Next question 
 
         if not answer.is_empty(other):
             break
 
     return { 
-        text.ask_title:          name, 
-        text.ask_stations:       lst_stations,
-        text.ask_period:         per_1, 
-        text.ask_per2:           per_2, 
-        text.ask_per_compare:    per_cmp,
-        text.ask_clima_period:   cfg.climate_period, # TODO ASK for years and put in year in head of table
-        text.ask_select_cells:   lst_sel_cel,
-        text.ask_s4d_query:      s4d, 
-        text.ask_write_dayval:   write, 
-        text.ask_file_type:      f_type,
-        text.ask_filename:       f_name,
+        text.ask_title:                   name, 
+        text.ask_stations:                lst_stations,
+        text.ask_period:                  period1, 
+        text.ask_per2:                    period2, 
+        text.ask_per_compare:             period_compare,
+        text.ask_clima_period:            cfg.climate_period, # TODO ASK for years and put in year in head of table
+        text.ask_select_cells:            lst_sel_cel,
+        text.ask_s4d_query:               s4d_querie, 
+        text.ask_write_dayval:            write_dayval, 
+        text.ask_file_type:               filetype,
+        text.ask_filename:                filename,
+        text.ask_entities:                lst_entity,
 
         # Graphs
-        text.ask_graph_title:       graph_title,
-        text.ask_graph_ylabel:      graph_y_label, 
-        text.ask_graph_default:     graph_default,
-        text.ask_graph_width:       graph_width,
-        text.ask_graph_height:      graph_height,
-        text.ask_graph_cummul_val:  graph_cummul_val,
-        text.ask_graph_type:        graph_type,
-        text.ask_graph_dpi:         graph_dpi, 
-        text.ask_graph_entities:    graph_lst_entities_options,
+        text.ask_graph_title:             graph_title,
+        text.ask_graph_ylabel:            graph_y_label, 
+        text.ask_graph_default:           graph_default,
+        text.ask_graph_width:             graph_width,
+        text.ask_graph_height:            graph_height,
+        text.ask_graph_cummul_val:        graph_cummul_val,
+        text.ask_graph_extension:         graph_extension,
+        text.ask_graph_dpi:               graph_dpi, 
+        text.ask_graph_entities:          graph_entities,
+        text.ask_graph_entities_options:  graph_entities_options,
 
-        # Animation
-        text.ask_download_url:       anim_image_download_url,
-        text.ask_start_date:         anim_start_datetime,
-        text.ask_end_date:           anim_end_datetime,
-        text.ask_download_interval:  anim_interval_download,
-        text.ask_animation_name:     anim_animation_name,
-        text.ask_animation_time:     anim_animation_time,
-        text.ask_rm_downloads:       anim_remove_downloads,
-        text.ask_gif_compress:       anim_gif_compress,
-        text.ask_verbose:            anim_verbose,
+        # Animation and download images 
+        text.ask_download_url:            animation_download_url,
+        text.ask_start_datetime:          animation_start_dt,
+        text.ask_end_datetime:            animation_end_dt,
+        text.ask_download_interval:       animation_download_interval,
+        text.ask_animation_name:          animation_filename,
+        text.ask_animation_time:          animation_time,
+        text.ask_rm_downloads:            rm_downloads,
+        text.ask_gif_compress:            gif_compress,
+        text.ask_verbose:                 animation_verbose,
 
         # Go back to menu or backward one question
-        text.ask_other_menu:         other
+        text.ask_other_menu:              other
     } 
