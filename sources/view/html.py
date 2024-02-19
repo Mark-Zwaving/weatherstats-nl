@@ -39,7 +39,6 @@ class Template():
     strip       = cfg.html_strip
     verbose     = cfg.verbose
     template    = cfg.e
-    path        = cfg.e
 
     def __init__(self, title='WeatherstatsNL - template',
                        header=cfg.e, main=cfg.e,  footer=cfg.e ):
@@ -51,11 +50,13 @@ class Template():
         title = self.title.strip().replace(' ', cfg.e)
         dt = ymd.text(ymd.yyyymmdd_now())
         self.file_name = f'{title}-{dt}.html'
-        self.template  = cfg.html_template_statistics
+        self.template  = cfg.e
+        self.path_to_file = cfg.e
         self.path_to_root = cfg.e
+        self.path_to_thirdparty = cfg.e
 
     def set_path(self, path):
-        self.path = path
+        self.path_to_file = path
 
     def add_css_file(self, path=cfg.e):
         self.css_files.append(f'<link rel="stylesheet" type="text/css" href="{path}">')
@@ -87,6 +88,7 @@ class Template():
             self.html = self.html.replace('{{%js_files%}}', util.lst_to_s(self.js_files,'\n'))
             self.html = self.html.replace('{{%js_code%}}', self.js_code)
             self.html = self.html.replace('{{%path_to_root%}}', self.path_to_root)
+            self.html = self.html.replace('{{%path_to_thirdparty%}}', self.path_to_thirdparty)
         else:
             cnsl.log(f'Read {self.template} file failed!', cfg.error)
 
@@ -98,11 +100,11 @@ class Template():
             if self.strip:
                 self.html = text.clean_html(self.html)
 
-            ok = fio.write(self.path, self.html, verbose=False)
+            ok = fio.write(self.path_to_file, self.html, verbose=False)
         return ok
 
     def delete(self):
-        fio.delete(self.path, self.verbose)
+        fio.delete(self.path_to_file, self.verbose)
 
     def reset(self):
         self.description = cfg.e
@@ -119,7 +121,7 @@ class Template():
         self.strip = cfg.html_strip
         self.verbose = cfg.verbose
         self.template = cfg.e
-        self.path = cfg.e
+        self.path_to_file = cfg.e
 
 def max_popup_rows(total, max):
     return total if max == -1 else max
