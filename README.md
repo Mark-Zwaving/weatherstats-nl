@@ -12,9 +12,10 @@ Commandline python3 program to calculate weather statistics with data from the k
 ```git clone https://github.com/Mark-Zwaving/weatherstats-nl```
 
 ## Python3
-Program makes use of of python3 *version >= 3.7.3*  
+Program makes use of of python3 *version >= 3.8*  
 Install it from: *https://www.python.org/ftp/python/*  
-For example version 3.7.9:  *https://www.python.org/ftp/python/3.7.9/*  
+For example version 3.8.18:  *https://www.python.org/ftp/python/3.8.18/*  
+Use of Python3.8 is most save
 
 ### Install Python3 for windows
 Pick a correct version:  
