@@ -87,7 +87,7 @@ path_to_thirdparty = './../../../../../'
 db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
 
 # Webserver 
-webserver = True  # Set to true to save the html files to a (local) webserver 
+webserver = False  # Set to true to save the html files to a (local) webserver 
 dir_www = os.path.abspath('/var/www/html/weatherstats') # Enter a map for a webserver
 # ! If webserver set to True. 
 # Do not forget to copy/move the whole thirdparty directory (with bootstrap, js-files et cet.) 
