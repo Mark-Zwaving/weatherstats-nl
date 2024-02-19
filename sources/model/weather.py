@@ -223,10 +223,10 @@ def knmi_stations_json(verbose=cfg.verbose):
 def process_knmi(url, path, verbose=cfg.verbose):
     ok, t = False, cfg.e
     ok = fio.mk_dir(dir, verbose=verbose) # Make map
-    wget.download(url, path, bar=None)  # Download
-
-    ok, t = fio.read(path, encoding='ISO-8859-1', verbose=verbose)
-    t = text.sanitize(t)
+    ok = fio.download(url, path, verbose=verbose)  # Download
+    if ok: 
+        ok, t = fio.read(path, encoding='ISO-8859-1', verbose=verbose)
+        t = text.sanitize(t)
 
     return ok, t
 
