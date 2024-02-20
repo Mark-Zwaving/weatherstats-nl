@@ -43,7 +43,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 #### Make an alternative install for python3.8
 ```sudo make altinstall```
 #### Add the shared python3.8 map to the shared dynamic linker
-```sudo ldconfig /usr/local/share/python3.9```
+```sudo ldconfig /usr/local/share/python3.8```
 #### Check the new python3.8 installation
 ```python3.8 --version```
   
