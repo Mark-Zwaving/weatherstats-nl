@@ -24,6 +24,8 @@ class Station:
         self.country  = country
         self.info     = info
         self.format   = format
+        self.min_date = ''
+        self.max_date = ''
 
         if self.format == 'knmi':
             self.data_format        = cfg.knmi_data_format     # For data standards
