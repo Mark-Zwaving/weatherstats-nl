@@ -342,6 +342,15 @@ let start_all_up = () =>
 // Start init after document is loaded
 window.addEventListener( 'DOMContentLoaded', (event) =>  
 {
+    
+    // btn goto first date
+    docid('date-min').addEventListener('click', function(event)
+    {
+        event.preventDefault()
+        date_act = correct_dates_range(update_min_date_from_list_by_wmo())
+        set_datepicker()
+        process_page()
+    })
     // btn goto 1 year before
     docid('year-before').addEventListener('click', function(event) 
     {
@@ -388,6 +397,14 @@ window.addEventListener( 'DOMContentLoaded', (event) =>
     {
         event.preventDefault()
         date_act = correct_dates_range(get_year_next(date_act))
+        set_datepicker()
+        process_page()
+    })
+    // btn goto last dat
+    docid('date-max').addEventListener('click', function(event)
+    {
+        event.preventDefault()
+        date_act = correct_dates_range(update_max_date_from_list_by_wmo())
         set_datepicker()
         process_page()
     })

@@ -17,6 +17,10 @@
             <header id="dayvalues-menu">
               <nav class="navbar navbar-expand-md navbar-light bg-light p-1">
                 <div class="col text-center">
+                  <button class="btn btn-info btn-sm m-1" id="date-min" title="to start date">
+                      <i class="fas fa-grip-lines-vertical"></i>
+                      <i class="fa fa-caret-left" aria-hidden="true"></i>
+                  </button>
                   <button class="btn btn-info btn-sm m-1" id="year-before" title="year minus one">
                     <i class="fa fa-fast-backward" aria-hidden="true"></i>
                   </button>
@@ -35,33 +39,39 @@
                   <button class="btn btn-info btn-sm m-1" id="year-next" title="year plus one">
                     <i class="fa fa-fast-forward" aria-hidden="true"></i>
                   </button>
+                  
+                  <button class="btn btn-info btn-sm m-1" id="date-max" title="to most new possible date">
+                    <i class="fa fa-caret-right" aria-hidden="true"></i>
+                    <i class="fas fa-grip-lines-vertical"></i>
+                </button>
                 </div>
     
                 <div class="col">
                   <form class="form-inline">
-                    
-                    <div class="col text-center">
-                      <div class="form-group m-1"> 
-                        <select id="options-form-id" class="form-control custom-select form-control-sm">
+                    <div class="form-group m-1">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroupPrependHouse">
+                            <i class="text-info fas fa-sm fa-home" aria-hidden="true"></i> 
+                          </span>
+                        </div>
+                        <select id="options-form-id" class="form-control custom-select form-control-sm"
+                                aria-describedby="inputGroupPrependHouse">
                         </select>
                       </div>
                     </div>
-
-                    <div class="col">
-                      <div class="form-group m-1">
-                        <div class="input-group">
-                          <div class="input-group-prepend">
-                            <span class="input-group-text" id="inputGroupPrepend3">
-                              <i class="fa fa-calendar fa-xs text-info" aria-hidden="true"></i>
-                            </span>
-                          </div>
-                          <input type="date" id="date-form-id" class="form-control form-control-sm" 
-                                min="1901-01-01" max=""
-                                value="2000-01-01" aria-describedby="inputGroupPrepend3" required>
+                    <div class="form-group m-1">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text" id="inputGroupPrependCalendar">
+                            <i class="fa fa-calendar fa-sm text-info" aria-hidden="true"></i>
+                          </span>
                         </div>
+                        <input type="date" id="date-form-id" class="form-control form-control-sm" 
+                              min="1901-01-01" max=""
+                              value="2000-01-01" aria-describedby="inputGroupPrependCalendar" required>
                       </div>
                     </div>
-                  
                   </form>
                 </div>
     

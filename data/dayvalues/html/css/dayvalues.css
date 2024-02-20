@@ -4,6 +4,17 @@ body, html {
 	border: 0;
 }
 
+nav button {
+	width: 35px;
+}
+
+nav select, nav input {
+	width: 160px;
+	min-width: 160px;
+	max-width: 160px;
+	/* white-space: nowrap; */
+}
+
 #iframe-dayvalues-page {
 	border: 0;
 	margin: 0;
