@@ -35,7 +35,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 #### Goto the shared python3.8 map
 ```cd /usr/local/share/python3.8/```
 #### Install (possible) missing libraries for python3.8
-```sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev -y ```
+```sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev curl libbz2-dev libjpeg-dev zlib1g-dev -y ```
 #### Configure source code 
 ``` ./configure --enable-optimizations --with-lto --enable-shared ``` 
 #### Compile the source code
