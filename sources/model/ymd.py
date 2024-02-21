@@ -47,7 +47,7 @@ def text(yyyymmdd):
     return datetime.datetime.strptime(symd(yyyymmdd), '%Y%m%d').strftime('%A, %d %B %Y')
 
 def txt_datetime_now():
-    return datetime.datetime.now().strftime('%A, %d %B %Y at %H:%M:%S')
+    return datetime.datetime.now().strftime('%A, %d %B %Y %H:%M:%S')
 
 def now():
     '''Function returns a date time string'''
