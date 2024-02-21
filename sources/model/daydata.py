@@ -486,7 +486,7 @@ def process_data( station, verbose=cfg.verbose ):
     '''Function processes (downloading en unzipping) a data file'''
     ok = False
     if station.data_download: # Only downloadable stations
-        cnsl.log(f'[{ymd.now()}] Process data for station: {station.wmo} {station.place}...', True)
+        cnsl.log(f'[{ymd.now()}] Process data for station: {station.wmo} {station.place}...', verbose)
 
         url = station.data_url
         if not url:
@@ -495,7 +495,7 @@ def process_data( station, verbose=cfg.verbose ):
             st = time.time_ns()
             zip = station.data_zip_path
             txt = station.data_txt_path
-            ok = fio.download( url, zip, check=False, verbose=False )
+            ok = fio.download( url, zip, check=False, verbose=verbose )
             if ok:
                 cnsl.log(utils.process_time('Download in ', st), verbose)
                 st = time.time_ns()
