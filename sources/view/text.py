@@ -236,6 +236,7 @@ ask_per_compare       = 'period-cmp'
 ask_file_type         = 'file-type'
 ask_filename          = 'file-name'
 ask_download          = 'download'
+ask_download_knmi     = 'download-knmi-one-or-more'
 ask_download_url      = 'image-download-url'
 ask_download_interval = 'interval-download'
 ask_animation_name    = 'animation-name'
@@ -282,6 +283,7 @@ lst_ask_stats           = [ ask_stations, ask_period, ask_file_type, ask_filenam
 lst_ask_stats_diy       = [ ask_stations, ask_period, ask_select_cells, ask_file_type, ask_filename]
 lst_ask_stats_p1_p2_diy = [ ask_stations, ask_per1, ask_per2, ask_select_cells, ask_file_type, ask_filename]
 lst_ask_stats_compare   = [ ask_stations, ask_period, ask_per_compare, ask_select_cells, ask_file_type, ask_filename]
+lst_ask_download_knmi   = [ ask_stations ]
 lst_ask_download        = [ ask_download_url, ask_start_datetime, ask_end_datetime, ask_download_interval]
 lst_ask_animation       = [ ask_animation_name, ask_animation_time, ask_rm_downloads, ask_gif_compress]
 lst_ask_make_dayval     = [ ask_stations, ask_period, ask_file_type, ask_write_dayval]
@@ -797,11 +799,11 @@ def file_extension( typ ):
     elif typ in lst_output_excel: return extension_excel
     else: return typ
 
-def option_lst( npl, sep=',', col_cnt = False, col_spaces = False ):
+def option_lst(npl, sep=',', col_cnt = False, col_spaces = False):
     # Possible update none values
     max_len, max_char = 0, 60
     for e in npl:
-        char_len = len( str(e) )
+        char_len = len(str(e))
         if char_len > max_len:
             max_len = char_len
 
