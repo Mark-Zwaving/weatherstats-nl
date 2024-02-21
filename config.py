@@ -89,7 +89,7 @@ path_to_thirdparty = './../../../../../'
 db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
 
 # Webserver 
-webserver = False  # Set to true to save the html files to a (local) webserver 
+webserver = True  # Set to true to save the html files to a (local) webserver 
 dir_web = '/var/www/html/weatherstats.nl' # Enter a map for a webserver
 # ! If webserver set to True. 
 # Do not forget to copy/move the whole thirdparty directory (with bootstrap, js-files et cet.) 
@@ -525,3 +525,7 @@ forbidden_map_chars = ['\\','`','*','{','}','[',']','(',')','>','<','#','+','-',
 
 # Copyright notification weatherstats 
 created_by_notification = 'Created by weatherstats-nl at %s' 
+created_by_notification_html = '''
+    Created by <a href="https://github.com/Mark-Zwaving/weatherstats-nl" target="_blank">weatherstats-nl</a> at %s
+'''
+  
