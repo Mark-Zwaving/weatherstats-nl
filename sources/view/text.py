@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.9'
+__version__    =  '0.2.0'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -276,7 +276,6 @@ ask_graph_entity_climate_ave_marker_txt = 'graph_climate-ave-marker-txt'
 ask_graph_entity_climate_yyyy_start     = 'graph_climate-yyyy-start'
 ask_graph_entity_climate_yyyy_end       = 'graph_climate-yyyy-end'
 ask_graph_entity_climate_period         = 'graph_climate-periode'
-
 
 # Questions to ask
 lst_ask_stats           = [ ask_stations, ask_period, ask_file_type, ask_filename]
