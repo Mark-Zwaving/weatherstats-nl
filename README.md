@@ -59,8 +59,7 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 #### Install venv for Python3.8
 ```python3.8 -m pip install venv``` 
 
-#### In the map: weatherstats-nl  
-#### Create an virtual environment named 'venv-py38' with the use of python3.8   
+#### In the map weatherstats-nl create an virtual environment named 'venv-py38' with the use of python3.8   
 ```python3.8 -m venv venv-py3.8```  
 
 #### Activate the virtual environment 
