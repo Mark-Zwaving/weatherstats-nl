@@ -120,8 +120,9 @@ def calculate(options, verbose=True):
             header += f'{station.wmo} - {station.place} '
             header += f'{station.province} - {datestring} '
 
-            foot  = f'{cfg.knmi_dayvalues_notification}<br>'
-            foot += f'Made by WeatherstatsNL on {ymd.txt_datetime_now()}'
+            # Unused HTML
+            # foot  = f'{cfg.knmi_dayvalues_notification}<br>'
+            # foot += f'Made by WeatherstatsNL on {ymd.txt_datetime_now()}'
 
             # HTML object
             page = html.Template()
@@ -136,7 +137,6 @@ def calculate(options, verbose=True):
             page.title  = f'{station.wmo} {station.place} {datestring}'
             page.header = header
             page.main   = htm
-            page.footer = foot
             ok = page.save()
 
             if not ok:
