@@ -90,7 +90,7 @@ db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
 
 # Webserver 
 webserver = False  # Set to true to save the html files to a (local) webserver 
-dir_web = '/var/www/html/weatherstats' # Enter a map for a webserver
+dir_web = '/var/www/html/weatherstats.nl' # Enter a map for a webserver
 # ! If webserver set to True. 
 # Do not forget to copy/move the whole thirdparty directory (with bootstrap, js-files et cet.) 
 # to your webserver directory too.
@@ -104,7 +104,7 @@ dir_web = '/var/www/html/weatherstats' # Enter a map for a webserver
 #    In the html files update the relatieve paths to the thirdparty maps
 
 if webserver: # Oké, let's save the html files on the webserver
-    dir_www = os.path.abspath('/var/www/html/weatherstats') 
+    dir_www = os.path.abspath(dir_web) 
     dir_dayvalues_htm = os.path.join(dir_www, 'dayvalues') # knmi html files from text
     dir_stats_htm  = os.path.join(dir_www, 'statistics')
     dir_thirdparty = os.path.join(dir_www, 'thirdparty')
