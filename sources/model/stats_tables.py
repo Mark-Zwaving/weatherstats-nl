@@ -381,8 +381,7 @@ def foot(options):
         foot_htm += f'''
         </tbody><tfoot>
         <tr><td class="text-muted" colspan="{options[text.ask_colspan]}">
-            {text.now_created_notification()}
-            {cfg.knmi_dayvalues_notification.lower()}
+        <small> {text.create_by_notification_html().replace("<br>", " ")} </small>
         </td></tr>
         </tfoot></table>'''
 
