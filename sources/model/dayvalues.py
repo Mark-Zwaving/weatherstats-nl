@@ -20,9 +20,10 @@ import sources.model.ymd as ymd
 
 def calculate(options):
     ok = True
+    ftyp = options[text.ask_file_type]
+
     cnsl.log(f'[{ymd.now()}] Start {options[text.ask_title]}', True)
     path_ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
-    ftyp = options[text.ask_file_type]
     # input(ftyp)
 
     for station in options[text.ask_stations]:
