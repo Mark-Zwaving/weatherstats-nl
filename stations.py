@@ -31,7 +31,7 @@ class Station:
             self.data_format        = cfg.knmi_data_format     # For data standards
             self.data_skip_header   = cfg.knmi_dayvalues_skip_header
             self.data_skip_footer   = cfg.knmi_dayvalues_skip_footer
-            self.data_dummy_val     = cfg.knmi_dayvalues_dummy_val
+            self.data_dummy         = cfg.knmi_dayvalues_dummy_val
             self.data_missing       = cfg.knmi_dayvalues_missing_val
             self.data_notification  = cfg.knmi_dayvalues_notification
             self.data_delimiter     = cfg.knmi_dayvalues_delimiter
@@ -53,13 +53,13 @@ lst = []
 # Extended example ie Maastricht,
 Maastricht = Station('380', 'Maastricht', 'Limburg', 'Netherlands')  # Create Station
 Maastricht.data_skip_header  = cfg.knmi_dayvalues_skip_header  # (=49, KNMI)
-Maastricht.data_dummy_val    = cfg.knmi_dayvalues_dummy_val
-Maastricht.data_empthy_val   = cfg.knmi_dayvalues_missing_val
+Maastricht.data_dummy        = cfg.knmi_dayvalues_dummy_val
+Maastricht.data_missing      = cfg.knmi_dayvalues_missing_val
 Maastricht.data_notification = cfg.knmi_dayvalues_notification
 Maastricht.data_format       = cfg.knmi_data_format
 Maastricht.data_zip_path     = os.path.join( cfg.dir_dayvalues_zip, 'etmgeg_380.zip' )
 Maastricht.data_txt_path     = os.path.join( cfg.dir_dayvalues_txt, 'etmgeg_380.txt' )
-Maastricht.data_dayvalus_url = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_380.zip'
+Maastricht.data_url          = r'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_380.zip'
 lst.append( Maastricht ) # Add to list
 
 # For the rest the url and the files and the rest are automaticly updated
@@ -101,7 +101,6 @@ lst.append(Station('242', 'Vlieland', 'Friesland', ''))
 
 # Sort station list on place name, using numpy
 lst = np.array( sorted( np.array(lst), key=lambda station: station.place ) ).tolist()
-
 
 # Below an example how to add your your (own) station
 # Rules for your data file.
