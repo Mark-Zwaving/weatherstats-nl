@@ -14,6 +14,7 @@ import sources.model.daydata as daydata
 import sources.model.utils as utils
 import sources.model.weather_stations as weather_stations
 import sources.model.convert as convert
+import sources.model.ymd as ymd
 
 cli_colls, cli_rows = shutil.get_terminal_size()
 
@@ -646,6 +647,18 @@ pad_num = 4
 pad_clima = 10 
 pad_view = 4 
 pad_evaporation = 4 
+
+# Copyright notification weatherstats 
+created_by_notification = 'Created by weatherstats-nl at %s' 
+created_by_notification_html = '''
+    Created by <a href="https://github.com/Mark-Zwaving/weatherstats-nl" target="_blank">weatherstats-nl</a> at 
+'''
+
+def create_by_notification_html():
+    notif = cfg.knmi_dayvalues_notification + '<br>' 
+    notif += created_by_notification_html + ' '
+    notif += ymd.txt_datetime_now()
+    return notif.lower()
 
 def clear(s):
     '''Remove double whitespaces'''
