@@ -4,7 +4,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.3.4'
+__version__    =  '0.3.5'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -32,12 +32,13 @@ def download_knmi_dayvalues_all():
     cnsl.log(text.foot('END DOWNLOAD ALL DAYVALUES KNMI'), True)
     ask.question(text.back_main, default=cfg.e, back=False, prev=False, exit=True, spacer=True)
 
-def download_knmi_dayvalues_select():
+def download_knmi_dayvalues_select(): 
     '''Function asks for one or more wmo numbers to download their data'''
-    lst_ask = text.lst_ask_stations
+    lst_ask = text.lst_ask_download_knmi
+    title = 'Download one or more stations'
     while True:
         cnsl.log( text.head('START DOWNLOAD DAYVALUES KNMI'), True)
-        options = ask.lst( lst_ask, default=cfg.e, back=True, prev=False, exit=True, spacer=True )
+        options = ask.lst(lst_ask, title, default=cfg.e, back=True, prev=False, exit=True, spacer=True)
         daydata.process_lst(options[text.ask_stations])
 
         if ask.is_yes(
@@ -59,9 +60,9 @@ def table_stats(title, lst_ask, lst_cells=[]):
         cnsl.log(text.head(f'START {title.capitalize()}'), True)
         
         # Ask list with questions
-        options = ask.lst( lst_ask, title, back=True, prev=True, exit=True, spacer=True )
+        options = ask.lst(lst_ask, title, back=True, prev=True, exit=True, spacer=True)
   
-        if answer.is_back(options[text.ask_other_menu]): 
+        if answer.is_back(options[text.ask_other_menu]):
             break # Go back to menu
 
         # Cells td list. As parameter or asked for
@@ -400,8 +401,8 @@ def download_images():
         # Dowload the images
         lst_images = animation.download_interval(
                 url             =  options[text.ask_download_url],      # Url for the files on the web
-                start_datetime  =  options[text.ask_start_date],        # Start time <yyyy-mm-dd HH:MM:SS>
-                end_datetime    =  options[text.ask_end_date],          # End datetime <yyyy-mm-dd HH:MM:SS>
+                start_datetime  =  options[text.ask_start_datetime],    # Start time <yyyy-mm-dd HH:MM:SS>
+                end_datetime    =  options[text.ask_end_datetime],      # End datetime <yyyy-mm-dd HH:MM:SS>
                 interval        =  options[text.ask_download_interval], # Interval time for downloading Images (minutes)
                 check           =  True,                                # No double downloads check
                 verbose         =  options[text.ask_verbose]            # With output to screen
@@ -442,8 +443,8 @@ def download_animation():
         ok, path = animation.download_images_and_make_animations(
             options[text.ask_download_url],      # Url for the files on the web
             options[text.ask_animation_name],    # Name of animation file   
-            options[text.ask_start_date],        # Start time <yyyy-mm-dd HH:MM:SS>
-            options[text.ask_end_date],          # End datetime <yyyy-mm-dd HH:MM:SS>
+            options[text.ask_start_datetime],    # Start time <yyyy-mm-dd HH:MM:SS>
+            options[text.ask_end_datetime],      # End datetime <yyyy-mm-dd HH:MM:SS>
             options[text.ask_download_interval], # Interval time for downloading Images (minutes)
             True,                                # No double downloads check
             options[text.ask_animation_time],    # Animation interval time for gif animation
@@ -482,6 +483,7 @@ def animation_images_from_map():
 
 ##########################################################################################
 # DATABASES
+# TODO
 def database_update():
 
     '''Function downloads images ad makes an animation'''
