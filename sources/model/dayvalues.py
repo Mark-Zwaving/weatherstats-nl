@@ -18,19 +18,19 @@ import sources.control.fio as fio
 import sources.view.console as cnsl
 import sources.model.ymd as ymd
 
-def calculate(options):
+def calculate(options, verbose=True):
     ok = True
     ftyp = options[text.ask_file_type]
 
-    cnsl.log(f'[{ymd.now()}] Start {options[text.ask_title]}', True)
+    cnsl.log(f'[{ymd.now()}] Start {options[text.ask_title]}', verbose)
     path_ndx_html = fio.mk_path(cfg.dir_dayvalues_htm, f'index.html')
     # input(ftyp)
 
     for station in options[text.ask_stations]:
-        cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', True)
+        cnsl.log(f'[{ymd.now()}] Make dayvalues for {station.wmo} {station.place}', verbose)
 
         if options[text.ask_download]:
-            daydata.process_data( station )
+            daydata.process_data( station, verbose )
 
         ok, np_data_2d = daydata.read(station) # Read data stations
         days = stats.Days(station, np_data_2d, options[text.ask_period]) # Get Days object with correct days
@@ -57,11 +57,11 @@ def calculate(options):
             if options[text.ask_write_dayval] == 'add':
                 if fio.check(path_to_file, verbose=False):  # Check if there is a file
                     t  = f'[{ymd.now()}] Skipped {options[text.ask_file_type]} dayvalues for {station.place} ...{path_to_file[-57:]}'
-                    cnsl.log_r(t, True)
+                    cnsl.log_r(t, verbose)
                     continue # If already there skip 
     
             t  = f'[{ymd.now()}] Write {options[text.ask_file_type]} dayvalues for {station.place} ...{path_to_file[-57:]}'
-            cnsl.log_r(t, True)
+            cnsl.log_r(t, verbose)
 
             # Get all data elements from a dayc
             stn, yyyymmdd, ddvec, fhvec, fg, fhx, fhxh, fhn, fhnh, fxx, fxxh, tg, tn,\
@@ -142,6 +142,6 @@ def calculate(options):
             if not ok:
                 cnsl.log('\nFailed!\n', cfg.error)
 
-        cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', True)
+        cnsl.log(f'\n[{ymd.now()}] Dayvalues {station.wmo} {station.place} done!', verbose)
 
     return ok, path_ndx_html # Make link html only. 
