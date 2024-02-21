@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.1.1' 
+__version__    = '0.1.2' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -71,41 +71,45 @@ dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 html_template_dayvalues  = os.path.join(dir_templates, 'dayvalues.html')
 html_template_statistics = os.path.join(dir_templates, 'statistics.html')
 
-# Hom many dir up is the html root, in the data/statistics map ?
-# Paths for css, im and js files, relatieve to the made html files 
-# Example: /280/2024/04/dayvalues-280-2024-01-01.html
-path_to_html_root = './../../../' # Three times up: day, month and wmo num
+# How many dir up is the html root, in the data/statistics map ?
+# Define paths to css, img and js files in the created html-files.  
+# Example statistics html: /WMO/YYYY/MM/DD/statistics-x-x.html
+# Always 3 times map up: year, month and day
+# The same for the daydavalues html: /WMO/YYYY/MM
+path_to_html_root = './../../../' 
 
 # How many dirs up is the thirdparty map ?
-# Used for references to the thirdparty map in the html files
-# E.g: dayvalues/html/yyyy/mm/dd/ (=5x up)
-# E.g: statistics/html/yyyy/mm/dd/ (=5x up)
-# Dayvalues en statistics maps are alway the same
+# Define path to thirdsparty software ysed for references in the created html files
+# E.g: ./statistics/html/yyyy/mm/dd/ (=5x up)
+# E.g: ./dayvalues/html/wmo/yyyy/mm/ (=5x up).  
+# Dayvalues en statistics maps normally are alway the same
 path_to_thirdparty = './../../../../../' 
 
 # Path database TODO maybe later
 db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
 
 # Webserver 
-webserver = False  # Set to true to save the html files to a (local) webserver 
-dir_www = os.path.abspath('/var/www/html/weatherstats') # Enter a map for a webserver
+webserver = True  # Set to true to save the html files to a (local) webserver 
+dir_web = '/var/www/html/weatherstats' # Enter a map for a webserver
 # ! If webserver set to True. 
 # Do not forget to copy/move the whole thirdparty directory (with bootstrap, js-files et cet.) 
 # to your webserver directory too.
 # For statistics (html)
 #  - Copy the css, img en js maps in the data/statistics map 
-#    to the statistics map on the webserver
+#    to the statistics map on the webserver (eg: /var/www/html/weatherstats/statististics)
 # For dayvalues (html)
 #  - Copy the css, img en js maps and the files index.html and dummy.html 
 #    to the dayvalues map on the webserver.
-#    In the html files update the paths to the thirdparty maps
+#    (eg: /var/www/html/weatherstats/dayvalues)
+#    In the html files update the relatieve paths to the thirdparty maps
 
 if webserver: # Oké, let's save the html files on the webserver
+    dir_www = os.path.abspath('/var/www/html/weatherstats') 
     dir_dayvalues_htm = os.path.join(dir_www, 'dayvalues') # knmi html files from text
     dir_stats_htm  = os.path.join(dir_www, 'statistics')
     dir_thirdparty = os.path.join(dir_www, 'thirdparty')
-    # Update path (relative) to your thirdparty map on the webserver 
-    path_to_thirdparty  = './../../../../'
+    # Note html map on the webserver is skipped
+    path_to_thirdparty = './../../../../' # 4xup
 
 ################################################################################
 # KNMI Weather
