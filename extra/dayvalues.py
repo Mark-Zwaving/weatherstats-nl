@@ -4,7 +4,7 @@ __author__ = 'Mark Zwaving'
 __email__ = 'markzwaving@gmail.com'
 __copyright__ = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__ = 'GNU Lesser General Public License (LGPL)'
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 __maintainer__ = 'Mark Zwaving'
 __status__ = 'Development'
 
@@ -18,11 +18,12 @@ import config as cfg, datetime
 import sources.model.weather_stations as weather_stations 
 import sources.model.dayvalues as dayvalues 
 import sources.model.ymd as ymd 
+import sources.view.text as text
 
 if __name__ == '__main__':
-    cfg.verbose = True                                 # See all the files made or checked
+    verbose = cfg.verbose = False                                 # See all the files made or checked
     yyyy, mm, dd, HH, MM, SS = ymd.y_m_d_h_m_s_now()   # Get current date time
-    init     = True                                    # First time init all data. (Re-)write all
+    init     = False                                    # First time init all data. (Re-)write all
     ed_ymd   = f'{yyyy}{mm}{dd}'                       # End date is today
     st_ymd   = ymd.yyyymmdd_minus_day(ed_ymd, 100)     # Start date is X=100 days back, only last 100 days
     period   = f'{st_ymd}-{ed_ymd}'                    # Default period
@@ -59,9 +60,9 @@ if __name__ == '__main__':
         'lst-stations': lst_stations,   # Selected stations
         'period': period,               # Period to make dayvalues, default is only last 100 days
         'file-type': 'html',            # Output type file
-        'write': update,                # Rewrite 'rewrite' all or just just 'add'
+        'write-dayvalues': update,                # Rewrite 'rewrite' all or just just 'add'
         'lst-sel-cells': cfg.lst_cells_dayvalues,  # Entities for the day. Use all.
         'download': download,           # Download data first
     }
 
-    dayvalues.calculate(options) # Make vayvalues
+    dayvalues.calculate(options, verbose) # Make vayvalues
