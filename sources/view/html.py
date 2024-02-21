@@ -45,7 +45,6 @@ class Template():
         self.title  = title
         self.header = header
         self.main   = main
-        self.footer = footer
 
         title = self.title.strip().replace(' ', cfg.e)
         dt = ymd.text(ymd.yyyymmdd_now())
@@ -73,6 +72,9 @@ class Template():
     def create(self):
         ok, self.html = fio.read( self.template, verbose=False )
         if ok:
+            self.footer = cfg.knmi_dayvalues_notification + '<br>' 
+            self.footer += text.created_by_notification_html + ' '
+            self.footer += ymd.txt_datetime_now()
             self.html = self.html.replace('{{%now%}}', str( datetime.datetime.now()))
             self.html = self.html.replace('{{%title%}}', self.title)
             self.html = self.html.replace('{{%icon%}}', self.icon)
@@ -84,7 +86,7 @@ class Template():
             self.html = self.html.replace('{{%css_code%}}', self.css_code)
             self.html = self.html.replace('{{%header%}}', self.header)
             self.html = self.html.replace('{{%main%}}', self.main)
-            self.html = self.html.replace('{{%footer%}}', self.footer)
+            self.html = self.html.replace('{{%footer%}}', text.create_by_notification_html())
             self.html = self.html.replace('{{%js_files%}}', util.lst_to_s(self.js_files,'\n'))
             self.html = self.html.replace('{{%js_code%}}', self.js_code)
             self.html = self.html.replace('{{%path_to_root%}}', self.path_to_root)
