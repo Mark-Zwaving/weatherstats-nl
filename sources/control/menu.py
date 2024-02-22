@@ -387,7 +387,7 @@ def download_images():
 
         if answer.is_back(options[text.ask_other_menu]): break # Go back to menu
 
-        yymd, hms = options[text.ask_start_date].split(' ') # get date and time 
+        yymd, hms = options[text.ask_start_datetime].split(' ') # get date and time 
 
         # Wait/pause till download must start
         st = time.time_ns() # Set the timer
