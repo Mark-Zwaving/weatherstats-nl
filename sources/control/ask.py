@@ -9,7 +9,7 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import sys, config as cfg
-# import validators
+import validators
 import sources.view.text as text
 import sources.model.weather_stations as weather_stations
 import sources.model.utils as utils
