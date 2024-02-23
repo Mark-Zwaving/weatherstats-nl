@@ -4,7 +4,10 @@ TODO.txt
 data/forecasts
 data/downloads
 data/animations
+data/images
 
+data/dayvalues/zip
+data/dayvalues/txt
 data/dayvalues/html/235
 data/dayvalues/html/260
 data/dayvalues/html/280
@@ -12,11 +15,7 @@ data/dayvalues/html/310
 data/dayvalues/html/380
 
 data/statistics/csv
-data/statistics/html/2023
-
-data/dayvalues/zip/*.zip
-data/dayvalues/txt/*.txt
-data/graphs
+data/statistics/html
 
 __pycache__
 sources/model/__pycache__
@@ -24,9 +23,4 @@ sources/model/cell/__pycache__
 sources/view/__pycache__
 sources/control/__pycache__
 
-common/__pycache__
-common/sources/model/__pycache__
-common/sources/view/__pycache__
-common/sources/control/__pycache__
-
-venv/
+venv-py3.8/
