@@ -572,7 +572,7 @@ def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer
     s4d_querie       = cfg.e
     period1          = cfg.e
     period2          = cfg.e 
-    period_compare   = cfg.e 
+    period_compare_  = cfg.e 
     filetype         = cfg.e 
     filename         = name
     write_dayval     = cfg.e
@@ -685,7 +685,7 @@ def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer
             )
             
         elif quest == text.ask_per_compare:
-            answ = period_compare = period_compare(
+            answ = period_compare_ = period_compare(
                 'Give the period to compare ?', default, back, prev_act, exit, spacer 
             )
 
@@ -902,7 +902,7 @@ def lst(lst_ask, name, default=cfg.e, back=False, prev=False, exit=False, spacer
         text.ask_stations:                lst_stations,
         text.ask_period:                  period1, 
         text.ask_per2:                    period2, 
-        text.ask_per_compare:             period_compare,
+        text.ask_per_compare:             period_compare_,
         text.ask_clima_period:            cfg.climate_period, # TODO ASK for years and put in year in head of table
         text.ask_select_cells:            lst_sel_cel,
         text.ask_s4d_query:               s4d_querie, 
