@@ -4,7 +4,7 @@
  * @license  GPLv3
  * @version  0.0.7
  */
- 'use strict'
+'use strict'
 
 /**
  * Station object
@@ -28,7 +28,7 @@ let jan=1, febr=2, march=3, april=4, mai=5, june=6, july=7,
     id_iframe     = 'iframe-dayvalues-page', 
     id_option_lst = 'options-form-id', 
     id_datepicker = 'date-form-id',
-    update_hour   = 901, // No daily updates before 9
+    update_hour   = 915, // No daily updates before 9
     // Init wmo and date 
     wmo_act  = '', 
     date_act = '',
@@ -112,13 +112,10 @@ let get_max_available_date = () =>
 {
     let maxx = get_day_before(get_yyyymmdd_now()), // Always yesterday
         d = new Date(), 
-        t = d.getHours() * 100 + d.getMinutes()
+        t = d.getHours() * 100 + d.getMinutes()  // 0900
 
     // Cannot update before certain time.
-    if ( t < update_hour ) 
-    {
-        maxx = get_day_before(maxx) // Another day back
-    }
+    if ( t < update_hour ) maxx = get_day_before(maxx) // Another day back
 
     return maxx
 }
@@ -340,9 +337,7 @@ let start_all_up = () =>
 }
 
 // Start init after document is loaded
-window.addEventListener( 'DOMContentLoaded', (event) =>  
-{
-    
+window.addEventListener( 'DOMContentLoaded', (event) =>  {
     // btn goto first date
     docid('date-min').addEventListener('click', function(event)
     {
@@ -410,7 +405,7 @@ window.addEventListener( 'DOMContentLoaded', (event) =>
     })
 
     // Optionlist for new WMO stations
-    docid('options-form-id').addEventListener('click', function(event) 
+    docid('options-form-id').addEventListener('change', function(event) 
     {
         event.preventDefault()
         wmo_act = get_value(id_option_lst)  // date act is unchanged
