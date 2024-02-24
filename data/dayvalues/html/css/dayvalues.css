@@ -6,11 +6,13 @@ body, html {
 
 nav button {
 	width: 35px;
+	min-width: 35px;
+	max-width: 35px;
 }
 
 nav select, nav input {
-	width: 160px;
-	min-width: 160px;
+	width: 100px;
+	min-width: 100px;
 	max-width: 160px;
 	/* white-space: nowrap; */
 }
