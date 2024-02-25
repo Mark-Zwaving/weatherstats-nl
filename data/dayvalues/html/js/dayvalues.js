@@ -6,6 +6,23 @@
  */
 'use strict'
 
+// Init vars
+let jan=1, febr=2, march=3, april=4, mai=5, june=6, july=7, 
+    aug=8, sept=9, oct=10,  nov=11,  dec=12, 
+    id_menu       = 'dayvalues-menu', 
+    id_iframe     = 'iframe-dayvalues-page', 
+    id_option_lst = 'options-form-id', 
+    id_datepicker = 'date-form-id',
+    // Not all daily updates ready before 9:0 ??
+    // System downloads set at 9:30 (to set some margin) 
+    update_hour   = 100, // Set to 10
+    // Init wmo and date 
+    wmo_act  = '', 
+    date_act = '',
+    date_min = '',
+    date_max = '',
+    lst_stations = [] // Will be filled with stations after page is loaded
+  
 /**
  * Station object
  */
@@ -20,21 +37,6 @@
          this.base_src = `./${wmo}`
      }
  }
-
-// Init vars
-let jan=1, febr=2, march=3, april=4, mai=5, june=6, july=7, 
-    aug=8, sept=9, oct=10,  nov=11,  dec=12, 
-    id_menu       = 'dayvalues-menu', 
-    id_iframe     = 'iframe-dayvalues-page', 
-    id_option_lst = 'options-form-id', 
-    id_datepicker = 'date-form-id',
-    update_hour   = 915, // No daily updates before 9
-    // Init wmo and date 
-    wmo_act  = '', 
-    date_act = '',
-    date_min = '',
-    date_max = '',
-    lst_stations = [] // Will be filled with stations after page is loaded
 
 // Helper fn
 let docid = ( id ) => document.getElementById(id)
