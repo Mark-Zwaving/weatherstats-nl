@@ -71,3 +71,5 @@ Source tutorial: *https://www.linuxcapable.com/how-to-install-python-3-9-on-debi
 ## Start program weatherstats-nl
 ```python3 ws.py```  
 
+### License
+*GNU General Public License version 2 - GPLv2*
