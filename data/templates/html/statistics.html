@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--Created by WeatherstatsNL on {{%now%}} See Github: https://github.com/Mark-Zwaving/weatherstats-nl//-->
+        <title>{{%title%}}</title>
+        <meta charset="{{%charset%}}">
+        <meta name="author" content="{{%author%}}">
+        <meta name="viewport" content="{{%viewport%}}">
+        <link rel="shortcut icon" href="{{%path_to_root%}}img/icon-weatherstats.png">
+        {{%description%}}
+        <link rel="stylesheet" type="text/css" href="{{%path_to_thirdparty%}}thirdparty/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="{{%path_to_thirdparty%}}thirdparty/css/font-awesome-5.min.css">
+        <link rel="stylesheet" type="text/css" href="{{%path_to_root%}}css/table-statistics.css">
+        <link rel="stylesheet" type="text/css" href="{{%path_to_root%}}css/default.css">
+        {{%css_files%}}
+        <style>{{%css_code%}}</style>
+    </head>
+    <body>
+        <article class="container-fluid m-1">
+          <header id="main_menu_ws" style="display:none"> </header>
+          <header class="p-3" style="display:none"><h5>{{%header%}}</h5></header>
+          <main class="row">{{%main%}}</main>
+          <!-- <footer class="m-2 p-1 text-center text-muted font-italic">
+            <small>{{%footer%}}</small>
+          </footer> -->
+        </article>
+        <script src="{{%path_to_thirdparty%}}js/jquery-3.2.1.slim.min.js"></script>
+        <script src="{{%path_to_thirdparty%}}js/popper.min.js"></script>
+        <script src="{{%path_to_thirdparty%}}js/bootstrap.js"></script>
+        <script src="{{%path_to_thirdparty%}}js/font-awesome-5.min.js"></script>
+        <script src="{{%path_to_root%}}js/sort-col.js"></script>
+        <script src="{{%path_to_root%}}js/default.js"></script>
+        {{%js_files%}}
+        <script>{{%js_code%}}</script>
+    </body>
+</html>
