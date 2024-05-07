@@ -3,8 +3,8 @@
 __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.1.2' 
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    = '0.1.4' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -13,11 +13,22 @@ import os, sys, time, numpy as np  # Python modules
 ################################################################################
 
 verbose = False  # Print more(all) to screen
-error   = True   # Print exceptions and errors to screen
+error   = False  # Print exceptions and errors to screen
 info    = True   # Show examples and help info in menu by default
 console = True   # Show always the calculated tables in the console 
 log     = False  # Log to file 
-debug   = False  # Debug mode
+
+# The <default> years/period for the calculations of climate averages
+climate_start_year = 1991
+climate_end_year   = 2020
+
+# Debug. Set true to see it all
+# If true: verbose, error, info and console will all be set to true
+debug = True  
+
+# TODO: To automatic save the console output in an text file 
+# to map: data/console/
+# save_text = False 
 
 # To save the current weather and forecasts in the data/forecasts map,
 # set save_forecasts to true else False
@@ -27,10 +38,6 @@ save_forecasts = True
 # cmd is output to screen only. Text en html writes texts/html files
 default_output = 'html'
 
-# The <default> years/period for the calculations of climate averages
-climate_start_year = 1991
-climate_end_year   = 2020
-
 # Set the time zone
 timezone = 'Europe/Amsterdam'  
 
@@ -39,10 +46,10 @@ csv_sep  = ';'
 
 ################################################################################
 # For HTML pages
-# Add popup tables in html tables. True for yess, False for no
+# Add popup tables in html tables. True for yes, False for no
 html_popup_table_show = True
 # Give a max number for rows html popup table else html pages can become very large
-html_popup_table_max_rows = 10  # -1 for all rows
+html_popup_table_max_rows = 15  # -1 for all rows
 # Remove whitespace from html pages source code
 html_strip = True
 
@@ -51,12 +58,14 @@ html_strip = True
 dir_app            = os.path.abspath(os.path.dirname(__file__))
 dir_data           = os.path.join(dir_app,  'data')
 dir_templates      = os.path.join(dir_data, 'templates')
+dir_templates_htm  = os.path.join(dir_templates, 'html')
+dir_templates_sql  = os.path.join(dir_templates, 'sql')
 dir_forecasts      = os.path.join(dir_data, 'forecasts')  # Downloaded forecasts
 dir_thirdparty     = os.path.join(dir_data, 'thirdparty') 
 dir_graphs         = os.path.join(dir_data, 'graphs')
 dir_download       = os.path.join(dir_data, 'downloads')
 dir_animation      = os.path.join(dir_data, 'animations')
-dir_database       = os.path.join(dir_data, 'database')
+dir_sqlite         = os.path.join(dir_data, 'sqlite')
 dir_dayvalues      = os.path.join(dir_data, 'dayvalues') # Dayvalues
 dir_dayvalues_zip  = os.path.join(dir_dayvalues, 'zip')  # knmi zip files
 dir_dayvalues_txt  = os.path.join(dir_dayvalues, 'txt')  # knmi text files
@@ -64,12 +73,14 @@ dir_dayvalues_htm  = os.path.join(dir_dayvalues, 'html') # knmi html files from 
 dir_statistics     = os.path.join(dir_data, 'statistics')
 dir_stats_htm      = os.path.join(dir_statistics, 'html')
 dir_stats_txt      = os.path.join(dir_statistics, 'text')
+dir_stats_cnsl     = os.path.join(dir_statistics, 'console')
 dir_stats_csv      = os.path.join(dir_statistics, 'csv')
 dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 
 # Paths templates
-html_template_dayvalues  = os.path.join(dir_templates, 'dayvalues.html')
-html_template_statistics = os.path.join(dir_templates, 'statistics.html')
+html_template_dayvalues  = os.path.join(dir_templates_htm, 'dayvalues.html')
+html_template_statistics = os.path.join(dir_templates_htm, 'statistics.html')
+
 
 # How many dir up is the html root, in the data/statistics map ?
 # Define paths to css, img and js files in the created html-files.  
@@ -86,7 +97,7 @@ path_to_html_root = './../../../'
 path_to_thirdparty = './../../../../../' 
 
 # Path database TODO maybe later
-db_dayvalues = os.path.join(dir_database, 'dayvalues.db')
+db_dayvalues = os.path.join(dir_sqlite, 'weatherstats.db')
 
 # Webserver 
 webserver = False  # Set to true to save the html files to a (local) webserver 
@@ -171,139 +182,6 @@ buienradar_json_places = [
 buienradar_json_cols = 4  # Colums for the data
 
 ################################################################################
-# Default cells for seasons (winter, summer and winter-summer), extremes and 
-# climate and own default lists
-################################################################################
-# Abbreviations
-# See for weather entities eg. tx, tn et cetera info-entities.txt
-# info: information (eg. places, period), cnt: count(er)
-# ave: average or mean, max: maximum extreme, min: minimum extreme
-# ndx: indexex (eg. hellmann, frost-sum, heat-ndx)  
-# ge: greather than and equal, gt: greater than, eq: equal, ne: not equal
-# le: less than and equal, lt: less than
-# day: dayvalue (to get the dayvalues)
-
-# Options examples what can be shown
-# Examples - info cells
-# inf_copyright, inf_place, inf_province, inf_country, inf_period, inf_month, 
-# inf_num, inf_period-2
-
-# Examples normal statistics 
-# ave_tg, sum_sq, sum_rh
-
-# Examples extremes 
-# max_tx, max_tg, max_tn, max_t10n, min_tx, min_tg, min_tn, 
-# min_t10n, max_rh, max_sq, max_rhx, max_px, max_pn, min_px, min_pn, max_ux, 
-# max_ug, max_un, min_ux, min_ug, min_un
-
-# Examples indexes
-# ndx_hellmann, ndx_ijnsen, ndx_frost-sum, ndx_heat-ndx
-
-# Examples counters
-# cnt_tx_ge_20, cnt_tx_ge_25, cnt_tx_ge_30, cnt_tx_ge_35, cnt_tx_ge_40, cnt_tg_ge_18, 
-# cnt_tg_ge_20, cnt_sq_ge_10, cnt_rh_ge_10, cnt_tx_lt_0, cnt_tg_lt_0, cnt_tn_lt_0, 
-# cnt_tn_lt_-5, cnt_tn_lt_-10, cnt_tn_lt_-15, cnt_tn_lt_-20
-
-# Examples climates <beta>
-# clima_ave_tg, clima_ave_tx, clima_ave_tn, clima_sum_sq, clima_sum_rh 
-
-# Examples normal day values
-# inf_num, inf_place, inf_province, inf_period, inf_day, 
-# day_tx, day_tg, day_tn, day_t10n, day_sq, day_sp, day_rh, day_rhx,
-# day_dr, day_pg, day_px, day_pn, day_ug, day_ux, day_un, day_ng, day_ddvec,
-# day_fhvec, day_fg, day_fhx, day_fhn, day_fxx, day_vvx, day_vvn, day_q
-
-cells_separator = '_'  # Separator for cell entities. Do not change.
-# inf_place = f'inf{cells_separator}place'
-
-# Menu default options lst 
-# Default cells winter
-lst_cells_winter = [
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
-    'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'ndx_hellmann', 'ndx_frost-sum', # 'ndx_ijnsen', 
-    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
-    'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 'cnt_tn_lt_-5', 
-    'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20', 'cnt_rh_ge_10' 
-]
-
-# Default cells summer
-lst_cells_summer = [ 
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
-    'max_tx', 'max_tg', 'max_tn', 'ndx_heat-ndx', 
-    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
-    'cnt_sq_ge_10', 'cnt_rh_ge_10',
-    'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
-    'cnt_tg_ge_18', 'cnt_tg_ge_20'
-]
-
-# Default cells winter and summer
-lst_cells_winter_summer = [
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg',
-    'max_tx', 'max_tg', 'max_tn', 'ndx_heat-ndx', 
-    'min_tx', 'min_tg', 'min_tn', 'min_t10n', 
-    'ndx_hellmann', 'ndx_frost-sum', # 'ndx_ijnsen', 
-    'sum_sq', 'sum_rh', 'cnt_sq_ge_10', 'cnt_rh_ge_10', 
-    'cnt_tx_ge_20',  'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 'cnt_tx_ge_40', 
-    'cnt_tg_ge_18', 'cnt_tg_ge_20', 'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 
-    'cnt_tn_lt_-5', 'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20'
-]
-
-# Default option
-lst_cells_my_default_1 = [ 
-    'inf_place', 'inf_province', 'inf_period', 'ave_tg', 'clima_ave_tg', 
-    'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'max_fhx', 'max_px', 
-    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
-    'min_tx', 'min_tg', 'min_tn', 'min_t10n', 'min_pn', 'min_un',
-    'cnt_tx_ge_20', 'cnt_tn_lt_0'
-]
-
-# My Default option ID-1, make your own list with statistic cells 
-# See file -> control -> view -> text.py -> lst_menu_statistics = [ 'STATISTICS TABLES', 
-# for more info
-lst_cells_id_1 = [ ] # Fill in your own statistics cells
-
-# Example spring ?
-lst_cells_spring = [ 
-    'inf_place', 'inf_period', 'ave_tg', 'clima_ave_tg',  
-    'max_tx', 'min_tx', 'max_tn', 'min_tn', 
-    'ndx_heat-ndx', 'ndx_frost-sum', 'sum_sq', 'sum_rh', 
-    'cnt_tx_>_20', 'cnt_tn_<_0', 'cnt_tn_<_-5'
-]
-
-# Default cells for the extrems
-lst_cells_my_extremes = [
-    'inf_place', 'inf_period', 
-    'max_tx', 'max_tg', 'max_tn', 'max_t10n', 'min_tx', 'min_tg', 'min_tn', 'min_t10n',
-    'max_sq', 'max_rh', 'max_rhx', 'max_fg', 'max_fhx', 'max_px', 'max_pg', 'min_pg', 
-    'min_pn', 'min_ux', 'min_ug', 'min_un', 'max_ev24', 'max_q'
-]
-
-# Default cells for to count days
-lst_cells_my_counts = [
-    'inf_place', 'inf_period', 
-    'cnt_tx_ge_20', 'cnt_tx_ge_25', 'cnt_tx_ge_30', 'cnt_tx_ge_35', 
-    'cnt_tx_ge_40', 'cnt_tg_ge_18', 'cnt_tg_ge_20', 
-    'cnt_tx_lt_0', 'cnt_tg_lt_0', 'cnt_tn_lt_0', 'cnt_tn_lt_-5', 
-    'cnt_tn_lt_-10', 'cnt_tn_lt_-15', 'cnt_tn_lt_-20'
-]
-
-# Default cells to show in search for days
-lst_cells_s4d_default = [
-    'inf_num', 'inf_place', 'inf_province', 'inf_period', 'inf_day', 
-    'day_tx', 'day_tg', 'day_tn', 'day_t10n', 'day_sq', 'day_sp', 'day_rh', 'day_rhx',
-    'day_dr', 'day_pg', 'day_px', 'day_pn', 'day_ug', 'day_ux', 'day_un', 'day_ng', 'day_ddvec',
-    'day_fhvec', 'day_fg', 'day_fhx', 'day_fhn', 'day_fxx', 'day_vvx', 'day_vvn', 'day_q',
-    'day_ev24'
-]
-
-# All the cells for making dayvalues
-lst_cells_dayvalues = [
-    'tx', 'tg', 'tn', 't10n', 'ddvec', 'fhvec', 'fg', 'fhx', 'fhn', 'fxx', 
-    'sq', 'sp', 'rh', 'rhx',  'dr', 'px', 'pg', 'pn', 'ux', 'ug', 'un', 
-    'vvx', 'vvn', 'ng', 'q', 'ev24'
-]
-
-################################################################################
 # Download base urls for images 
 # Base knmi download url for 10 min images 
 knmi_base_url_act_img  = 'https://cdn.knmi.nl/knmi/map/page/weer/actueel-weer/'
@@ -341,8 +219,8 @@ animation_time  = 0.5         # Default animation time zip for animations
 animation_ext   = 'gif'       # Default Extension for animation. Do not change.
 animation_name  = 'animation' # Default base-name for the animation file
 # To use compress: programm gifsicle needs to be installed on your system
-gif_compress    = True        # Compress output animation gifs
-copy_compressed = True        # When compress is true keep a copy for the compressed file
+gif_compress    = False       # Compress output animation gifs
+copy_compressed = False       # When compress is true keep a copy for the compressed file
 remove_download = False       # Delete the dowloaded images after the aniamtion is made 
 
 ################################################################################
@@ -468,13 +346,13 @@ data_dtype     = np.float64  # Data type for reading data files
 data_min_year  = 1901  # Minumum year of possible data
 np_empthy_1d   = np.array([])
 np_empthy_2d   = np.array([[]])
-e = empthy     = '' 
 nv = no_val    = '.'  # Replacement for no output
 txt_data_error = 'x' 
 date_false     = -1 
 T = True
 F = False
-e = empthy     = '' 
+e = empthy = ''  # Empthy false var
+ln = '\n' # A system specific text enter character
 
 # Descending min or max
 html_max = True
@@ -491,7 +369,7 @@ translate = False # Translation active or not
 # No download flooding from a server.
 # Time to wait after downloading a file. Always min = 0.2 seconds
 download_flood_protection_active = True
-download_interval_time = 0.2 # Seconds.
+download_interval_time = 0.1 # Seconds.
 download_max_num = 10000 # Max number downloads, flood protection
 
 # The webpage/ip for checking an internet connection
@@ -507,21 +385,36 @@ check_timeout  = 500 # Milli secs
 ################################################################################
 ################################################################################
 # Vars below do not change
-hour_day     =  24
-day_week     =   7
-sec_minute   =  60
-sec_hour     =  sec_minute * sec_minute
-sec_day      =  hour_day * sec_hour
-sec_week     =  day_week * sec_day
-hour_minute  =  sec_minute
-day_minute   =  hour_day * hour_minute
+hour_day        = 24
+day_week        =  7
+sec_minute      = 60
+sec_hour        = sec_minute * sec_minute
+sec_day         = hour_day * sec_hour
+sec_week        = day_week * sec_day
+hour_minute     = sec_minute
+day_minute      = hour_day * hour_minute
+sec_nano        = 1000000000
+sec_nano_hour   = sec_hour * sec_nano
+sec_nano_day    = sec_day * sec_nano
+sec_nano_week   = sec_week * sec_nano 
+sec_nano_minute = sec_minute * sec_nano 
+
+ # Separator for the statistics cell entities
+cells_separator = '_' 
+
+# Set all tor True
+if debug:
+    verbose = error = console = info = True
+
+# Database
+connect_db = False
 
 climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # Startup time for running this app (!more or less)
 app_start_time = time.time() 
 
-forbidden_map_chars = ['\\','`','*','{','}','[',']','(',')','>','<','#','+','-','.','!','$','\'']
+lst_forbidden_file_chars = ['"',"'",'\\','`','*','{','}','[',']','(',')','>','<','#','+','.','!','$','\'']
 
 # Copyright notification weatherstats 
 created_by_notification = 'Created by weatherstats-nl at %s' 
