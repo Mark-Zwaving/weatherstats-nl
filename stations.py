@@ -6,7 +6,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright 2020 (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
+__license__    =  'GNU General Public License version 2 - GPLv2'
 __version__    =  '0.1.8'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -26,6 +26,7 @@ class Station:
         self.format   = format
         self.min_date = ''
         self.max_date = ''
+        self.data_download = True
 
         if self.format == 'knmi':
             self.data_format        = cfg.knmi_data_format     # For data standards
@@ -45,7 +46,6 @@ class Station:
         self.data_zip_path      = os.path.join(cfg.dir_dayvalues_zip, self.data_zip_file)
         self.data_txt_path      = os.path.join(cfg.dir_dayvalues_txt, self.data_txt_file)
         self.data_comments_sign = cfg.data_comment_sign
-        self.data_download      = True
 
 # Make list with stations
 lst = []
