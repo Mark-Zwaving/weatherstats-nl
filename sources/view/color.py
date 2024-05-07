@@ -3,8 +3,8 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.9'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    =  '0.1.0'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
