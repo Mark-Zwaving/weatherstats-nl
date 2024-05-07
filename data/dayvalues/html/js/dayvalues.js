@@ -13,9 +13,9 @@ let jan=1, febr=2, march=3, april=4, mai=5, june=6, july=7,
     id_iframe     = 'iframe-dayvalues-page', 
     id_option_lst = 'options-form-id', 
     id_datepicker = 'date-form-id',
-    // Not all daily updates ready before 9:0 ??
+    // Not all daily updates ready before 9:00 ??
     // System downloads set at 9:30 (to set some margin) 
-    update_hour   = 100, // Set to 10
+    update_hour   = 930, // Set 
     // Init wmo and date 
     wmo_act  = '', 
     date_act = '',
