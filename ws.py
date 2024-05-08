@@ -95,7 +95,8 @@ def main():
         cnsl.log(text.menu_no_weather_stations, True )
         exit(0)
 
-    space = '    '
+    # Spacer tab menu
+    space = '   '
 
     # Show main menu
     while True:  
@@ -106,51 +107,55 @@ def main():
         num, content = 1, cfg.e
         for el in lst:
             title, options = el[0], el[1]
-            content += f'\n{space}{title}\n'
+            content += f'\n{space}{title}' + cfg.ln
             for option in options:
                 title = option[0]
-                content += f'{space * 2}{num}) {title}\n'
+                content += f'{space*2}{num:>2}) {title}' + cfg.ln
                 num += 1
 
-        t = text.head('MAIN MENU - Welcome to WeatherStatsNL') + '\n'
-        t += content  + '\n'
+        t = text.head('MAIN MENU - Welcome to WeatherStatsNL') + cfg.ln
+        t += content  + cfg.ln
 
         if not data and not internet:
-            t += text.menu_no_internet_no_data + '\n'
+            t += text.menu_no_internet_no_data + cfg.ln
             t += text.foot(f"{space}Press a key to reload the menu or press 'q' to quit...")
 
         else:
             if not internet:
-                t += f'{space}No internet connection.\n'
-                t += f'{space}Get an working internet connection for more menu options.\n'
+                t += f'{space}No internet connection.' + cfg.ln
+                t += f'{space}Get an working internet connection for more menu options.' + cfg.ln
             elif not data:
                 t += f'{space}No data found.\n'
-                t += f'{space}Download the weather data (option 1 & 2) for more menu options.\n'
+                t += f'{space}Download the weather data (option 1 & 2) for more menu options.' + cfg.ln
 
-            t += f'{space}Choose one of the following options: 1...{num-1}\n'
-            t += f"{space}Press 'x' to quit program...\n\n"
+            t += f'{space}Choose one of the following options: 1..{num-1}' + cfg.ln
+            t += f"{space}Press 'x' to quit program..." + cfg.ln + cfg.ln
             t += text.foot('Your choice ? ')
 
         # Make a choice
         answ = question.ask(t, spacer=True)  
 
-        if not answ:
-            continue
-        elif answer.is_quit(answ):
+        if answer.is_quit(answ):
             break
-        else:
+        else: 
+            # Check answer
             try:
                 choice = int(answ)
             except Exception as e:
-                t = f'Option "{answ}" unknown...\n' # Input was not a number
+                pass # Input is not a number
             else:
+                # Check availbale menu options 
                 if choice in range( 1, num ):
-                    menu_broker(lst, choice)
+                    # Menu choice is OK, goto menu broker 
+                    menu_broker(lst, choice) 
                     continue
-                else:
-                    t = f'Answer option {answ} not available\n'
             
-            cnsl.log(t, True)
+            # Input was not a number or out of range
+            t  = f"Menu option '{answ}' is not available." + cfg.ln
+            t += f'Enter a number from 1..{num-1}.' + cfg.ln
+            t += text.press_enter_continue + cfg.ln
+            # cnsl.log(t, True)
+            input(t)
 
 # Main programm
 if __name__== '__main__':
