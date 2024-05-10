@@ -3,8 +3,8 @@
 __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    = 'GNU General Public License version 3 - GPLv3'
-__version__    = '0.4.7'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    = '0.4.8'
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -60,7 +60,7 @@ def s_to_bytes( s, charset, errors ):
     try:
         b = s.encode(encoding=charset, errors=errors)
     except Exception as e:
-        cnsl.log(f'Fail convert to bytes with charset {charset}\nError {e}', True)
+        cnsl.log(f'Error in convert s_to_bytes() with charset {charset}\n{e}', True)
     else:
         return b
     return s
@@ -69,7 +69,7 @@ def bytes_to_s( b, charset, errors ):
     try:
         s =  b.decode(encoding=charset, errors=errors)
     except Exception as e:
-        cnsl.log(f'Fail convert to string with charset {charset}.\nError:{e}', True)
+        cnsl.log(f'Error in convert bytes_to_s() with charset {charset}\n{e}', True)
     else:
         return s
     return b
@@ -86,7 +86,7 @@ def str_to_bytes( s, charset, errors ):
     try:
         b = s.encode(encoding=charset, errors=errors)
     except Exception as e:
-        cnsl.log(f'Error convert string to bytes charset {charset}\n{e}', cfg.error)
+        cnsl.log(f'Error in convert str_to_bytes() with charset {charset}\n{e}', cfg.error)
     else:
         return b
     return s
@@ -95,7 +95,7 @@ def bytes_to_str( b, charset, errors ):
     try:
         s =  b.decode(encoding=charset, errors=errors)
     except Exception as e:
-        cnsl.log(f'Error convert bytes to string charset {charset}\n{e}', cfg.error)
+        cnsl.log(f'Error in convert bytes_to_str() with charset {charset}\n{e}', cfg.error)
     else:
         return s
     return b
