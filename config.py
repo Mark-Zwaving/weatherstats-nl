@@ -24,7 +24,7 @@ climate_end_year   = 2020
 
 # Debug. Set true to see it all
 # If true: verbose, error, info and console will all be set to true
-debug = True  
+debug = False 
 
 # TODO: To automatic save the console output in an text file 
 # to map: data/console/
@@ -43,6 +43,9 @@ timezone = 'Europe/Amsterdam'
 
 # csv separator
 csv_sep  = ';'
+
+# Spacer tab menu
+spacer = '   '
 
 ################################################################################
 # For HTML pages
@@ -241,13 +244,13 @@ plot_line_width  = 1        # Width line
 plot_line_style  = 'solid'  # Linestyle
 plot_marker_size = 3        # Dot sizes
 plot_marker_type = 'o'      # Type marker
-plot_marker_txt  = 'y'      # Markertext. yess (y) or no (n)
+plot_marker_txt  = 'n'      # Markertext. yess (y) or no (n)
 plot_cummul_val  = 'n'      # Cummulative values. yess (y) or no (n)
 # Adding climate averages to plot. yess (y) or no (n)
 plot_climate_ave = 'n'
 plot_climate_marker_txt = 'n'  # Adding markers next to the climate markers..
 # Adding climate min, max and averages to plot. yess (y) or no (n)
-plot_min_max_ave_period = 'y'
+plot_min_max_ave_period = 'n'
 plot_clima_line_style   = 'dotted'
 plot_clima_line_width   =  1
 plot_clima_marker_type  = '.'
@@ -281,7 +284,7 @@ plot_marker_alpha = 0.9
 # Style for added texts (extremes, min, max mean)
 plot_add_txt_font = { 'family': 'monospace',
                       'weight': 'normal',
-                      'style': 'normal',
+                      'style': 'italic',
                       'size': '9',
                       'variant': 'normal' }
 
