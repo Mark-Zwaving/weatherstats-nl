@@ -4,8 +4,8 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU Lesser General Public License (LGPL)'
-__version__    =  '0.0.7'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    =  '0.0.8'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -19,17 +19,14 @@ import sources.model.ymd as ymd
 def log(
         s, # String to print on the screen
         verbose=cfg.verbose,  # If set to True it always prints on a screen
-        log=cfg.log,          # Overwrite default log
-        debug=cfg.debug       # Overwrite default debug
+        log=cfg.log           # Overwrite default log
     ):
     '''Function shows output string (s) on screen based on variable verbose and debug.
        Output always to screen, set variable always to True.
        If debug set to True it wait for keypress to move on.'''
     s = str(s)
 
-    if debug: 
-        input(s)
-    elif verbose: 
+    if verbose: 
         print(s)
    
     if log: # Write log if selected
@@ -45,9 +42,7 @@ def log_r(
        variable verbose. Output always to screen, set variable always to True.'''
     s = f'\r{s}'
 
-    if debug: 
-        input(s)
-    elif verbose: 
+    if verbose: 
         print(s, end=cfg.e)
    
     if log: # Write log if selected
