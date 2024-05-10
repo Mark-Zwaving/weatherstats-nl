@@ -76,7 +76,6 @@ def process_lst(lst, verbose=cfg.verbose):
     start_ns = time.time_ns()
     for station in lst: 
         process(station, verbose)
-        print(' ') # Add Space
     delta_ns = time.time_ns() - start_ns
 
     t = utils.process_time_delta_ns(f'[{ymd.now()}] Total processing time is ', delta_ns)
