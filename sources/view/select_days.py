@@ -11,7 +11,7 @@ __status__     =  'Development'
 import config as cfg, os
 import pprint
 import sources.control.fio as fio
-import sources.control.davalues.read as dayval_read
+import sources.control.dayvalues.read as dayval_read
 import sources.model.dayvalues.np_days as np_days
 import sources.model.dayvalues.broker_period as broker
 import sources.model.dayvalues.data as data
