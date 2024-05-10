@@ -15,10 +15,9 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirna
 
 # Import weatherstats libraries
 import config as cfg, datetime
-import sources.model.weather_stations as weather_stations 
-import sources.model.dayvalues as dayvalues 
+import sources.model.stations as stations 
+import sources.view.dayvalues as dayvalues 
 import sources.model.ymd as ymd 
-import sources.view.text as text
 
 if __name__ == '__main__':
     verbose = cfg.verbose = False                                 # See all the files made or checked
@@ -33,11 +32,11 @@ if __name__ == '__main__':
 
     # Stations list to update
     lst_stations = [
-        weather_stations.wmo_to_station('260'),
-        weather_stations.wmo_to_station('280'),
-        weather_stations.wmo_to_station('235'),
-        weather_stations.wmo_to_station('310'),
-        weather_stations.wmo_to_station('380')
+        stations.wmo_to_station('260'),
+        stations.wmo_to_station('280'),
+        stations.wmo_to_station('235'),
+        stations.wmo_to_station('310'),
+        stations.wmo_to_station('380')
     ]
 
     # Update options for updating data and period
