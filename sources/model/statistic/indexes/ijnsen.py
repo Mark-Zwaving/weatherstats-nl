@@ -17,6 +17,7 @@ __status__     =  'Development'
 
 import numpy as np
 import sources.model.dayvalues.data as data
+import sources.model.dayvalues.np_days as np_days
 import sources.model.statistic.conditional as conditional
 import sources.model.dayvalues.select as select
 
@@ -51,7 +52,7 @@ def calculate(
         np_days_ijnsen = np.concatenate( [np_days_ijnsen, np_days_tx_0], axis=0 )
 
     # Remove 1st row
-    np_days_ijnsen = select.rm_row_lst_days(np_days_ijnsen, 0)
+    np_days_ijnsen = np_days.rm_row(np_days_ijnsen, 0)
 
     # Remove duplicates based on the dates
     np_days_ijnsen = np.unique(np_days_ijnsen[:,data.column('yyyymmdd')], axis=0)
