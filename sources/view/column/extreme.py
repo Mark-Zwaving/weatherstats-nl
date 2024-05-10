@@ -58,12 +58,14 @@ def body(np_lst_days, lst_cell, file_type):
         # Max extreme
         if extreme in text.lst_max:
             type_sort = 'H-L'
-            raw, np_day, _ = maximum.calculate(np_lst_valid, entity) # Get maximum extreme
+            # Get maximum extreme
+            raw, np_day, _ = maximum.calculate(np_lst_valid, entity) 
         
         # Min extreme
         elif extreme in text.lst_min:
             type_sort = 'L-H'
-            raw, np_day, _ = minimum.calculate(np_lst_valid, entity) # Get maximum extreme
+            # Get maximum extreme
+            raw, np_day, _ = minimum.calculate(np_lst_valid, entity) 
 
         # print(np_day)
         # print(np_day[0,:])
