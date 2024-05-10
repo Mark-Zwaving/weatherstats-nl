@@ -2,98 +2,15 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.0.9'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    =  '0.1.2'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import datetime, os, math, numpy as np
 import config as cfg
+import datetime
 import sources.model.ymd as ymd
 import sources.view.console as cnsl
-from PIL import Image
-
-def is_int(s, verbose=False):
-    try: i = int(s)
-    except ValueError:
-        cnsl.log(f'Var {s} cannot be an integer', verbose)
-        return False  
-    return True
-
-def is_float(s, verbose=False):
-    try: f = float(s)
-    except ValueError:
-        cnsl.log(f'Var {s} cannot be a float', verbose)
-        return False
-    return True
-
-def is_lst(lst):
-    if isinstance(lst, list):
-        return True 
-    return False
-
-def is_dict(dct):
-    if isinstance(dct, dict):
-        return True 
-    return False
-
-def is_date( dt ):
-    try: datetime.datetime.strptime(dt, '%Y%m%d')
-    except ValueError:
-        return False
-    return True
-
-def is_leap(yyyy):
-    y = int(yyyy)
-    if y % 4 == 0:
-        if y % 100 == 0:
-            if y % 400 == 0:
-                return True
-        else:
-            return True
-    
-    return False
-
-def is_nan( val ):
-    if val == np.isnan: 
-        return True
-    elif np.isnan(val): 
-        return True
-    elif math.isnan(val): 
-        return True
-    
-    return False
-
-def image(path, verbose=cfg.verbose):
-    '''Function validates an image'''
-    ok = False
-    cnsl.log(f'[{ymd.now()}] validate image', verbose)
-    cnsl.log(f'Image {path}', verbose)
-    try:
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                if image_corrupt(path):
-                    raise Exception(f'Image is corrupt')
-            else:
-                raise Exception(f'Image is not a file')
-        else:
-            raise Exception(f'Image does not exist')
-    except Exception as e:
-        cnsl.log(f'Validation error: {e}', verbose)
-    else:
-        cnsl.log('Image seems to be ok', verbose)
-        ok = True
-    cnsl.log(f'End validate image', verbose)
-    return ok
-
-def image_corrupt(path, verbose=cfg.verbose):
-    '''Function checks is a file is corrupt returns True if it is else False'''
-    corrupt = False
-    try: Image.open(path).verify() # Open and verify
-    except Exception as e:
-        cnsl.log(f'Error file {path} is corrupt', verbose)
-        corrupt = True
-    return corrupt
 
 # Function checks extensions
 def extension(
@@ -105,75 +22,90 @@ def extension(
             ext = f'.{ext}'
     return ext
 
-def yyyymmdd(
-        yyyymmdd, # Date
-        verbose = cfg.verbose
-    ):
-    '''Function validates a date with format yyyymmdd for existence'''
-    ok, symd = False, str(yyyymmdd)
-    cnsl.log(f'[{ymd.now()}] validate date', verbose)
-    cnsl.log(f'Date - {symd} - format <yyyymmdd>', verbose)
-    if len(symd) != 8:
-        cnsl.log('Date has wrong length. Correct length must be 8', verbose)
-    elif not symd.isdigit():
-        cnsl.log('Date must only contain digits', verbose)
-    elif int(symd) > int(ymd.yyyymmdd_now()):
-        cnsl.log('Date is in the future. Try again later... ;-)', verbose)
-    else:
-        try:
-            y, m, d = ymd.split_yyyymmdd(symd)
-            d = datetime.datetime( int(y), int(m), int(d) )
-        except Exception as e:
-            cnsl.log(f'Error in date\n{e}', verbose)
-        else:
-            cnsl.log('Validate date success', verbose)
-            ok = True
-    cnsl.log('End validate date', verbose)
-    return ok
-
 # Function validates time and fills in missing values with 00
 def hhmmss(
         hh_mm_ss  # String format is <hh:mm:ss> or <hhmmss>. Allowed too is <hh>, <hh:mm>
     ):
-    '''Function validates time format and return the time in the format hh:mm:ss'''
-    # Init default time values
-    hhmmss = str(hh_mm_ss)
-    h, m, s = hhmmss, '00', '00'
-    h_max, m_max, s_max, t_min = '23', '59', '59', '00'
+    '''Function validates a time. 
+       Allowed dtime formats are
+       1. HHMMSS   | HHMM  | HH
+       2. HH:MM:SS | HH:MM
+       2. HH-MM-SS | HH-MM
+       3. HH MM SS | HH MM 
+    '''
+     # Make string, remove whitespeace before and after
+    hms = str(hh_mm_ss).strip()
+    h_max, ms_max, hms_min = 23, 59, 0
 
-    if ':' in hhmmss:
-        lst = hhmmss.split(':')
-        size = len(lst)
-        # Fill in the parts which are there
-        if size >= 1: h = lst[0]
-        if size >= 2: m = lst[1]
-        if size >= 3: s = lst[2]
-    elif '-' in hhmmss:
-        lst = hhmmss.split('-')
-        size = len(lst)
-        # Fill in the parts which are there
-        if size >= 1: h = lst[0]
-        if size >= 2: m = lst[1]
-        if size >= 3: s = lst[2]
+    # Fill in default parts
+    HH, MM, SS = hms, hms_min, hms_min 
+
+    # Make a lst with the parts 
+    lst = [HH, MM, SS] 
+
+    # format HH:MM:SS
+    if ':' in hms: 
+        lst = hms.split(':') 
+    # format HH-MM-SS
+    elif '-' in hms: 
+        lst = hms.split('-') 
+    # format HH MM SS
+    elif ' ' in hms: 
+        lst = hms.split(' ') 
+     # format HHMMSS
     else:
-        # Fill in the parts which are there
-        size = len(hhmmss)
-        if size >= 2: h = hhmmss[0:2]
-        if size >= 4: m = hhmmss[2:4]
-        if size >= 6: s = hhmmss[4:6]
+        # Get HH, MM en SS hh_mm_ss
+         # format H | HH
+        if len(hms) in [1, 2]:  
+            lst[0] = hms[:2].zfill(2)
+        # format HHM | HHMM
+        elif len(hms) in [3, 4]:
+            lst[0] = hms[0:2].zfill(2)
+            lst[1] = hms[2:4].zfill(2)
+        # format HHMMS | HHMMSS
+        elif len(hms) in [5, 6]:
+            lst[0] = hms[0:2].zfill(2)
+            lst[1] = hms[2:4].zfill(2)
+            lst[2] = hms[4:6].zfill(2)
 
-    # Check false times
-    if int(h) < int(t_min): h = t_min
-    if int(m) < int(t_min): m = t_min
-    if int(s) < int(t_min): s = t_min
-    if int(h) > int(h_max): h = h_max
-    if int(m) > int(m_max): m = m_max
-    if int(s) > int(s_max): s = s_max
- 
-    # Make new time string with (possible) missing values
-    return True, f'{h}{m}{s}'
+    # Get size of list
+    size = len(lst)
 
-def yyyymmdd_1(
+    # Update the parts which are given
+    if size == 1: 
+        HH = lst[0].zfill(2)
+    elif size == 2:
+        HH = lst[0].zfill(2)
+        MM = lst[1].zfill(2)
+    elif size >= 3:
+        HH = lst[0].zfill(2)
+        MM = lst[1].zfill(2)
+        SS = lst[2].zfill(2)
+
+    # Check false times and get them within range
+    # HH - hours
+    H = int(lst[0])
+    if H < hms_min: 
+        HH = str(hms_min).zfill(2)
+    elif H > h_max: 
+        HH = str(h_max)
+    # MM - minutes
+    M = int(lst[0])
+    if M < hms_min: 
+        MM = str(hms_min).zfill(2)
+    elif M > ms_max: 
+        MM = str(ms_max)
+    # SS - seconds
+    S = int(lst[1])
+    if S < hms_min: 
+        SS = str(hms_min).zfill(2)
+    elif S > ms_max:  
+        SS = str(ms_max)
+
+    # Return string with (possible) missing values
+    return True, f'{HH}{MM}{SS}'
+
+def yyyymmdd(
         yyyymmdd = cfg.e,  # String date format is <yyyymmdd>
         verbose = cfg.verbose
     ):
@@ -201,9 +133,9 @@ def yyyymmdd_1(
         y, m, d = ymd.split_yyyymmdd(yymmdd)
         d = datetime.datetime(int(y), int(m), int(d))
     except Exception as e:
-        cnsl.log(f'Error in date {yymmdd}\n{e}', verbose)
+        cnsl.log(f'Error validate yyyymmdd_1(). Date {yymmdd}\n{e}', cfg.error)
     else:
-        cnsl.log(f'Validate date {yymmdd} success', verbose)
+        # cnsl.log(f'Validate date {yymmdd} success', verbose)
         ok = True
 
     return ok, yymmdd  # Make new possible updated date
