@@ -3,19 +3,17 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.9.7'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    =  '0.9.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import config as cfg
-import datetime, re
-import numpy as np
+import datetime
 import sources.control.fio as fio
 import sources.model.utils as util
 import sources.model.ymd as ymd
-import sources.model.daydata as daydata
-import sources.model.stats as stats
+import sources.model.dayvalues.data as data
 import sources.view.console as cnsl
 import sources.view.text as text
 import sources.view.icon as icon
@@ -47,7 +45,7 @@ class Template():
         self.main   = main
 
         title = self.title.strip().replace(' ', cfg.e)
-        dt = ymd.text(ymd.yyyymmdd_now())
+        dt = ymd.yyyymmdd_to_text(ymd.yyyymmdd_now())
         self.file_name = f'{title}-{dt}.html'
         self.template  = cfg.e
         self.path_to_file = cfg.e
@@ -74,7 +72,7 @@ class Template():
         if ok:
             self.footer = cfg.knmi_dayvalues_notification + '<br>' 
             self.footer += text.created_by_notification_html + ' '
-            self.footer += ymd.txt_datetime_now()
+            self.footer += ymd.text_datetime_now()
             self.html = self.html.replace('{{%now%}}', str( datetime.datetime.now()))
             self.html = self.html.replace('{{%title%}}', self.title)
             self.html = self.html.replace('{{%icon%}}', self.icon)
@@ -305,7 +303,7 @@ def day_value_ev24(ev24):
 def day_values_all(day):
     stn, yymmdd, ddvec, fhvec, fg, fhx, fhxh, fhn, fhnh, fxx, fxxh, tg, tn,\
     tnh, tx, txh, t10n, t10nh, sq, sp, q, dr, rh, rhx, rhxh, pg, px, pxh,\
-    pn, pnh, vvn, vvnh, vvx, vvxh, ng, ug, ux, uxh, un, unh, ev24 = daydata.entities(day)
+    pn, pnh, vvn, vvnh, vvx, vvxh, ng, ug, ux, uxh, un, unh, ev24 = data.ents(day)
 
     htm  = day_value_tx(tx, txh)
     htm += day_value_tg(tg)
@@ -364,405 +362,76 @@ def title_mean(entity):
     return f'<span class="overline">{entity_to_icon("ave")} {entity}</span>'
 
 def attr_title(entity, value=cfg.e):
-    return f'{text.ent_to_txt(entity)} { text.fix_ent(value) if value else cfg.e }'.strip()
+    return f'{text.ent_to_txt(entity)} { text.fix_for_entity(value) if value else cfg.e }'.strip()
 
-def extreme_values( day, entity ):
+def extreme_values(np_lst_day, entity):
     span = f'<span class="val">{cfg.no_val}</span>' 
     try:
-        val_raw = day[daydata.etk(entity)]
-        ymd_raw = day[daydata.etk('yyyymmdd')]
+        raw_ent = np_lst_day[0,data.column(entity)]
+        raw_ymd = np_lst_day[0,data.YYYYMMDD]
     except Exception as e:
-        # cnsl.log(f'Exception {e} !', cfg.error)
+        err  = f'Error in html extreme_values()\n{np_lst_day}\n'
+        err += f'Entity {entity}\n{e}'
+        cnsl.log(err, cfg.error)
         pass
     else:
-        span1 = f'<span class="val">{ text.fix_ent(val_raw, entity) }</span>' 
-        span2 = f'<span class="dat">{ text.fix_ent(ymd_raw, "yyyymmdd") }</span>' 
-        span = f'{span1}{span2}'
+        val_ent = text.fix_for_entity(raw_ent, entity)
+        val_ymd = text.fix_for_entity(raw_ymd, "yyyymmdd")
+        span1 = f'<span class="val">{val_ent}</span>' 
+        span2 = f'<span class="dat">{val_ymd}</span>' 
+        span = f'{span1} {span2}'
 
     return span
 
-def table( lst_head, lst_body, reverse=False ):
-    htm = cfg.e
-    if lst_body:
-        htm = f'''
-        <table class="popup">
-        <thead>{ tr_th(lst_head) }</thead>
-        <tbody>'''
-
-        # Reverse list optional
-        if reverse: lst_body = lst_body[::-1]
-        for el in lst_body[: cfg.html_popup_table_max_rows]: 
-            htm += el
-    
-        htm += '</tbody></table>'
-
-    return htm
-
-def table_days(days, entity, reverse=False):
-
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            time_too, t_td, lst_head = False, cfg.e, ['pos', 'date', entity]
-            t_entity = daydata.entity_to_t_entity(entity)
-            if t_entity:
-                lst_head.append(t_entity)
-                time_too = True 
-
-            pos, lst_body = 1, []
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-
-                try:
-                    yymmdd, act = day[daydata.etk('yyyymmdd')], day[daydata.etk(entity)]
-                    if time_too: # Add time td
-                        t_td = f'<td>{ text.fix_ent(day[daydata.etk(t_entity)], t_entity) }</td>'
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst_body.append(f'''
-                        <tr>
-                            <td>{ pos }</td>
-                            <td title="{ymd.text(yymmdd)}">{text.fix_ent(yymmdd, 'date')}</td>
-                            <td>{ text.fix_ent( act, entity ) }</td>
-                            {t_td}
-                        </tr>
-                    ''')
-
-                pos += 1
-
-            # create html table
-            html = table( lst_head, lst_body, reverse )
-
-    return html
-
-def table_average(days, entity, reverse=False):
-
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, cfg.e, ['cnt', 'date', entity, 'ave']
-            t_entity = daydata.entity_to_t_entity(entity)
-            if t_entity:
-                lst_head = ['cnt', 'date', entity, t_entity, 'ave']
-                time_too = True 
-
-            cnt, pos, lst_body, station = 1, 1, [], days.station
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    act = day[daydata.etk(entity)]
-                    ave, _ = stats.Days( station, days.np_period_2d[:cnt] ).average(entity)
-                    if time_too: # Add time td
-                        t_td = f'<td>{ text.fix_ent(day[daydata.etk(t_entity)], t_entity) }</td>'
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst_body.append(f'''
-                        <tr>
-                            <td>{ cnt }</td>
-                            <td title="{ymd.text(yymmdd)}">{text.fix_ent(yymmdd, 'date')}</td>
-                            <td>{ text.fix_ent( act, entity ) }</td>
-                            {t_td}
-                            <td>{ text.fix_ent( ave, entity ) }</td>
-                        </tr>
-                    ''')
-
-                cnt += 1
-                pos += 1
-
-            # create html table
-            html = table( lst_head, lst_body, reverse )
-
-    return html
-
-def table_count(days, entity):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, cfg.e, ['cnt', 'date', entity]
-            t_entity = daydata.entity_to_t_entity(entity)
-            if t_entity:
-                lst_head.append(t_entity)
-                time_too = True 
-    
-            cnt, lst, station = 1, [], days.station
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    act = day[daydata.etk(entity)]
-                    cnt_days = stats.Days( station, days.np_period_2d[:cnt] ).count_np_period_2d()
-                    if time_too: # Add time td
-                       t_td = f'<td>{ text.fix_ent(day[daydata.etk(t_entity)], t_entity) }</td>'
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{cnt_days}</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent( act, entity ) }</td>
-                        {t_td}
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # Create html table
-            html = table(lst_head, lst, reverse=True)
-
-    return html
-
-def table_sum(days, entity):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            # Make lst header titles and time too if there
-            time_too, t_td, lst_head = False, cfg.e, ['cnt','date',entity,'sum']
-            t_entity = daydata.entity_to_t_entity(entity)
-            if t_entity:
-                time_too = True 
-                lst_head = ['cnt','date',entity,t_entity,'sum']
-
-            cnt, lst, station, format = 1, [], days.station, days.station.format
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    act = day[daydata.etk(entity, format)]
-                    sum_tot, _ = stats.Days( station, days.np_period_2d[:cnt] ).sum(entity)
-                    if time_too: # Add time td
-                        t_td = f'<td>{ text.fix_ent(day[daydata.etk(t_entity)], t_entity) }</td>'
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{ cnt }</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent(act, entity) }</td>
-                        {t_td}
-                        <td>{ text.fix_ent(sum_tot, entity) }</td>
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # create html table
-            html = table(lst_head, lst, reverse = True)
-
-    return html
-
-def table_frost_sum(days):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            cnt, lst, station, format = 1, [], days.station, days.station.format
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values 
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    tx, txh = day[daydata.etk('tx', format)], day[daydata.etk('txh', format)]
-                    tn, tnh = day[daydata.etk('tn', format)], day[daydata.etk('tnh', format)]
-                    fsum_act = 0.0
-                    if tx < 0.0: fsum_act += abs(tx)
-                    if tn < 0.0: fsum_act += abs(tn)
-                    fsum_tot, _ = stats.Days( station, days.np_period_2d[:cnt] ).frost_sum()
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{ cnt }</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent( tx, 'tx') }</td> 
-                        <td>{ text.fix_ent( txh, 'txh') }</td>
-                        <td>{ text.fix_ent( tn, 'tn') }</td> 
-                        <td>{ text.fix_ent( tnh, 'tnh') }</td>
-                        <td>{ text.fix_ent( fsum_act, 'frost-sum') }</td>
-                        <td>{ text.fix_ent( fsum_tot, 'frost-sum') }</td>
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # create html table
-            html = table(['cnt','date','tx','txh','tn','tnh','fsum','total'], lst, reverse=True)
-
-    return html
-
-def table_ijnsen(days):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            cnt, lst, station, format = 1, [], days.station, days.station.format
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values 
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    tx_raw, txh = day[daydata.etk('tx', format)], day[daydata.etk('txh', format)]
-                    tn_raw, tnh = day[daydata.etk('tn', format)], day[daydata.etk('tnh', format)]
-                    ijnsen_tot, Days = stats.Days( station, days.np_period_2d[:cnt] ).ijnsen() # Ijnsen total
-
-                    # Calculate ijnsen for this day
-                    ijnsen_act = 0.0 # WEIRD ERROR ?
-                    tx, tn = daydata.process_value(tx_raw, 'tx'), daydata.process_value(tn_raw, 'tn')
-                    if tn <   0.0: ijnsen_act +=  1.0 * 1.0 / 363.0
-                    if tn < -10.0: ijnsen_act += 10.0 * 1.0 /   9.0
-                    if tx <   0.0: ijnsen_act +=  2.0 * 1.0 /   3.0
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{ cnt }</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent( tx_raw, 'tx') }</td> 
-                        <td>{ text.fix_ent( txh, 'txh') }</td>
-                        <td>{ text.fix_ent( tn_raw, 'tn') }</td> 
-                        <td>{ text.fix_ent( tnh, 'tnh') }</td>
-                        <td>{ round(ijnsen_act, 5) } ?</td>
-                        <td>{ text.fix_ent( ijnsen_tot, 'ijnsen') } ?</td>
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # create html table
-            html = table(['cnt','date','tx','txh','tn','tnh','ijnsen','total'], lst, reverse=True)
-
-    return html
-
-def table_hellmann(days):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            cnt, lst, station = 1, [], days.station
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values
-                try:
-                    yymmdd = day[daydata.etk('yyyymmdd')]
-                    hmann_act = abs(day[daydata.etk('tg')])
-                    hmann_sum, _ = stats.Days( station, days.np_period_2d[:cnt] ).hellmann()
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{ cnt }</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent(hmann_act, 'hellmann') }</td>
-                        <td>{ text.fix_ent(hmann_sum, 'hellmann') }</td>
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # create html table
-            html = table(['cnt','date','hmann','total'], lst, reverse=True)
-
-    return html
-
-def table_heat_ndx(days):
-    html = cfg.e
-    if cfg.html_popup_table_show:
-        if days.np_period_2d_has_days():
-            cnt, lst, station = 1, [], days.station
-            for day in days.np_period_2d:
-                if np.size(day, axis=0) == 0:
-                    continue
-                # Calculate values
-                try:
-                    yymmdd = day[daydata.key('yyyymmdd')]
-                    tg = day[daydata.etk('tg')]
-                    heat_act = tg - 180.0 
-                    heat_sum, _ = stats.Days(station, days.np_period_2d[:cnt]).heat_ndx()
-                except Exception as e:
-                    cnsl.log(f'Exception {e} !', cfg.verbose)
-                else:
-                    lst.append(f'''
-                    <tr>
-                        <td>{ cnt }</td>
-                        <td title="{ ymd.text( yymmdd ) }">{ text.fix_ent(yymmdd, 'date') }</td>
-                        <td>{ text.fix_ent(tg, 'tg') }</td>
-                        <td>{ text.fix_ent(heat_act, 'heat-ndx') }</td>
-                        <td>{ text.fix_ent(heat_sum, 'heat-ndx') }</td>
-                    </tr>
-                    ''')
-
-                cnt += 1
-
-            # create html table
-            html = table(['cnt', 'date', 'tg', 'heat', 'total'], lst, reverse=True)
-
-    return html
-
 def entity_to_icon(entity, color=cfg.e, size=cfg.e, extra=cfg.e):
     e = entity.lower()
-    if   e == 'tx':    return icon.temp_full(color, extra, size)
-    elif e == 'tg':    return icon.temp_half(color, extra, size)
-    elif e == 'tn':    return icon.temp_empty(color, extra, size)
-    elif e == 't10n':  return icon.temp_empty(color, extra, size)
+    if   e == 'tx': return icon.temp_full(color, extra, size)
+    elif e == 'tg': return icon.temp_half(color, extra, size)
+    elif e == 'tn': return icon.temp_empty(color, extra, size)
+    elif e == 't10n': return icon.temp_empty(color, extra, size)
     elif e == 'ddvec': return icon.wind_dir(color, extra, size)
-    elif e == 'fg':    return icon.wind(color, extra, size)
-    elif e == 'rh':    return icon.shower_heavy(color, extra, size)
-    elif e == 'sq':    return icon.sun(color, extra, size)
-    elif e == 'pg':    return icon.compress_alt(color, extra, size)
-    elif e == 'ug':    return icon.drop_tint(color, extra, size)
-    elif e == 'fxx':   return icon.wind(color, extra, size)
+    elif e == 'fg': return icon.wind(color, extra, size)
+    elif e == 'rh': return icon.shower_heavy(color, extra, size)
+    elif e == 'sq': return icon.sun(color, extra, size)
+    elif e == 'pg': return icon.compress_alt(color, extra, size)
+    elif e == 'ug': return icon.drop_tint(color, extra, size)
+    elif e == 'fxx': return icon.wind(color, extra, size)
     elif e == 'fhvec': return icon.wind(color, extra, size)
-    elif e == 'fhx':   return icon.wind(color, extra, size)
-    elif e == 'fhn':   return icon.wind(color, extra, size)
-    elif e == 'sp':    return icon.sun(color, extra, size)
-    elif e == 'q':     return icon.radiation(color, extra, size)
-    elif e == 'dr':    return icon.shower_heavy(color, extra, size)
-    elif e == 'rhx':   return icon.shower_heavy(color, extra, size)
-    elif e == 'px':    return icon.compress_alt(color, extra, size)
-    elif e == 'pn':    return icon.compress_alt(color, extra, size)
-    elif e == 'vvn':   return icon.eye(color, extra, size)
-    elif e == 'vvx':   return icon.eye(color, extra, size)
-    elif e == 'ng':    return icon.cloud(color, extra, size)
-    elif e == 'ux':    return icon.drop_tint(color, extra, size)
-    elif e == 'un':    return icon.drop_tint(color, extra, size)
-    elif e == 'ev24':  return icon.sweat(color, extra, size)
+    elif e == 'fhx': return icon.wind(color, extra, size)
+    elif e == 'fhn': return icon.wind(color, extra, size)
+    elif e == 'sp': return icon.sun(color, extra, size)
+    elif e == 'q': return icon.radiation(color, extra, size)
+    elif e == 'dr': return icon.shower_heavy(color, extra, size)
+    elif e == 'rhx': return icon.shower_heavy(color, extra, size)
+    elif e == 'px': return icon.compress_alt(color, extra, size)
+    elif e == 'pn': return icon.compress_alt(color, extra, size)
+    elif e == 'vvn': return icon.eye(color, extra, size)
+    elif e == 'vvx': return icon.eye(color, extra, size)
+    elif e == 'ng': return icon.cloud(color, extra, size)
+    elif e == 'ux': return icon.drop_tint(color, extra, size)
+    elif e == 'un': return icon.drop_tint(color, extra, size)
+    elif e == 'ev24': return icon.sweat(color, extra, size)
     elif e in text.lst_day: return icon.day(color, extra, size)
     elif e in text.lst_max: return icon.arrow_up(color, extra, size)
     elif e in text.lst_min: return icon.arrow_down(color, extra, size)
-    elif e in text.lst_home: return icon.home(color, extra, size)
+    elif e in text.lst_place: return icon.home(color, extra, size)
     elif e in text.lst_states: return icon.flag(color, extra, size)
     elif e in text.lst_states: return icon.flag(color, extra, size)
     elif e in text.lst_period_1: return icon.cal_period(color, extra, size)
     elif e in text.lst_period_2: return icon.cal_day(color, extra, size)
     elif e in text.lst_heat_ndx: return icon.fire(color, extra, size)
     elif e in text.lst_cold_ndx: return icon.icicles(color, extra, size)
-    elif e in ['pg', 'pn', 'px']: return icon.compress_alt(color, extra, size)
-    elif e in ['ux', 'un', 'ug']: return icon.drop_tint(color, extra, size)
+    elif e in text.lst_pressure: return icon.compress_alt(color, extra, size)
+    elif e in text.lst_moist: return icon.drop_tint(color, extra, size)
     elif e in text.lst_wind: return icon.wind(color, extra, size)
     elif e in text.lst_rain: return icon.shower_heavy(color, extra, size)
     elif e in text.lst_wind_direction: return icon.wind_dir(color, extra, size)
     elif e in text.lst_copyright: return icon.copy(color, extra, size)
     elif e in text.lst_view: return icon.eye(color, extra, size)
-    elif e in ['q']: return icon.radiation(color, extra, size)
-    elif e in ['ng']: return icon.cloud(color, extra, size)
+    elif e in text.lst_radiation: return icon.radiation(color, extra, size)
+    elif e in text.lst_cloud: return icon.cloud(color, extra, size)
     elif e in text.lst_evaporation: return icon.sweat(color, extra, size)
-    elif e in ['sq','sp']: return icon.sun(color, extra, size)
+    elif e in text.lst_sun: return icon.sun(color, extra, size)
     elif e in text.lst_sum: return 'Σ'
     elif e in text.lst_ave: return cfg.e
     elif e in text.lst_gt: return icon.gt(color, extra, size)
