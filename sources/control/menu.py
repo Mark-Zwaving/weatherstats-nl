@@ -10,7 +10,7 @@ __status__     =  'Development'
 
 import time, pprint, os
 import config as cfg, defaults
-import sources.model.graphs as graphs
+import sources.view.graphs as graphs
 import sources.model.weather as weather
 import sources.model.animation as animation
 import sources.model.utils as utils
@@ -19,9 +19,9 @@ import sources.model.ymd as ymd
 import sources.model.images as images
 import sources.control.fio as fio
 import sources.control.ask.answer as answer
-import sources.control.ask.broker_lst as ask_broker_lst
+import sources.control.ask.broker.questions as broker_questions
 import sources.control.dayvalues.download as dayvalues_download
-import sources.control.ask.question as question
+import sources.control.ask.question as ask_question
 import sources.view.console as cnsl
 import sources.view.text as text
 import sources.view.dayvalues as dayvalues
@@ -38,7 +38,7 @@ def download_knmi_dayvalues_all():
     cnsl.log(text.foot('END DOWNLOAD ALL DAYVALUES KNMI'), True)
 
     # Press enter to go back
-    question.ask(text.enter_back_main, default=cfg.e, 
+    ask_question.ask(text.enter_back_main, default=cfg.e, 
                  back=False, prev=False, exit=True, spacer=True)
 
 def download_knmi_dayvalues_select(): 
@@ -51,8 +51,8 @@ def download_knmi_dayvalues_select():
         cnsl.log( text.head('START DOWNLOAD DAYVALUES KNMI'), True)
 
         # Ask to download specific files
-        options = ask_broker_lst.process(text.lst_ask_download_knmi, title, default=cfg.e, 
-                                         back=True, prev=False, exit=True, spacer=True )
+        options = broker_questions.process(text.lst_ask_download_knmi, title, default=cfg.e,
+                                           back=True, prev=False, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -62,7 +62,7 @@ def download_knmi_dayvalues_select():
         dayvalues_download.process_lst(options[text.ask_lst_stations])
 
         # More downloads?
-        if answer.is_yes( question.y_or_n( 
+        if answer.is_yes( ask_question.y_or_n( 
                 'Do you want to download more stations?', default='n', 
                 back=False, prev=False, exit=True, spacer=True
             ) ):
@@ -85,11 +85,9 @@ def table_stats(
     while True:
         cnsl.log(text.head(f'START {title.capitalize()}'), True)
 
-        # input(lst_questions)
-        
         # Ask list with questions
-        options = ask_broker_lst.process(lst_questions, title, default=cfg.e,
-                                         back=True, prev=True, exit=True, spacer=True)
+        options = broker_questions.process(lst_questions, title, default=cfg.e, 
+                                           back=True, prev=True, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option fiiled in
         if options[text.ask_other_menu]:  
@@ -109,14 +107,14 @@ def table_stats(
         if ok:
             typ = options[text.ask_file_type]
             if typ in text.lst_output_files:
-                if answer.is_yes( question.y_or_n(
+                if answer.is_yes( ask_question.y_or_n(
                         f'Do you want to open the <{typ}> file ?', default='y', 
                         back=False, prev=False, exit=True, spacer=True
                     ) ):
                     utils.exec_with_app(path, verbose=False)
 
         # Ask to make another table
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
                 f'Do you want to make another <{title}> table ?', 
                 default='n', back=False, prev=False, exit=True, spacer=True
             ) ):
@@ -126,12 +124,20 @@ def table_stats(
     cnsl.log(text.foot(f'END {title.capitalize()}'), True)
 
 def table_stats_diy():
+    title = 'DIY statistics'
     lst_questions = text.lst_ask_stats_diy
-    table_stats(
-        'DIY statistics', 
-        lst_cells = [], 
-        lst_questions = lst_questions
-    )
+    table_stats(title, lst_cells=[], lst_questions=lst_questions )
+    
+def table_stats_period_in_period():
+    '''Two periods: period a period in a period'''
+    title = 'Two periods statistics' 
+    lst_questions = text.lst_ask_stats_p1_p2_diy # List with another period
+    table_stats(title, lst_cells=[], lst_questions=lst_questions)
+
+def table_stats_period_compare():
+    title = 'compare statistics'
+    lst_questions = text.lst_ask_stats_compare
+    table_stats(title, lst_cells=[], lst_questions=lst_questions)
 
 ##########################################################################################
 # DAYVALUES OK
@@ -143,8 +149,8 @@ def make_days_dayvalues():
         cnsl.log(text.head('START MAKE DAY VALUES'), True)
  
         # Ask list with questions
-        options = ask_broker_lst.process(text.lst_ask_make_dayval, title, default=cfg.e, 
-                                         back=True, prev=True, exit=True, spacer=True) 
+        options = broker_questions.process(text.lst_ask_make_dayval, title, default=cfg.e, 
+                                           back=True, prev=True, exit=True, spacer=True) 
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -160,14 +166,14 @@ def make_days_dayvalues():
 
         if ok:
             if options[text.ask_file_type] in text.lst_output_htm:
-                if answer.is_yes( question.y_or_n(
+                if answer.is_yes( ask_question.y_or_n(
                     f'Do you want to open the main index html file ?', default='y', 
                     back=False, prev=False, exit=True, spacer=True
                 ) ):
                     utils.exec_with_app(path, verbose=False)
             # TODO other file types
 
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
                 'Do you want to make more dayvalues ?', 
                 default='n', back=False, prev=False, exit=True, spacer=True
             ) ):
@@ -181,9 +187,8 @@ def see_days_dayvalues():
     while True:
         cnsl.log(text.head('START SEE DAYS'), True)
         title = 'see a day' # Unused!
-        options = ask_broker_lst.process(
-                        text.lst_ask_see_dayval, title, default=cfg.e, 
-                        back=True, prev=True, exit=True, spacer=True )
+        options = broker_questions.process(text.lst_ask_see_dayval, title, default=cfg.e,
+                                           back=True, prev=True, exit=True, spacer=True )
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -199,13 +204,13 @@ def see_days_dayvalues():
         cnsl.log(t + cfg.ln, cfg.verbose)
 
         if ok:
-            if answer.is_yes( question.y_or_n(
+            if answer.is_yes( ask_question.y_or_n(
                     'Do you want to save the results in a file ?', 'n', 
                     back=False, prev=False, exit=True, spacer=True
                 ) ):
                 select_days.save_txt_file()
 
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
                 'Do you want to see more days ?', default='n', 
                 back=False, prev=False, exit=True, spacer=True 
             ) ):
@@ -224,9 +229,8 @@ def search_for_days_dayvalues():
 
         # Ask list with questions
         title = 'search 4 days'
-        options = ask_broker_lst.process(
-            text.lst_ask_search_4_day, title, 
-            default=cfg.e, back=True, prev=True, exit=True, spacer=True
+        options = broker_questions.process(text.lst_ask_search_4_day, title, default=cfg.e, 
+                                           back=True, prev=True, exit=True, spacer=True
         )
 
         # If the options list has the go back to main menu option fiiled in
@@ -245,13 +249,13 @@ def search_for_days_dayvalues():
         if ok:
             typ = options[text.ask_file_type]
             if typ in text.lst_output_htm:
-                if answer.is_yes( question.y_or_n(
+                if answer.is_yes( ask_question.y_or_n(
                     f'Do you want to open the <{typ}> file ?', default='y', 
                     back=False, prev=False, exit=True, spacer=True
                 ) ):
                     utils.exec_with_app(path, verbose=False)
 
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
             'Do you want to do a search for days again ?', 
             default='n', back=False, prev=False, exit=True, spacer=True
             ) ):
@@ -269,7 +273,8 @@ def weather_buienradar_forecast():
     cnsl.log(text.head('START FORECAST BUIENRADAR'), True)
     weather.process('buienradar-weather')
     cnsl.log(text.foot('END FORECAST BUIENRADAR'), True)
-    question.ask(text.enter_back_main, default=cfg.e, back=False, prev=False, exit=True, spacer=True)
+    ask_question.ask(text.enter_back_main, default=cfg.e, 
+                     back=False, prev=False, exit=True, spacer=True)
 
 # weather cities
 def weather_buienradar_stations():
@@ -277,7 +282,8 @@ def weather_buienradar_stations():
     cnsl.log(text.head('START WEATHERSTATIONS BUIENRADAR'), True)
     weather.process('buienradar-stations')
     cnsl.log(text.foot('END WEATHERSTATIONS BUIENRADAR'), True)
-    question.ask(text.enter_back_main, default=cfg.e, back=False, prev=False, exit=True, spacer=True)
+    ask_question.ask(text.enter_back_main, default=cfg.e, 
+                     back=False, prev=False, exit=True, spacer=True)
 
 ##########################################################################################
 # KNMI Weather
@@ -318,8 +324,8 @@ def graph_period():
 
         # Ask list with questions
         title = 'graph statistics'
-        options = ask_broker_lst.process(text.lst_ask_graph, title, default=cfg.e, back=True, prev=True, exit=True, spacer=True)
-        options[text.ask_file_type] = options[text.ask_graph_extension] # For use in execute with default app
+        options = broker_questions.process(text.lst_ask_graph, title, default=cfg.e, 
+                                           back=True, prev=True, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -331,23 +337,21 @@ def graph_period():
         t = utils.process_time_delta_ns('Total process time is ', et - st)
         cnsl.log(t, cfg.verbose)
 
-        if ok:
-            cnsl.log( f'Graph made success\n{path}', True )
-            if options[text.ask_file_type] in text.lst_output_files:
-                if answer.is_back( 
-                    question.open_with_app( path, options, back=False, prev=False, exit=True, spacer=True)
-                ): 
-                    break
+        if ok and answer.is_yes( ask_question.y_or_n(
+                f'Do you want to open the graph ?', default='y', 
+                back=False, prev=False, exit=True, spacer=True
+            ) ):
+            utils.exec_with_app(path, verbose=False)
         else:
             cnsl.log('Graph made failed', True )
-                    
-        if answer.is_yes( question.y_or_n(
-            'Do you want to make more graphs ?', default='y', 
-            back=False, prev=False, exit=True, spacer=True
-        ) ):
+
+        if answer.is_yes( ask_question.y_or_n(
+                'Do you want to make more graphs ?', default='y', 
+                back=False, prev=False, exit=True, spacer=True
+            ) ):
             continue 
-        else:
-            break 
+        
+        break 
 
     cnsl.log(text.foot('END MAKE GRAPH'), True)
 
@@ -357,7 +361,7 @@ def graph_period():
 
 #         title = 'graph statistics'
 #         lst_ask = ['lst-stations', 'period']
-#         options = ask_broker_lst.process(lst_ask, title, default=cfg.e, back=True, prev=True, exit=True, spacer=True)
+#         options = broker_questions.process(lst_ask, title, default=cfg.e, back=True, prev=True, exit=True, spacer=True)
 
 #         st = time.time_ns()
 #         path = graphs.calculate(options)
@@ -398,8 +402,8 @@ def interval_download_files():
     while True:
         cnsl.log(text.head('START DOWNLOAD IMAGES'), True)
 
-        options = ask_broker_lst.process(text.lst_ask_download_files, title, 
-                                         back=True, prev=True, exit=True, spacer=True)
+        options = broker_questions.process(text.lst_ask_download_files, title, 
+                                           back=True, prev=True, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -444,7 +448,7 @@ def interval_download_files():
         cnsl.log(' ', True)
 
         # Ask for again
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
             f'Do you want to download more files?', default='n', 
             back=False, prev=False, exit=True, spacer=True
            ) ):
@@ -463,10 +467,10 @@ def download_animation():
 
         # pprint.pp(text.lst_ask_download_files + text.lst_ask_animation)
 
-        # Ask list with questions
-        options = ask_broker_lst.process(text.lst_ask_download_files + text.lst_ask_animation, 
-                                         title, default=cfg.e, back=True, prev=True, exit=True, 
-                                         spacer=True)
+        # Ask list with question
+        ask_lst = text.lst_ask_download_files + text.lst_ask_animation
+        options = broker_questions.process(ask_lst, title, default=cfg.e, 
+                                          back=True, prev=True, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -529,13 +533,13 @@ def download_animation():
         t = utils.process_time_delta_ns('Total process time is ', et - st)
         cnsl.log(t + cfg.ln, cfg.verbose)
 
-        if ok and answer.is_yes( question.y_or_n(
+        if ok and answer.is_yes( ask_question.y_or_n(
                 f'Do you want to open the animation file ?', default='y', 
                 back=False, prev=False, exit=True, spacer=True
             ) ):
             utils.exec_with_app(path, verbose=False)
 
-        if answer.is_yes( question.y_or_n(
+        if answer.is_yes( ask_question.y_or_n(
                 f'Do you want to make another animation ?', default='n', 
                 back=False, prev=False, exit=True, spacer=True 
             ) ):
@@ -563,9 +567,8 @@ def database_create_renew():
         cnsl.log(text.head('START FILL DATABASE'), True)
 
         # Ask list with questions
-        options = ask_broker_lst.process(
-                        lst_ask, title, default=cfg.e,
-                        back=True, prev=False, exit=True, spacer=True )
+        options = broker_questions.process(lst_ask, title, default=cfg.e,
+                                           back=True, prev=False, exit=True, spacer=True )
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -580,8 +583,8 @@ def database_create_renew():
     cnsl.log(text.foot('END FILL DATABASE'), True)
 
     # Ask to go back to the main menu
-    question.ask(text.enter_back_main(), default=cfg.e, 
-                  back=False, prev=False, exit=True, spacer=True)
+    ask_question.ask(text.enter_back_main(), default=cfg.e,
+                     back=False, prev=False, exit=True, spacer=True)
 
 def database_query():
     title = 'SQLite query'
@@ -590,9 +593,8 @@ def database_query():
         cnsl.log(text.head('START EXECUTE QUERY'), True)
 
         # Ask list with questions
-        options = ask_broker_lst.process(
-                        lst_ask, title, default=cfg.e,
-                        back=True, prev=False, exit=True, spacer=True )
+        options = broker_questions.process(lst_ask, title, default=cfg.e,
+                                           back=True, prev=False, exit=True, spacer=True )
 
         # If the options list has the go back to main menu option filled in
         if options[text.ask_other_menu]:  
@@ -608,16 +610,15 @@ def database_query():
             for row in rows:
                 cnsl.log(row, True)
         
-        if answer.is_yes(
-            f'Do you want te execute an other query?', 
-            default='y', back=False, prev=False, exit=True, spacer=True
-        ):
+        if answer.is_yes( ask_question.y_or_n(
+                f'Do you want te execute an other query?', 
+                default='y', back=False, prev=False, exit=True, spacer=True
+            ) ):
             continue 
-        else:
-            break # Stop execute queries
+        
+        break # Stop execute queries
 
     cnsl.log(text.foot('END EXECUTE QUERY'), True)
-
 
 def todo():
     pass
