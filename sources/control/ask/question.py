@@ -307,6 +307,10 @@ def options_lst(t, lst, default=cfg.e, back=False,
         ttt = f'Option {answ} unknown. Try again...' + cfg.ln
         cnsl.log(ttt, True)
 
+def lst_options(t, lst, default=cfg.e, back=False, 
+                prev=False, exit=False, spacer=False):
+    return options_lst(t, lst, default, back, prev, exit, spacer)
+
 
 def day(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     while True:
