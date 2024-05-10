@@ -14,25 +14,25 @@ import sources.control.menu as ctrl_menu
 lst_downloads = [ 
     'DOWNLOAD', 
     [ 
-        [ 'OK Download all dayvalues knmi stations',      ctrl_menu.download_knmi_dayvalues_all ],
-        [ 'OK Download selected dayvalues knmi stations', ctrl_menu.download_knmi_dayvalues_select ],
+        [ 'Download all dayvalues knmi stations',      ctrl_menu.download_knmi_dayvalues_all ],
+        [ 'Download selected dayvalues knmi stations', ctrl_menu.download_knmi_dayvalues_select ],
     ]   
 ]
 
 lst_animations = [ 
     'ANIMATIONS', 
     [ 
-        [ 'OK Download only images or files', ctrl_menu.interval_download_files ],
-        [ 'OK Download and make an animation', ctrl_menu.download_animation ],
+        [ 'Download only images or files', ctrl_menu.interval_download_files ],
+        [ 'Download images and make an animation', ctrl_menu.download_animation ],
     ] 
 ]
 
 lst_divers_statistics = [ 
     'STATISTICS TABLES', 
     [  
-        [ 'OK DIY statistics', ctrl_menu.table_stats_diy ],
-        [ 'TODO Day, month, year or period in a period', ctrl_menu.todo],
-        [ 'TODO Compare two periods day, month, year and season',  ctrl_menu.todo ],
+        [ 'DIY statistics', ctrl_menu.table_stats_diy ],
+        [ 'Two period statistics (more options) <BETA>', ctrl_menu.table_stats_period_in_period],
+        [ 'X TODO Compare periods',  ctrl_menu.table_stats_period_compare ],
     ] 
 ]
 
@@ -45,16 +45,16 @@ lst_default_statistics = [
 lst_dayvalues = [ 
     'DAYVALUES', 
     [ 
-        [ 'OK Make day(s) dayvalues', ctrl_menu.make_days_dayvalues ],
-        [ 'OK See day(s) dayvalues', ctrl_menu.see_days_dayvalues ],
-        [ 'TODO Search for day(s)', ctrl_menu.search_for_days_dayvalues ],
+        [ 'Make day(s) dayvalues', ctrl_menu.make_days_dayvalues ],
+        [ 'See day(s) dayvalues', ctrl_menu.see_days_dayvalues ],
+        # [ 'TODO Search for day(s)', ctrl_menu.search_for_days_dayvalues ],
     ] 
 ]
 
 lst_graphs = [ 
     'GRAPHS', 
     [ 
-        [ 'TODO DIY period',  ctrl_menu.graph_period ],
+        [ 'Dayvalues and statistics', ctrl_menu.graph_period ],
     ] 
 ]
 
@@ -74,8 +74,8 @@ lst_databases = [
 lst_current_weather = [ 
     'WEATHER (dutch)', 
     [ 
-        [ 'OK Buienradar Forecast',  ctrl_menu.weather_buienradar_forecast ],
-        [ 'OK Buienradar Stations NL', ctrl_menu.weather_buienradar_stations ],
+        [ 'Buienradar Forecast',  ctrl_menu.weather_buienradar_forecast ],
+        [ 'Buienradar Stations NL', ctrl_menu.weather_buienradar_stations ],
 
     # Jammer, ftp pub knmi opgeheven
     # [ 'KNMI Forecast weather',              menu_knmi_forecast          ],
