@@ -98,18 +98,15 @@ def header( lst_cell, file_type ):
     return txt, htm, csv
 
 
-def body(np_lst_days_1, np_lst_days_2, lst_cell, day, cnt, file_type):
+def body(options, np_lst_days_1, np_lst_days_2, lst_cell, day, cnt, file_type):
     txt, htm, csv = '', '', ''
     title, entity  = lst_cell[0], lst_cell[1]
     col_ymd, col_stn = data.column('yyyymmdd'), data.column('stn')
 
-    # input(np_lst_days_1)
     wmo = str(int(np_lst_days_1[0, col_stn]))
     station = stations.wmo_to_station(wmo) 
     symd = str(int(np_lst_days_1[ 0, col_ymd]))
     eymd = str(int(np_lst_days_1[-1, col_ymd]))
-    # station = days1.station
-    # days = days2 if days2 else days1
 
     if entity in text.lst_copyright:
         txt = text.padding('©', 'center', text.pad_copyright)[:text.pad_copyright]
@@ -157,14 +154,16 @@ def body(np_lst_days_1, np_lst_days_2, lst_cell, day, cnt, file_type):
 
     # yyyymmdd or mmdd or yyyymmdd-yyyymmdd
     elif entity in text.lst_period_2:
-        # TODO
-        period_txt = np_lst_days_2.period
-        
-        txt = text.padding(period_txt, 'center', text.pad_period_2)[:text.pad_period_2]
+        # Make new period
+        symd = str(int(np_lst_days_2[ 0, col_ymd]))
+        eymd = str(int(np_lst_days_2[-1, col_ymd]))
+        period2 = f'{symd}-{eymd}' # Later
+        period2 = options[text.ask_period_2]
+        txt = text.padding(period2, 'center', text.pad_period_2)[:text.pad_period_2]
         if file_type in text.lst_output_htm:
-            htm = f'<td>{html.span(period_txt, "val")}</td>'
+            htm = f'<td>{html.span(period2, "val")}</td>'
         elif file_type in text.lst_output_csv_excel:
-            csv = f'{period_txt}{cfg.csv_sep}'
+            csv = f'{period2}{cfg.csv_sep}'
 
     # Counter for rows
     elif entity in text.lst_num:
