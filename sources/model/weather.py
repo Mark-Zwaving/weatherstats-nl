@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
+__license__    =  'GNU General Public License version 2 - GPLv2'
 __version__    =  '0.0.8'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -208,8 +208,8 @@ def knmi_stations_json(verbose=cfg.verbose):
             lst = []
             for select in cfg.knmi_json_places:
                 for station in stations:
-                    name = station['station'].strip()
-                    if name == select:
+                    name = station['station'].strip() 
+                    if name == select: 
                         lst.append(station)
         else:
             lst = stations # Print all stations
@@ -233,7 +233,7 @@ def process_knmi(url, path, verbose=cfg.verbose):
 def process(option, verbose=cfg.verbose):
     ok = False
     if fio.check_for_internet_connection(verbose):
-        path = utils.path_with_act_date(cfg.dir_forecasts, option) # Make download path
+        path = fio.path_with_act_date(cfg.dir_forecasts, option) # Make download path
         if   option == 'buienradar-weather':  ok, t = buienradar_weather_json(verbose)
         elif option == 'buienradar-stations': ok, t = buienradar_stations_json(verbose)
         elif option == 'knmi-weather':        ok, t = process_knmi(cfg.knmi_forecast_global_url, path, verbose)
