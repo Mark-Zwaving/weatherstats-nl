@@ -20,6 +20,7 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
     '''
     # If there is one
     fname = dict_results[text.ask_filename] 
+    title = dict_results[text.ask_title]
 
     # Ask for stations lst
     if question == text.ask_lst_stations:
@@ -62,13 +63,13 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
     # Ask for the first period
     elif question == text.ask_period_1: 
         dict_results[text.ask_period_1] = answ = ask_question.period_1(
-            f'Give a period for the calculations of the statistics ?', 
+            f'Give a period for {title} ?', 
            '', back, prev_act, exit, spacer ) 
 
     # Ask for the second period
     elif question == text.ask_period_2:
         dict_results[text.ask_period_2] = answ = ask_question.period_2(
-            'Select a second period (day, month or period) ?', 
+            'Select a second period ?', 
             '', back, prev_act, exit, spacer )
 
         # # Is there a second period in the DIY question lst. 
@@ -105,7 +106,7 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
     # Ask for the first period list NEW
     elif question == text.ask_lst_period_1: 
         dict_results[text.ask_lst_period_1] = answ = ask_question.lst_period_1(
-            f'Give the period for the calculation of {fname} ?', 
+            f'Give a period for the making of {title} ?', 
             cfg.e, back, prev_act, exit, spacer ) 
 
     # Ask for a period to compare with an other period     
@@ -116,7 +117,7 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
 
     # Rewrite or only make new non-existing files
     elif question == text.ask_write_dayval: 
-        dict_results[text.ask_write_dayval] = answ = ask_question.type_options(
+        dict_results[text.ask_write_dayval] = answ = ask_question.lst_options(
             'Do you want to add only new files or rewrite it all ?', 
             ['add', 'rewrite'], 'add', back, prev_act, exit, spacer )
 
