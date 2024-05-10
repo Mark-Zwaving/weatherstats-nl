@@ -320,7 +320,7 @@ def yyyymmxx( np_lst, period ):
 # ****MM
 # MM
 def xxxxmmxx( np_lst, period ):
-    '''OPTION: get selected month in all the years
+    '''OPTION: get selected month MM in all the available data
         ****MM**
         ****MM
         MM
@@ -335,14 +335,13 @@ def xxxxmmxx( np_lst, period ):
 
     while isy <= iey: # Select days from month in year
         period  = f'{isy}{smm}**' # Date
-        np_yyyy = yyyymmxx( np_lst, period ) # Get days in current year
-        np_res  = np.concatenate( (np_res, np_yyyy), axis=0) # Merge days in np res
+        np_yyyy = yyyymmxx( np_lst, period ) # Get the days in current year
+        np_res  = np.concatenate( [np_res, np_yyyy], axis=0) # Merge days in np res
         isy    += 1  # Next year
 
     np_res = np_days.rm_row(np_res, 0) # Remove 1st row
 
-    return np_res
-
+    return np_res 
 
 # Make a list with all the days for the calculation 
 # of the specific climate value 
@@ -354,15 +353,13 @@ def clima_days(
        1: Climate period
        2: Days for the calculation given by np_days_period
     '''
-    # Get station by wmo number from given np days period
-    col_stn = data.column('stn') # Col wmo
-    wmo_num = str(int(np_days_period[0, col_stn])) # Get wmo
-    station = stations.wmo_to_station(wmo_num)  # Get station object by wmo
-
     # Climate period
     if clima_period == '': # If not given
         # Get climate years from config.py
         clima_period = f'{cfg.climate_start_year}0101-{cfg.climate_end_year}1231' 
+
+    # Get station object
+    station = np_days.get_station(np_days_period)
 
     # Read all data in the station
     ok, np_lst_days = dayval_read.weatherstation(station)
