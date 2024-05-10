@@ -95,9 +95,6 @@ def main():
         cnsl.log(text.menu_no_weather_stations, True )
         exit(0)
 
-    # Spacer tab menu
-    space = '   '
-
     # Show main menu
     while True:  
         # Check internet and data and get menu lst
@@ -107,29 +104,29 @@ def main():
         num, content = 1, cfg.e
         for el in lst:
             title, options = el[0], el[1]
-            content += f'\n{space}{title}' + cfg.ln
+            content += f'\n{cfg.spacer}{title}' + cfg.ln
             for option in options:
                 title = option[0]
-                content += f'{space*2}{num:>2}) {title}' + cfg.ln
+                content += f'{cfg.spacer*2}{num:>2}) {title}' + cfg.ln
                 num += 1
-
-        t = text.head('MAIN MENU - Welcome to WeatherStatsNL') + cfg.ln
+        t  = text.head('BETA') + cfg.ln
+        t += text.head('MAIN MENU - Welcome to WeatherStatsNL') + cfg.ln
         t += content  + cfg.ln
 
         if not data and not internet:
             t += text.menu_no_internet_no_data + cfg.ln
-            t += text.foot(f"{space}Press a key to reload the menu or press 'q' to quit...")
+            t += text.foot(f"{cfg.spacer}Press a key to reload the menu or press 'q' to quit...")
 
         else:
             if not internet:
-                t += f'{space}No internet connection.' + cfg.ln
-                t += f'{space}Get an working internet connection for more menu options.' + cfg.ln
+                t += f'{cfg.spacer}No internet connection.' + cfg.ln
+                t += f'{cfg.spacer}Get an working internet connection for more menu options.' + cfg.ln
             elif not data:
-                t += f'{space}No data found.\n'
-                t += f'{space}Download the weather data (option 1 & 2) for more menu options.' + cfg.ln
+                t += f'{cfg.spacer}No data found.\n'
+                t += f'{cfg.spacer}Download the weather data (option 1 & 2) for more menu options.' + cfg.ln
 
-            t += f'{space}Choose one of the following options: 1..{num-1}' + cfg.ln
-            t += f"{space}Press 'x' to quit program..." + cfg.ln + cfg.ln
+            t += f'{cfg.spacer}Choose one of the following options: 1..{num-1}' + cfg.ln
+            t += f"{cfg.spacer}Press 'x' to quit program..." + cfg.ln + cfg.ln
             t += text.foot('Your choice ? ')
 
         # Make a choice
