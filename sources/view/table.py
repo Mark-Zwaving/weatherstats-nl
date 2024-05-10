@@ -9,11 +9,12 @@ __version__    =  '0.1.9'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import config as cfg
+import config as cfg ,pprint
 import pandas as pd
 import numpy as np
 import sources.control.fio as fio
 import sources.control.dayvalues.read as dayval_read
+import sources.model.dayvalues.np_days as np_days
 import sources.model.dayvalues.data as data
 import sources.model.utils as utils
 import sources.model.ymd as ymd
@@ -31,6 +32,42 @@ import sources.view.column.extreme as col_extreme
 import sources.view.column.clima as col_clima
 import sources.view.column.fixed_day as col_fixed_day
 import sources.view.console as cnsl
+
+def no_data_row_htm(station, options, period):
+    '''Functions prints a correct row if there is no data available'''
+    wmo = station.wmo
+    place = station.place
+    province = station.province
+    country = station.country
+    period1 = options[text.ask_period_1]
+    period2 = options[text.ask_period_2]
+    css = 'class="font-italic text-left"'
+    t = f"No data station for {station.wmo} {station.place} in period {period}" 
+
+    htm = '<tr>' # Open htm row
+    for opt in options[text.ask_select_cells]:
+        opt = opt.lower()
+        if opt == 'inf_wmo':
+            htm += f'<td {css} title="{t}">{html.span(wmo,"val")}</td>'
+        # elif opt == 'inf_copyright':
+        #     htm += f'<td {css} title="{t}">{html.span(place,"val")}</td>'
+        elif opt == 'inf_place':
+            htm += f'<td {css}>{html.span(place,"val")}</td>'
+        elif opt == 'inf_province':
+            htm += f'<td {css}>{html.span(province,"val")}</td>'
+        elif opt == 'inf_country':
+            htm += f'<td {css}>{html.span(country,"val")}</td>'
+        elif opt in ['inf_period', 'inf_period-1']:
+            htm += f'<td>{html.span(period1,"val")}</td>'
+        elif opt == 'inf_period-2':
+            htm += f'<td>{html.span(period2,"val")}</td>'
+
+        # No values
+        else: 
+            htm += f'<td title="{t}">{html.span(cfg.no_val,"val")}</td>' 
+    htm += '</tr>' # Close htm row
+
+    return htm
 
 def process(options, type='normal'):
     '''Function calculates all statistics'''
@@ -143,7 +180,9 @@ def header_row(options):
 
         # Add Sort Script
         if file_type in text.lst_output_htm:
-            col_id = text.strip_all_whitespace(f'{entity}_col_{col_num}'.replace('-','_')).upper()
+            col_id = text.strip_all_whitespace(
+                f'{entity}_col_{col_num}'.replace('-','_')
+            ).upper()
             script += js_script_fn( col_id, sort_type, sort_dir, row_num, col_num )
 
         # Add (cells) to head (row) output
@@ -181,58 +220,72 @@ def footer_row(options):
 
     return foot_htm, foot_txt, foot_csv
 
-def body_columns(options, np_days1, np_days2=cfg.e, day=cfg.e, cnt=-1):
+def body_columns(station, options, np_period1, np_period2, day=cfg.e, cnt=-1):
     '''Process all the data cells types'''
     col_htm, col_txt, col_csv = cfg.e, cfg.e, cfg.e
-    np_days = np_days2 if np_days2 else np_days1
-    file_type = options[text.ask_file_type]
 
-    # input(options)
+    file_type = options[text.ask_file_type]
+    np_dummy = np_days.new()
 
     for cell in options[text.ask_select_cells]: # Check all the available given options
         txt, htm, csv = '', '', '' # Init/reset data vars
         lst_cell_typ = cell.split('_')  # Example: ave_tg. Make a lst of cell id type
         stats = lst_cell_typ[0]  # At least two must be available
- 
-        if np_days1.size == 0: 
-            col_txt += cfg.no_val 
-            col_htm += f'<td>{cfg.no_val}</td>' 
-            col_csv += cfg.no_val 
+        # print(options[text.ask_select_cells])
+        # print(f'CELL is: {cell} !')
+        # pprint.pp(options)
+        # print('np_period1')
+        # pprint.pp(np_period1)
+        # print('np_period2')
+        # pprint.pp(np_period2)
 
-            # Skip calculating values, because there are no values
+        # # Check for data
+        if np.size(np_period1) == 0: 
+            t = f"No data station {station.wmo} {station.place} available for {cell}" 
+            col_txt += cfg.no_val 
+            col_htm += f'<td title="{t}">{html.span(cfg.no_val,"val")}</td>' 
+            col_csv += cfg.no_val 
+            # Skip calculating values, 
+            # because there are no values
             continue 
+
+        # If a second period is available and not empthy
+        if options[text.ask_period_2] != cfg.e:
+            if stats not in text.lst_info: # Not for info texts
+                np_period1 = np_period2 # Update period for the calculations
 
         # Info texts
         if stats in text.lst_info:
-            txt, htm, csv = col_inf.body(np_days1, np_days2, lst_cell_typ, day, cnt, file_type)
+            txt, htm, csv = col_inf.body(options, np_period1, np_period2, lst_cell_typ, 
+                                         day, cnt, file_type)
 
         # Fixed day values
         elif stats in text.lst_day: 
-            txt, htm, csv = col_fixed_day.body(np_days, lst_cell_typ, file_type) 
+            txt, htm, csv = col_fixed_day.body(np_period1, lst_cell_typ, file_type) 
 
         # Extremes (stats is maximum or minimum) 
         elif stats in text.lst_extremes: 
-            txt, htm, csv = col_extreme.body(np_days, lst_cell_typ, file_type) 
+            txt, htm, csv = col_extreme.body(np_period1, lst_cell_typ, file_type) 
 
         # Average
         elif stats in text.lst_ave: 
-            txt, htm, csv = col_mean.body(np_days, lst_cell_typ, file_type) 
+            txt, htm, csv = col_mean.body(np_period1, lst_cell_typ, file_type) 
 
         # Sum
         elif stats in text.lst_sum:
-            txt, htm, csv = col_sum.body(np_days, lst_cell_typ, file_type) 
+            txt, htm, csv = col_sum.body(np_period1, lst_cell_typ, file_type) 
 
         # Indexes
         elif stats in text.lst_ndx:
-            txt, htm, csv = col_ndx.body(np_days, lst_cell_typ, file_type) 
+            txt, htm, csv = col_ndx.body(np_period1, lst_cell_typ, file_type) 
 
         # Counters (conditional)
         elif stats in text.lst_count:
-            txt, htm, csv = condit_cnt.body(np_days, lst_cell_typ, file_type) # Make/calculate cells
+            txt, htm, csv = condit_cnt.body(np_period1, lst_cell_typ, file_type)
 
         # Climate calculations
         elif stats in text.lst_clima:  
-            txt, htm, csv = col_clima.body(np_days, lst_cell_typ, file_type) # Make/calculate cells
+            txt, htm, csv = col_clima.body(np_period1, lst_cell_typ, file_type) 
 
         # Cell type option not found?
         else:
@@ -248,13 +301,13 @@ def body_columns(options, np_days1, np_days2=cfg.e, day=cfg.e, cnt=-1):
 
     return col_htm, col_txt, col_csv 
 
-def body_row(options, days1, days2=cfg.e, day=cfg.e, cnt=-1):
+def body_row(station, options, period1, period2, day=cfg.e, cnt=-1):
     '''Put all the data columns in one body row'''
     # Init empthy vars
     body_htm, body_txt, body_csv = cfg.e, cfg.e, cfg.e
 
     # Get the column cells with data  
-    htm, txt, csv = body_columns(options, days1, days2, day, cnt=cnt)      
+    htm, txt, csv = body_columns(station, options, period1, period2, day, cnt=cnt)      
     if htm: 
         body_htm += '<tr>'  # Open htm row
         body_htm += htm     # Add columns to row
@@ -273,52 +326,96 @@ def body_row(options, days1, days2=cfg.e, day=cfg.e, cnt=-1):
 def body_rows_columns(options):
     '''Makes all the body rows'''
     body_htm, body_txt, body_csv, cnt = cfg.e, cfg.e, cfg.e, 0
+    np_dummy = np_days.new()
 
     # Walkthrough stations and calculate statistics and add to table
     for station in options[text.ask_lst_stations]:
         info_line('Start', options, station)
+        err = cfg.e
+        col_ymd = data.column('yyyymmdd') # Column date        
+        period1 = options[text.ask_period_1]
+        period2 = options[text.ask_period_2]
+        wmo = station.wmo
+        place = station.place
 
         # Read data station
-        ok, np_lst_days = dayval_read.weatherstation(station, verbose=False)  
+        ok, np_lst_station = dayval_read.weatherstation(station, verbose=True)  
+
+        # Check for values in period 1
+        if np.size(np_lst_station) == 0: 
+            htm = no_data_row_htm(station, options, 'all')
+            csv = cfg.no_val
+            txt = cfg.no_val
+            body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv 
+            continue
+
         if not ok: 
-            err  = f'Error in table body_row_columns()\ndata.read()\n'
-            err += f'Options {options}\nStation {station}\n{np_lst_days}'
+            err  = f'Error in table body_row_columns(){cfg.ln}data.read(){cfg.ln}'
+            err += f'Options {options}{cfg.ln}Station {station}{cfg.ln}{np_lst_station}'
             cnsl.log(err, cfg.error)
             continue 
 
-        # Get the days for a given period
-        period_1 = options[text.ask_period_1]
-        ok, np_lst_period_1 = broker.process( np_lst_days, period_1 )
+        # Init dummy value
+        np_lst_period_2 = np_dummy # Period 2 dummy
 
-        if not ok:
-            err  = f'Error in table body_row_columns()\ndata.read()\n'
-            err += f'Options {options}\nPeriod 1 {period_1}\n{np_lst_period_1}'
-            cnsl.log(err, cfg.error)
-            continue 
+        # Get days period1
+        ok, np_lst_period_1 = broker.process(np_lst_station, period1)
+
+        # Check for values in period 1
+        if np.size(np_lst_period_1) == 0: 
+            htm = no_data_row_htm(station, options,  period1)
+            csv = cfg.no_val
+            txt = cfg.no_val
+            body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv 
+            continue
 
         # Get start and end date for period 1, make string 
-        col_ymd = data.column('yyyymmdd') # Column date
-        symd_1 = str(int(np_lst_period_1[0,col_ymd])) # Start date period 1
-        eymd_1 = str(int(np_lst_period_1[-1,col_ymd])) # End date period 1
+        symd1 = str(int(np_lst_period_1[0,col_ymd])) # Start date period 1
+        eymd1 = str(int(np_lst_period_1[-1,col_ymd])) # End date period 1
 
-        # Get the days for the second period 2 (if given)
-        period_2 = options[text.ask_period_2]
-        np_lst_period_2 = np.array([])
-        if period_2:
-            ok, np_lst_period_2 = broker.process( np_lst_days, period_2 )
-            if not ok:
-                err  = f'Error in table body_row_columns()\ndata.read()\n'
-                err += f'Options {options}\Period 2 {period_2}\n{np_lst_period_2}'
-                cnsl.log(err, cfg.error)
-                continue
+        # # No data found
+        # if np.size(np_lst_period_1) == 0: 
+        #     cnsl.log(f'Station {station.place}. No valid data found for period {period1}')
+        #     continue
 
-            symd_2 = str(int(np_lst_period_2[0,col_ymd])) # Start date period 2
-            eymd_2 = str(int(np_lst_period_2[-1,col_ymd])) # End date period 2
+        # # Check for data
+        if ok: 
+            # Check for the second period
+            if period2 != cfg.e:
+                ok, np_lst_period_2 = broker.process(np_lst_period_1, period2)
+                 # Check for values in period 1
+                if np.size(np_lst_period_2) == 0: 
+                    htm = no_data_row_htm(station, options,  period2)
+                    csv = cfg.no_val
+                    txt = cfg.no_val
+                    body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv 
+                    continue
+                if not ok:
+                    err += f'Error in table body_row_columns(){cfg.ln}FN: broker.process(){cfg.ln}'
+                    err += f'Period 2 {period2}{cfg.ln}Options{cfg.ln}{options}'
+                    cnsl.log(err, cfg.error) 
+                    continue 
+        else:
+            err += f'Error in table body_row_columns(){cfg.ln}FN: broker.process(){cfg.ln}'
+            err += f'Period 1 {period1}{cfg.ln}Options{cfg.ln}{options}'
+            cnsl.log(err, cfg.error) 
+            continue 
     
-        # Compare periods TODO
+        # Two periods TODO
+        # Done already
+        # if options[text.ask_period_2]:  # Get days2 for calculation of statistic
+        #     # Add period-2 to list cell to show in table, if not there yet
+        #     if utils.key_from_lst(options[text.ask_select_cells], 'inf_period-2') == -1:
+        #         lst = options[text.ask_select_cells]
+        #         key = utils.key_from_lst( options[text.ask_select_cells], 'inf_period-1' ) # Get key value
+        #         key = 0 if key == -1 else key + 1 # input(key)
+        #         lst_2 = lst[:key] # Add period-2 to lst to show in table
+        #         lst_2.append('inf_period-2')
+        #         options[text.ask_select_cells] = lst_2 + lst[key:] 
+
         if options[text.ask_per_compare]: # More periods to calculate
             typ, val = options[text.ask_per_compare][0], options[text.ask_per_compare][1]
-            lst_yyyy = [ str(yymmdd)[:4] for yymmdd in range( int(symd_1), int(eymd_1), 10000 ) ]
+            lst_yyyy = [str(yymmdd)[:4] for yymmdd in range(int(symd_1), int(eymd_1), 10000)]
             
             # Add period-2 to list cell to show in table, if not there yet
             if utils.key_from_lst(options[text.ask_select_cells], 'inf_period-2') == -1:
@@ -358,11 +455,11 @@ def body_rows_columns(options):
 
                 info_line('Calculate', options, station)
 
-                if period_2: # no data
+                if period2: # no data
                     continue # Skip whole day/row
 
                 cnt += 1  # Count the days
-                htm, txt, csv = body_row( options, np_lst_period_1, np_lst_period_2, day=cfg.e, cnt=cnt ) # Get the cells with data
+                htm, txt, csv = body_row(station, options, np_lst_period_1, np_lst_period_2, day=cfg.e, cnt=cnt ) # Get the cells with data
                 body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
 
             info_line('End', options, station)
@@ -370,33 +467,21 @@ def body_rows_columns(options):
 
         # TODO Search for days table
         if options[text.ask_s4d_query]: # Update days
-            ok, np_lst_res = s4d_query.calculate(np_lst_days, options[text.ask_s4d_query]) 
+            ok, np_lst_res = s4d_query.calculate(np_lst_period_1, options[text.ask_s4d_query]) 
             if not ok:
                 continue
             else:
                 for day in np_lst_res:
                     cnt += 1  # Count the days
-                    htm, txt, csv = body_row(options, np_lst_res, np_lst_res, day=day, cnt=cnt) # Get the cells with data
+                    htm, txt, csv = body_row(station, options, np_lst_res, np_lst_res, day=day, cnt=cnt) # Get the cells with data
                     body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
 
             info_line('End', options, station)
             continue
 
-        # TODO Period-1 in period-2 
-        if options[text.ask_period_2]:  # Get days2 for calculation of statistic
-            
-            # Add period-2 to list cell to show in table, if not there yet
-            if utils.key_from_lst(options[text.ask_select_cells], 'inf_period-2') == -1:
-                lst = options[text.ask_select_cells]
-                key = utils.key_from_lst( options[text.ask_select_cells], 'inf_period-1' ) # Get key value
-                key = 0 if key == -1 else key + 1 # input(key)
-                lst_2 = lst[:key] # Add period-2 to lst to show in table
-                lst_2.append('inf_period-2')
-                options[text.ask_select_cells] = lst_2 + lst[key:] 
-
         # Statistics table
         cnt += 1  # Count the days
-        htm, txt, csv = body_row(options, np_lst_period_1, np_lst_period_2, day=cfg.e, cnt=cnt) # Get the tr cells with data
+        htm, txt, csv = body_row(station, options, np_lst_period_1, np_lst_period_2, day=cfg.e, cnt=cnt) # Get the tr cells with data
         body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
 
         info_line('End', options, station)
@@ -432,7 +517,6 @@ def js_script_fn( option, sort_type, sort_dir, row_num, col_num ):
 def mk_output(htm, txt, csv, options):
     '''Make output to screen or file(s)'''
     ok, path_to_file, ftyp = True, cfg.e, options[text.ask_file_type] 
-    # input(ftyp)
 
     if ftyp in text.lst_output_cnsl or cfg.console:  # For console
         cnsl.log(f'\n{txt}', True)  # Add 1 spacer/enter around console output
