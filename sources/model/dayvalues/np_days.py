@@ -8,6 +8,7 @@ __version__    =  '0.0.4'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
+import config as cfg, stations
 import numpy as np
 import sources.model.dayvalues.data as data
 
@@ -19,6 +20,16 @@ def new():
 def rm_row(np_lst, row=0):
     '''Remove row from np dayvalues list'''
     return np.delete(np_lst, (row), axis=0)
+
+def get_station(np_days):
+    # Get wmo number
+    wmo = str(int(np_days[0, data.STN]))
+
+    for station in stations.lst:
+        if str(station.wmo) == wmo:
+            return station
+    
+    return False
 
 def rm_nan(np_lst_days, entity):
     '''Removes nan values based on entity values from np days period 2d . 
@@ -57,3 +68,37 @@ def unique(np_lst_days, entity):
     rm_row(np_lst_result, 0)
 
     return found, np_lst_result
+
+def update_low_values__1(np_lst_days):
+    '''Function updates the -1 raw value in the data. 
+       Note: -1 raw value in lst is 0.1 for real
+       The -1 raw value is used for small values between 0.1 and 0.0 
+       The weatherdata is given in integers. 
+       That way it is not possible to have floating point values
+    ''' 
+    find_low_val = -1.0  # Lower dan 1 value, -1 raw is -> -0.1
+    replace_val  = cfg.knmi_dayvalues_low_measure_val # Sustitute value
+
+    # Columns to replace -1.0 for
+    col_rh, col_rhx, col_sq = data.column('RH'), data.column('RHX'), data.column('SQ')
+
+    # Loop days and update if -1 value for the spicific data is found 
+    for ndx, value in np.ndenumerate(np_lst_days):
+        row, col = ndx # Get current indices
+
+        # Check rh
+        if col == col_rh: # If col is rh col, Check if rh value is -1
+            if value == find_low_val: # If rh == -1
+                np_lst_days[row,col] = replace_val # Update rh value to replace value
+
+        # Check rhx
+        elif col == col_rhx: # If col is rhx col, Check if rhx value is -1
+            if value == find_low_val: # If rhx == -1
+                np_lst_days[row,col] = replace_val # Update rhx value to replace value
+
+        # Check sq
+        elif col == col_sq: # If col is sq col, Check if sq value is -1
+            if value == find_low_val: # If sq == -1
+                np_lst_days[row,col] = replace_val   # Update ss value to replace value
+
+    return np_lst_days
