@@ -37,7 +37,7 @@ td {
 tr:hover, tr:hover > td {
 	color:  green;
 	background:beige;
-	font-weight:bold;
+	/* font-weight:bold; */
 }
 
 td:hover {
