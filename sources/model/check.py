@@ -33,7 +33,7 @@ def is_int(s, verbose=False):
     try: 
         i = int(s)
     except ValueError:
-        cnsl.log(f'{i} not an integer.', cfg.error)
+        cnsl.log(f'{s} not an integer.', cfg.error)
         return False  
     return True
 
