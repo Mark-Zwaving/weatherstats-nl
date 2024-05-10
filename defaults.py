@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 2 - GPLv2'
-__version__    = '0.0.6' 
+__version__    = '0.0.7' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -106,11 +106,10 @@ lst_summer = [
 # Example spring ?
 lst_spring = [ 
     'inf_place', 'inf_period-1', 
-    'ave_tg', 'clima_ave_tg',  
-    'max_tx', 'min_tx', 'max_tn', 
-    'min_tn', 'ndx_heat-ndx', 'ndx_frost-sum', 
-    'sum_sq', 'sum_rh', 
-    'cnt_tx_>_20', 'cnt_tn_<_0', 'cnt_tn_<_-5'
+    'ave_tg', 'clima_ave_tg', 'max_tx', 'clima_max_tx', 
+    'sum_sq', 'clima_sum_sq', 'sum_rh', 'clima_sum_rh', 
+    'ndx_heat-ndx', 'clima_ndx_heat-ndx', 
+    'cnt_tx_>=_25', 'clima_cnt_tx_>=_25'
 ]
 
 # Default cells winter and summer
@@ -133,17 +132,17 @@ lst_winter_summer = [
 # Menu with the default statistics lists to show in the default statistics menu
 
 # Main header title text
-title_statistics = 'STATISTICS TABLES (see defaults.py)' 
+title_statistics = 'STATISTICS TABLES FIXED (see defaults.py)' 
 
 # Add the menu titles with the statistics lists to the default tables menu
 lst_menu = [
-    ['OK Winter statistics',             lst_winter ],
-    ['OK Summer statistics',             lst_summer ],
-    ['OK Winter and summer statistics',  lst_winter_summer ],
-    ['OK Extreme statistics',            lst_extremes ], 
-    ['OK Counter statistics',            lst_counters ], 
-    ['OK My favorite statistics 1',      lst_favorite_1],
-    # ['OK My favorite statistics 2',      lst_favorite_2],
+    ['Winter statistics',             lst_winter ],
+    ['Summer statistics',             lst_summer ],
+    ['Winter and summer statistics',  lst_winter_summer ],
+    ['Extreme statistics',            lst_extremes ], 
+    ['Counter statistics',            lst_counters ], 
+    ['My favorite statistics 1',      lst_favorite_1],
+    # ['My favorite statistics 2',      lst_favorite_2],
 ]
 ################################################################################
 ################################################################################
