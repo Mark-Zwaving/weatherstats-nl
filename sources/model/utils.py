@@ -3,8 +3,8 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__license__    =  'GNU General Public License version 3 - GPLv3'
-__version__    =  '0.1.6'
+__license__    =  'GNU General Public License version 2 - GPLv2'
+__version__    =  '0.1.8'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -13,44 +13,79 @@ import sources.control.fio as fio
 import sources.model.ymd as ymd
 import sources.model.validate as validate
 import sources.view.console as cnsl
-import sources.view.text as text
-import datetime, math, time, os, sys, random, math, shutil, webbrowser, subprocess
-import numpy as np
-from datetime import datetime
+import datetime, math, time, os, sys, random, math, webbrowser, subprocess
+from datetime import datetime, timedelta
 from dateutil import rrule
 from pytz import timezone
 from urllib.parse import urlparse
 
-l0          = lambda s, n=1: f'{s:0>{n}}' # Add leading zeros
+l0          = lambda s, n=1: str(s).zfill(n) # Add leading zeros
 add_l0      = lambda s, n=1: l0(s,n)
 var_dump    = lambda v: print( f'Dump {id(v)} {type(v)} {v}' )
 url_name    = lambda url: urlparse(url).netloc.split('.')[-2].lower()
 name_ext    = lambda path: os.path.splitext(os.path.basename(path))
 lst_unique  = lambda lst: list(set(lst))
-lst_shuffle = lambda lst, lev=3: lst_fisher_yates_shuffle(lst, lev) # ERR, TODO
 lst_to_s    = lambda lst, sep=', ': sep.join(lst)
 rnd_digit   = lambda min, max: random.randint(min, max)
 abspath     = lambda path: os.path.abspath(path)
 mk_path     = lambda dir, f: abspath(os.path.join(dir, f))
 
-def map_name(map):
-    '''Function makes a string valid to be used as directory name'''
-    repl_char = 'x' 
-    for char in cfg.forbidden_map_chars:
-        map = map.replace(char, repl_char)
+def add_lst(lst, el, key=0):
+    '''Must return the list'''
+    lst.insert(key, el)
+    return lst
 
-    return map
+def datetime_plus_minutes_rounded( minute=15 ):
+    '''Get a default datetime minutes af the current datetime'''
+    dt_plus_MM = datetime.now() + timedelta(minutes=minute)
+    yyyymmdd, hhmmss = dt_plus_MM.strftime('%Y%m%d-%H%M%S').split('-')
+    yyyy, mm, dd, HH, MM, _ = ymd.split_yyyymmdd_hhmmss(yyyymmdd, hhmmss)
+    SS = '00'
 
-def name_with_act_date(base_name, ext='txt'):
-    H, M, S = ymd.hh_mm_ss_now()
-    return f'{base_name}-{H}-{M}-{S}.{ext}'
+    # Return type MySQL string
+    return f'{yyyy}-{mm}-{dd} {HH}:{MM}:{SS}' 
 
-def dir_with_act_date(base_dir):
-    y, m, d = ymd.yyyy_mm_dd_now()
-    return mk_path(base_dir, f'{y}/{m}/{d}')
+def replace_char(s, chars, char):
+    '''Function replaces in a str all the chars in string with a given string '''
+    for c in chars:
+        s = s.replace(c, char)
+    return s
 
-def path_with_act_date(base_dir, base_name):
-    return mk_path(dir_with_act_date(base_dir), name_with_act_date(base_name))
+def str_max(s, startlen=18, maxlen=78, brk='..'):
+    '''Function chops of n characters in the middle to not exceed a given length'''
+    if len(s) > maxlen:
+        startlen -= len(brk)
+        st = f'{s[0:startlen]}'
+        while len(s) >= (maxlen - startlen + 1): 
+            s = f'{s[1:]}'
+
+        return f'{st}{brk}{s[startlen:maxlen]}'
+    
+    return s
+
+def lst_to_col(lst, align='left', col=5, width=16, ln='\n'):
+    # Overrule width if its too short
+    for el in lst:
+        if len(el) >= width:
+            width = len(el) + 1 # Make width bigger, add one space 
+
+    t = ''
+    for ndx, el in enumerate(lst):
+        # Long text Break off anyway
+        el = el[:width]
+
+        if   align ==   'left': 
+            t += f'{el:{width}}'
+        elif align ==  'right': 
+            t += f'{el:>{width}}'
+        elif align == 'center': 
+            t += f'{el:^{width}}'
+
+        ndx += 1
+        if ndx % col == 0 and ndx != len(lst):
+            t = t.strip() + ln
+
+    return t
 
 def max_chars_in_lst(lst):
     maxx = 0
@@ -59,14 +94,6 @@ def max_chars_in_lst(lst):
         if cnt > maxx:
             maxx = cnt
     return maxx
-
-def mk_path_with_dates(base_dir, fname):
-    yyyy, mm, dd = ymd.yyyy_mm_dd_now()
-    dir  = fio.mk_path( base_dir, f'{yyyy}/{mm}/{dd}' )
-    name = fname.replace( '*', 'x' ).replace( ' ', '-' )
-    path = fio.mk_path( dir, name )
-
-    return path, dir, name
 
 def remove_chars(s, l):
     if type(l) != list:
@@ -83,57 +110,6 @@ def to_int(s):
     while s[0] == '0': s = s[1:] # Remove leading zero's
     s = int(s) # Make int
     return s
-
-def make_dirs_app(verbose=False):
-    l = [ cfg.dir_data, cfg.dir_winterstats, cfg.dir_summerstats, cfg.dir_dayvalues,
-          cfg.dir_search4days, cfg.dir_allstats, cfg.dir_thirdparty , cfg.dir_img,
-          cfg.dir_pdf, cfg.dir_txt, cfg.dir_forecasts, cfg.dir_templates, cfg.dir_period,
-          cfg.dir_static, cfg.dir_dayextremes, cfg.dir_monthextremes, cfg.dir_yearextremes,
-          cfg.dir_dayvalues_zip, cfg.dir_dayvalues_txt, cfg.dir_forecasts_txt,
-          cfg.dir_period_img, cfg.dir_templates_html, cfg.dir_quick_calc,
-          cfg.dir_quick_calc_txt ]
-    for dir in l:
-        if not os.path.exists(dir):
-            fio.mk_dir(dir, verbose)
-
-def is_nan( val ):
-    ok = False
-    try:
-        if val != val:
-            ok = True
-        elif val == np.isnan:
-            ok = True
-        elif np.isnan(val):
-            ok = True
-        elif math.isnan(val):
-            ok = True
-    except Exception as e:
-        pass
-
-    return ok
-
-def is_float( val ):
-    ok = True
-    try:
-        if val is None:
-            ok = False
-        elif is_nan(val):
-            ok = False
-        else:
-            f = float(val)
-    except Exception as e:
-        cnsl.log(f'Digit {val} is no float.')
-        ok = False
-
-    return ok
-
-def is_date( dt ):
-    try:
-        datetime.strptime(dt, '%Y%m%d')
-    except ValueError:
-        return False
-    else:
-        return True
 
 def unique_list(l):
     unique = list()
@@ -172,12 +148,8 @@ def loc_date_now():
     return dt_loc.now() # return local
 
 def now_for_file():
-    t =  loc_date_now().strftime('%Y%m%d%H%M%S')
+    t =  loc_date_now().strftime('%Y%m%d-%H%M%S')
     return t
-
-def ymd_to_txt( yyyymmdd ):
-    yyyymmdd = yyyymmdd if type(yyyymmdd) is str else fl_to_s(yyyymmdd)
-    return datetime.strptime(yyyymmdd, '%Y%m%d').strftime('%A, %d %B %Y')
 
 def mk_name( base='x', period='x', places=[], entities=[] ):
     st = base + '-' + period.replace('*', 'x')
@@ -222,55 +194,6 @@ def list_dates_range( sd, ed ):
 
     return l
 
-def compress_gif(
-        path, # Name of image to compress
-        verbose=cfg.verbose
-    ):
-    '''Function compressess a gif image.
-       Python libraries used: pygifsicle, imageio
-       Install command imageio: python3 -m pip install imageio
-       Install command: python3 -m pip install pygifsicle
-       Application gifsicle is needed for the compression of a gif-image
-       Instal gifsicle on your OS too
-       Example linux debian: install command: sudo apt-get install gifsicle
-    '''
-    ok = False
-    cnsl.log( text.head( f'[{ymd.now()}] Start compress file' ), verbose )
-    cnsl.log( f'Animation file name: {path}', verbose )
-    cnsl.log( f'Copy for the compressed file: {cfg.copy_compressed}', verbose )
-
-    if os.path.isfile( path ): 
-        try: # Check for pygifsicle
-            import pygifsicle 
-        except:
-            cnsl.log('Python library pygifsicle is not installed', cfg.error)
-            cnsl.log('Install library with command: python3 -m pip install pygifsicle', cfg.error)
-            cnsl.log('Install on your os the following programm: gifsicle', cfg.error)
-            cnsl.log('Example install debian: sudo apt-get install gifsicle', cfg.error)
-        else:
-            fcopy = f'{path[:-4]}-compressed.{cfg.animation_ext}' # Name for a copy file 
-            shutil.copyfile( path, fcopy )   # Copy the original file to a copy file
-            try:
-                pygifsicle.optimize( fcopy ) # Compress the copy file
-            except Exception as e:
-                cnsl.log( f'Error compressing \n{e}', cfg.error )
-                fio.delete( fcopy, verbose=False ) # Remove the copy  
-            else:
-                ok = True  # All went well 
-                if not cfg.copy_compressed:       # Replace original with the compressed file 
-                    fio.delete( path, verbose=False )  # Remove the original animation 
-                    shutil.copyfile( fcopy, path )     # Copy the compressed copy to the real animation file 
-                    fio.delete( fcopy, verbose=False ) # Remove the compressed copy
-
-                cnsl.log( f'[{ymd.now()}] Compress successfull', verbose ) 
-
-    else:
-        cnsl.log(f'Path - {path} - is not a file', verbose) 
-
-    cnsl.log( text.foot( f'[{ymd.now()}] End compress file' ), verbose ) 
-
-    return ok
-
 def rm_l0(s):
     while s[0] == '0': 
         s = s[1:]
@@ -309,7 +232,7 @@ def pause(
 
     # Get start date time
     ok, hhmmss = validate.hhmmss(end_time) # Fill in the possible missing parts
-    ok, yymmdd = validate.yyyymmdd_1(end_date) # Fill in the missing part with the current date
+    ok, yymmdd = validate.yyyymmdd(end_date) # Fill in the missing part with the current date
 
     if not ok:
         return 
@@ -329,34 +252,49 @@ def pause(
 
     cnsl.log_r(f'[{ymd.now()}] {t}\n\n', verbose)
 
-def process_time_ext(t=cfg.e, delta_sec = 0):
+def process_time_ext_ns(t=cfg.e, delta_ns = 0):
     '''Function gives a time string from nano seconds till days '''
+    # Convert to seconds
+    delta_ns = delta_ns / cfg.sec_nano 
+
     # Calculate from seconds
-    rest, total_sec = math.modf( delta_sec )
+    rest, total_sec = math.modf( delta_ns )
     rest, milli_sec = math.modf( rest * 1000 )
     rest, micro_sec = math.modf( rest * 1000 )
     rest, nano_sec  = math.modf( rest * 1000 )
     mill, micr, nano = int(milli_sec), int(micro_sec), int(nano_sec)
+
     # Calculate from seconds
     d = int(total_sec // cfg.sec_day) # Calculate days
-    r = total_sec % cfg.sec_day       # Leftover seconds
+    r = total_sec % cfg.sec_day       # Leftover nano seconds
     h = int(r // cfg.sec_hour)        # Calculate hours
     r = r % cfg.sec_hour              # Leftover seconds
     m = int(r // cfg.sec_minute)      # Calculate minutes
     r = r % cfg.sec_minute            # Leftover seconds
     s = int(r)                        # Calculate seconds
+
     # Make a nice output. Give emthpy string if 0
     # Only print to screen when counted amount > 0
     if d > 0: t += f"{d} {'days'    if d > 1 else 'day'} "
     if h > 0: t += f"{h} {'hours'   if h > 1 else 'hour'} "
     if m > 0: t += f"{m} {'minutes' if m > 1 else 'minute'} "
+
     t += f'{s}.{str(mill):0>3} seconds' # 3 dec with leading zeros
     
     return t
 
-def process_time(t=cfg.e, st=time.time_ns(), ln='\n'):
-    delta = time.time_ns() - st
-    t = process_time_ext(t, delta)
+def process_time_ns(t=cfg.e, start_ns=0, ln=''):
+    delta_ns = time.time_ns() - start_ns
+    t = process_time_ext_ns(t, delta_ns)
+    return t + ln
+
+def process_time_delta_ns(t=cfg.e, delta_ns=0, ln=''):
+    t = process_time_ext_ns(t, delta_ns)
+    return t + ln
+
+def process_time(t=cfg.e, start_sec=0, ln=''):
+    delta_ns = start_sec * cfg.sec_nano
+    t = process_time_ext_ns(t, delta_ns) # Update to nano seconds
     return t + ln
 
 def time_passed(
@@ -394,23 +332,26 @@ def lst_fisher_yates_shuffle(lst, level=1):
 
     return lst
 
-def exec_with_app(fname, verbose=cfg.verbose):
+lst_shuffle = lambda lst, lev=3: lst_fisher_yates_shuffle(lst, lev) # ERR, TODO
+
+def exec_with_app(path, verbose=cfg.verbose):
     '''Function opens a file with an default application'''
     ok, err = False, cfg.e
     cnsl.log(f'Start open file with an app {ymd.now()}', verbose)
 
-    if fio.check(fname, verbose):
-        cnsl.log(f'File {fname}', verbose)
+    if fio.check(path, verbose):
+        cnsl.log(f'File {path}', verbose)
 
         # Linux
         if sys.platform.startswith('linux'):
             try:
-                subprocess.call( ['xdg-open', fname] )
+                subprocess.call( ['xdg-open', path] )
             except Exception as e:
-                err += f'{e}\n'
+                err += f'Error in utils exec_with_app(). Linux, xdg-open {path}\n{e}\n'
                 try:
-                    os.system(f'start {fname}')
+                    os.system(f'start {path}')
                 except Exception as e:
+                    err += f'Error in utils exec_with_app(). Linux, start {path}\n{e}\n'
                     err += f'{e}\n'
                 else:
                     ok = True
@@ -420,20 +361,20 @@ def exec_with_app(fname, verbose=cfg.verbose):
         # OS X
         elif sys.platform.startswith('darwin'): # ?
             try: 
-                os.system( f'open "{fname}"' )
+                os.system( f'open "{path}"' )
             except Exception as e: 
-                err += f'{e}\n'
+                err += f'Error in utils exec_with_app(). OSX, darwin {path}\n{e}\n'
             else: 
                 ok = True
 
         # Windows
         elif sys.platform in ['cygwin', 'win32']:
             try: # Should work on Windows
-                os.startfile(fname)
+                os.startfile(path)
             except Exception as e:
-                err += f'{e}\n'
+                err += f'Error in utils exec_with_app(). Windows, os.startfile {path}\n{e}\n'
                 try:
-                    os.system( f'start "{fname}"' )
+                    os.system( f'start "{path}"' )
                 except Exception as e:
                     err += f'{e}\n'
                 else:
@@ -443,8 +384,9 @@ def exec_with_app(fname, verbose=cfg.verbose):
 
         # Possible fallback, use the webbrowser
         if not ok:
-            try: webbrowser.open(fname, new=2, autoraise=True)
-            except Exception as e: err += e
+            try: webbrowser.open(path, new=2, autoraise=True)
+            except Exception as e: 
+                err += f'Error in utils exec_with_app(). Fallback, webbrowser.open {path}\n{e}\n'
             else: 
                 ok = True
 
