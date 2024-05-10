@@ -24,13 +24,16 @@ import sources.model.statistic.clima.condition_cnt as clima_condit_cnt
 def header(lst_cell, file_type):
     # Init variables
     txt, htm, csv, title = '', '', '', '' 
+    clima, typ, entity, operand, value = '', '', '', '', ''
 
-    # Make correct headers for txt
-    if lst_cell[1] in text.lst_count: 
+    if len(lst_cell) == 5:
         clima, typ, entity, operand, value = lst_cell
-    else:
+    elif len(lst_cell) == 4:
+        clima, typ, entity, operand = lst_cell
+    elif len(lst_cell) == 3:
         clima, typ, entity = lst_cell
-        operand, value = '', ''
+    elif len(lst_cell) == 2:
+        clima, typ = lst_cell
 
     if typ in text.lst_count:
         title = f'~Σ{entity}{operand}{value}'
@@ -56,6 +59,7 @@ def body(np_lst_days, lst_cell, file_type):
     typ = lst_cell[1] 
     # print(lst_cell)
     # input(typ)
+    ent_val = 'X'
 
     # Select what todo 
      # E.g: clima_sum_rh
