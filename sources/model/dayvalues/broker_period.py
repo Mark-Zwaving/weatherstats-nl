@@ -3,7 +3,7 @@
 __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
-__version__    =  '0.0.8'
+__version__    =  '0.0.9'
 __license__    =  'GNU General Public License version 2 - GPLv2'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
@@ -26,7 +26,7 @@ def process(
     # OPTION: from date/day to date/day 
     # YYYYMMDD-YYYYMMDD 
     if chk.yyyymmdd_yyyymmdd(period):
-        print('YYYYMMDD-YYYYMMDD')
+        # print('YYYYMMDD-YYYYMMDD')
         np_res = select.yyyymmdd_yyyymmdd(np_lst_days, period)
 
     # OPTION: from a given full start year untill maximum date
@@ -43,7 +43,7 @@ def process(
     # YYYY*- 
     # YYYY- 
     elif chk.yyyy_(period):
-        print('YYYY****-********')
+        # print('YYYY****-********')
         np_res = select.yyyy_(np_lst_days,period)
 
     # OPTION: from a full year to a full year
@@ -51,7 +51,7 @@ def process(
     # YYYY****-YYYY****
     # YYYY-YYYY
     elif chk.yyyy_yyyy(period):
-        print('YYYY****-YYYY****')
+        # print('YYYY****-YYYY****')
         np_res = select.yyyy_yyyy(np_lst_days,period)
 
     # TODO
@@ -61,7 +61,7 @@ def process(
     # YYYY****-YYYYMM
     # YYYY-YYYYMM
     elif chk.yyyy_yyyymm(period):
-        print('YYYY****-YYYYMM**')
+        # print('YYYY****-YYYYMM**')
         np_res = select.yyyy_yyyymm(np_lst_days,period)
 
     # TODO
@@ -70,7 +70,7 @@ def process(
     # YYYY****-YYYYMMDD
     # YYYY-YYYYMMDD
     elif chk.yyyy_yyyymmdd(period):
-        print('YYYY****-YYYYMMDD')
+        # print('YYYY****-YYYYMMDD')
         np_res = select.yyyy_yyyymmdd(np_lst_days,period)
 
     # OPTION: from a full start date to an end month
@@ -78,7 +78,7 @@ def process(
     # YYYYMMDD-YYYYMM**
     # YYYYMMDD-YYYYMM
     elif chk.yyyymmdd_yyyymm(period):
-        print('YYYYMMDD-YYYYMM**')
+        # print('YYYYMMDD-YYYYMM**')
         np_res = select.yyyymmdd_yyyymm(np_lst_days,period)
 
     # OPTION: select a period of months and days, underscore must be used
@@ -89,13 +89,13 @@ def process(
     # winter: _1201-_0228
     # summer: _0622-_0921
     elif chk.yyyy_mmdd_yyyy_mmdd(period):
-        print('****_MMDD-****_MMDD')
+        # print('****_MMDD-****_MMDD')
         np_res = select.yyyy_mmdd_yyyy_mmdd(np_lst_days,period)
 
     # OPTION: get a day in a year
     # yyyymmdd
     elif chk.yyyymmdd(period):
-        print('yyyymmdd')
+        # print('yyyymmdd')
         np_res = select.yyyymmdd(np_lst_days,period)
 
     # OPTION: All the data, one wildcard
@@ -106,32 +106,32 @@ def process(
     # OPTION: The current whole year
     # ****
     elif chk.xxxx(period):
-        print('xxxx')
+        # print('xxxx')
         np_res = select.xxxx(np_lst_days,period)
 
     # The current month
     # **
     elif chk.xx(period):
-        print('xxx')
+        # print('xxx')
         np_res = select.xx(np_lst_days,period)
 
     # OPTION: The current day/date in month
     # ***
     elif chk.xxx(period):
-        print('xxx')
+        # print('xxx')
         np_res = select.xxx(np_lst_days,period)
 
     # OPTION: The whole year
     # YYYY****
     # YYYY
     elif chk.yyyyxxxx(period):
-        print('yyyyxxxx')
+        # print('yyyyxxxx')
         np_res = select.yyyyxxxx(np_lst_days,period)
 
     # OPTION: get the day for every available year
     # ****MMDD 
     elif chk.xxxxmmdd(period):
-        print('xxxxmmdd')
+        # print('xxxxmmdd')
         np_res = select.xxxxmmdd(np_lst_days,period)
 
     # OPTION: The whole month in a year
@@ -139,14 +139,14 @@ def process(
     # YYYYMM 
     # * or x can be omitted!
     elif chk.yyyymmxx(period):
-        print('YYYYMM**')
+        # print('YYYYMM**')
         np_res = select.yyyymmxx(np_lst_days,period)
 
     # OPTION: get selected month for every years
     # ****MM**
     # ****MM
     elif chk.xxxxmmxx(period):
-        print('****MM**, MM')
+        # print('****MM**, MM')
         np_res = select.xxxxmmxx(np_lst_days,period)
 
     # OPTION NOT FOUND ERROR
