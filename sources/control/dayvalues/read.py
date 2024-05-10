@@ -10,10 +10,10 @@ __status__     =  'Development'
 
 import config as cfg
 import numpy as np, threading
-import sources.model.ymd as ymd
+import sources.model.dayvalues.np_days as np_days
 import sources.view.console as cnsl
 import sources.model.dayvalues.broker_period as broker
-import sources.model.dayvalues.data as data
+import sources.model.ymd as ymd
 
 def weatherstation( 
         weather_station,      # Station object
@@ -48,45 +48,10 @@ def weatherstation(
             ok = True
 
     # Update the low -1 values for spcific columns into -> 0.025
-    np_lst_days = update_low_values__1(np_lst_days)
+    if ok:
+        np_lst_days = np_days.update_low_values__1(np_lst_days)
 
     return ok, np_lst_days  # OK
-
-def update_low_values__1( np_lst_days ):
-    '''Function updates the -1 raw value in the data. 
-       Note: -1 raw value in lst is 0.1 for real
-       The -1 raw value is used for small values between 0.1 and 0.0 
-       The weatherdata is given in integers. 
-       That way it is not possible to have floating point values
-    ''' 
-    find_low_val = -1.0  # Lower dan 1 value, -1 raw is -> -0.1
-    replace_val  = cfg.knmi_dayvalues_low_measure_val # Sustitute value
-
-    # Columns to replace -1.0 for
-    col_rh, col_rhx, col_sq = data.column('RH'), data.column('RHX'), data.column('SQ')
-
-    # Loop days and update if -1 value for the spicific data is found 
-    for ndx, value in np.ndenumerate(np_lst_days):
-        row, col = ndx # Get current indices
-
-        # Check rh
-        if col == col_rh: # If col is rh col, Check if rh value is -1
-            if value == find_low_val: # If rh == -1
-                np_lst_days[row,col] = replace_val # Update rh value to replace value
-
-        # Check rhx
-        elif col == col_rhx: # If col is rhx col, Check if rhx value is -1
-            if value == find_low_val: # If rhx == -1
-                np_lst_days[row,col] = replace_val # Update rhx value to replace value
-
-        # Check sq
-        elif col == col_sq: # If col is sq col, Check if sq value is -1
-            if value == find_low_val: # If sq == -1
-                np_lst_days[row,col] = replace_val   # Update ss value to replace value
-
-        
-
-    return np_lst_days
 
 def weatherstation_period(
         weather_station,      # Station object
