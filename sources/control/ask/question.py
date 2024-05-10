@@ -8,13 +8,14 @@ __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
 import sys, config as cfg, defaults
-import validators
+import validators, random
 import sources.control.ask.answer as answer
 import sources.model.stations as stations
 import sources.model.utils as utils
 import sources.model.dayvalues.data as data
 import sources.model.dayvalues.chk_period as chk_period
 import sources.model.check as chk
+import sources.model.ymd as ymd
 import sources.view.search4days as s4d
 import sources.view.console as cnsl
 import sources.view.text as text
@@ -22,8 +23,7 @@ import sources.view.text as text
 # Marker for adding a default question mark 
 marker = '\n>>>  ?  '
 
-def ask( 
-        t='?',           # Question text
+def ask(t='?',           # Question text
         default=cfg.e,   # Default text
         back=False,      # Add the go back option
         prev=False,      # Add the previous option
@@ -55,8 +55,12 @@ def ask(
 
     # User wants to quit
     if answer.is_quit(answ):
-        cnsl.log('Goodbye!', True)
+        t = random.choice(text.lst_goodbye_txt)
+        t = t.replace('. ', '.').replace('.', f'.{cfg.ln}')
+        t = t.replace('! ', '!').replace('!', f'!{cfg.ln}')
+        cnsl.log(t, cfg.verbose)
         sys.exit(0)
+
     # User wants the default answer
     elif answer.is_empty(answ) and default != cfg.e:
         return default
@@ -75,7 +79,7 @@ def answ_to_lst(answ):
 def y_or_n(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     '''Question demands an answer yes or no'''
     while True:
-        answ = ask( t + cfg.ln + text.enter_y_or_n(),
+        answ = ask(t + cfg.ln + text.enter_y_or_n(),
                    default, back, prev, exit, spacer )
         
         if ( back and answer.is_back(answ) ) or \
@@ -84,8 +88,8 @@ def y_or_n(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer=Fa
         elif answ in text.lst_yes or \
              answ in text.lst_no:
             return answ
-        else:
-            cnsl.log("Type in a 'y' or 'n'...", True)
+        
+        cnsl.log("Type in 'y' or 'n'...", True)
 
 def integer(t='Give an integer ?', default=1, 
             back=False, prev=False, exit=True, spacer=False):
@@ -180,7 +184,7 @@ def lst_places(t, default=cfg.e, back=False, prev=False, exit=False, spacer=Fals
             cnsl.log(ttt, True)
     else:
         t = 'No weatherdata found in data map. Download weatherdata first...' + cfg.ln
-        cnsl.log(t, cfg.error)
+        cnsl.log(t, True)
 
     return lst_sel
 
@@ -210,7 +214,7 @@ def period_1( t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer
             else:
                 ttt = f'Period of format {answ} is unknown... Press a key... '
 
-        cnsl.log(ttt, cfg.error)
+        cnsl.log(ttt, True)
 
 
 def lst_period_1(t=cfg.e, default=cfg.e, 
@@ -265,42 +269,46 @@ def lst_period_1(t=cfg.e, default=cfg.e,
             ttt += utils.lst_to_col(lst_result, align='left', col=8, width=3)
             ttt += cfg.ln
 
-        cnsl.log(ttt, cfg.error)
+        cnsl.log(ttt, True)
 
     return lst_result
 
-def type_options(t, lst, default=cfg.e, back=False, prev=False, 
-                 exit=False, spacer=False):
-    # Make lower case
-    lst = [el.lower() for el in lst] 
-    tt = t + cfg.ln
-
-    # Make options
-    for i, el in enumerate(lst):
-        tt += f'  {i+1}) {el}' + cfg.ln
+def options_lst(t, lst, default=cfg.e, back=False, 
+                prev=False, exit=False, spacer=False):
+    # Make options list
+    tt = ''
+    for i, option in enumerate(lst, start=1):
+        tt += f'{cfg.spacer}{i}. {option}' + cfg.ln
         
     while True:
-        answ = ask(tt, default, back, prev, exit, spacer).lower()
-
-        ttt = cfg.e
+        tt = t + cfg.ln + tt 
+        answ = ask(tt, default, back, prev, exit, spacer)
 
         # Check default if input is empthy and there is no default
-        if answer.is_empty(answ) and default == cfg.e: 
+        ttt = cfg.e
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
             ttt += text.type_in + cfg.ln
         elif ( back and answer.is_back(answ) ) or \
              ( prev and answer.is_prev(answ) ):
             return answ
-        elif answ in lst:
-            return answ
-        elif chk.is_int(answ) or \
-             chk.is_float(answ):
-            return lst[int(answ)-1]
         else:
-            ttt = f'Option {answ} unknown. Try again...' + cfg.ln
+            # Check given number
+            if chk.is_int(answ) or chk.is_float(answ):
+                i = int(answ) - 1
+                if i in range(len(lst)):
+                    return lst[i] # Return text
+            # Check given text answ
+            else: 
+                ans = answ.lower() 
+                if ans in lst:
+                    return answ
 
+        ttt = f'Option {answ} unknown. Try again...' + cfg.ln
         cnsl.log(ttt, True)
 
-def day( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
+
+def day(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     while True:
         tt = cfg.e
         if cfg.info:
@@ -312,17 +320,18 @@ def day( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
         ttt = cfg.e
 
         # Check default if input is empthy and there is no default
-        if answer.is_empty(answ) and default == cfg.e: 
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
             ttt += text.type_in + cfg.ln
         elif ( back and answer.is_back(answ) ) or \
              ( prev and answer.is_prev(answ) ):
             return answ
-        elif answ in text.lst_mmdd:
+        elif answ in ymd.lst_mmdd:
             return answ
         else:
-            ttt = f'Day {answ} unknown. Try again...'
+            ttt = f'Day date {answ} unknown. Try again...'
 
-        cnsl.log(ttt, cfg.error)
+        cnsl.log(ttt, True)
 
 def month( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     while True:
@@ -333,62 +342,78 @@ def month( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
 
         answ = ask(tt, default, back, prev, exit, spacer)
 
-        ttt = cfg.e
-
         # Check default if input is empthy and there is no default
-        if answer.is_empty(answ) and default == cfg.e: 
+        ttt = cfg.e
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
             ttt += text.type_in + cfg.ln
         elif ( back and answer.is_back(answ) ) or \
              ( prev and answer.is_prev(answ) ):
-            return answ
-        elif text.month_to_mm(answ) != -1:
-            return text.month_to_mm(answ)
+            return answ 
         else:
-            ttt = f'Month {answ} unknown. Try again...'
+            mm = ymd.month_to_mm(answ)
+            if mm != -1:
+                return mm
 
-        cnsl.log(ttt, cfg.error)
+            ttt += f'Month {answ} unknown. Try again...'
+
+        cnsl.log(ttt, True)
 
 def period_2(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
 
-    lst = [ 'day', 'month' , 'period'
-            #, 'season' 
-    ]
-    while True:
-        option = type_options(t, lst, default, back, prev, exit, spacer).lower() 
+    lst = ['day', 'month' , 'period']
+    #, 'season' 
 
+    while True:
+        tt = cfg.e
+        if cfg.info:
+            tt += text.menu_info_period2.strip() + cfg.ln + cfg.ln
+        tt += t
+
+        answ = options_lst(tt, lst, default, back, prev, exit, spacer)
+
+        ttt = cfg.e
         # Check default if input is empthy and there is no default
-        if answer.is_empty(answ) and default == cfg.e: 
-            tt = text.type_in + cfg.ln
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
+            ttt = text.type_in + cfg.ln 
+
         elif ( back and answer.is_back(answ) ) or \
              ( prev and answer.is_prev(answ) ):
             return answ
-
-        if option in 'day':
-            tt = 'To select a day. Type in a day in the format (=mmdd)'
-            mmdd = day(tt, default, back, prev, exit, spacer)
-            answ = f'****{mmdd}'
-
-        elif option in 'month':
-            tt = 'To select a month. Type in a month num or a name' 
-            mm = month(tt, default, back, prev, exit, spacer)
-            answ = f'****{mm}**'
-
-        elif option == 'period':
-            tt = 'Select a period' 
-            per = period_1(tt, default, back, prev, exit, spacer)
-            answ = per
-
-        elif option == 'season':
-            tt = 'Select a season' 
-            season = season_type(tt, default, back, prev, exit, spacer)
-            answ = season
-
-        if answer.is_quit(answ): 
-            return answ
-        elif answer.is_prev(answ):
-            continue
+        
         else:
-            return answ
+            # Next question
+            answ = answ.lower()
+            if answ == 'day':
+                tttt = 'To select a day. Type in a day in the format (=mmdd)'
+                answb = day(tttt, default, back, prev, exit, spacer)
+                period = f'****{answb}'
+
+            elif answ == 'month':
+                tttt = 'To select a month. Type in a month num or a name' 
+                answb = month(tttt, default, back, prev, exit, spacer)
+                period = f'****{answb}**'
+
+            elif answ == 'period':
+                tttt = 'Select a second period' 
+                answb = period_1(tttt, default, back, prev, exit, spacer)
+                period = answb
+
+            elif answ == 'season':
+                tttt = 'Select a season' 
+                answb = season_type(tttt, default, back, prev, exit, spacer)
+                period = answb
+
+            if back and answer.is_back(answb):
+               return answb # Go back to the main menu
+            elif prev and answer.is_prev(answb):
+                continue # Go back to the main question
+            else:
+                return period
+
+        ttt = f'Period {answ} unknown. Try again...'
+        cnsl.log(ttt, True)
 
 def period_day_to_day( t, default, back=False, prev=False, exit=False, spacer=False):
     while True:
@@ -434,19 +459,19 @@ def s4d_query(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False
             else:
                 ttt = f'Error in query: "{answ}"! Check syntax.\n{ttt}'
 
-        cnsl.log(ttt, cfg.error)
+        cnsl.log(ttt, True)
 
 def file_type(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst = text.lst_output_options
-    return type_options(t, lst, default, back, prev, exit, spacer)
+    return options_lst(t, lst, default, back, prev, exit, spacer)
 
 def graph_type(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst = ['line', 'bar']
-    return type_options(t, lst, default, back, prev, exit, spacer)
+    return options_lst(t, lst, default, back, prev, exit, spacer)
 
 def season_type(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst = ['winter', 'spring', 'summer', 'autumn']
-    return type_options(t, lst, default, back, prev, exit, spacer)
+    return options_lst(t, lst, default, back, prev, exit, spacer)
 
 def file_name(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     answ = ask(t, default, back, prev, exit, spacer)
@@ -460,35 +485,39 @@ def file_name(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False
 def period_compare(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):    
     lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
-        option = type_options(t, lst, default, back, prev, exit, spacer)
+        option = options_lst(t, lst, default, back, prev, exit, spacer)
 
-        if ( back and answer.is_back(answ) ) or \
-           ( prev and answer.is_prev(answ) ):
-            return answ
-        elif option in text.lst_season:
-            tt = 'Select season to compare'
-            answ = ('season', season_type(tt, default, back, prev, exit, spacer))
+        if ( back and answer.is_back(option) ) or \
+           ( prev and answer.is_prev(option) ):
+            return option
+        else:
+            # Second question
+            if option in text.lst_season:
+                tt = 'Select season to compare'
+                answ = ('season', season_type(tt, default, back, prev, exit, spacer))
 
-        elif option in text.lst_day:
-            tt = 'Which day do you want to compare ?'
-            answ = ('day', day( tt, default, back, prev, exit, spacer))
+            elif option in text.lst_day:
+                tt = 'Which day do you want to compare ?'
+                answ = ('day', day( tt, default, back, prev, exit, spacer))
 
-        elif option in text.lst_month:
-            tt = 'Which month do you want to compare ?'
-            answ = ('month', month( tt, default, back, prev, exit, spacer))
+            elif option in text.lst_month:
+                tt = 'Which month do you want to compare ?'
+                answ = ('month', month( tt, default, back, prev, exit, spacer))
 
-        elif option == 'years':
-            tt = 'Which years do you want to compare ?'
-            answ = ('year', 'year')
+            elif option == 'years':
+                tt = 'Which years do you want to compare ?'
+                answ = ('year', 'year')
 
-        elif option == 'period <mmdd-mmdd>':
-            tt = 'Which period (from day to day) do you want to compare ?'
-            answ = ('period', period_day_to_day( tt, default, back, prev, exit, spacer))
+            elif option == 'period <mmdd-mmdd>':
+                tt = 'Which period (from day to day) do you want to compare ?'
+                answ = ('period', period_day_to_day( tt, default, back, prev, exit, spacer))
 
-        if answer.is_prev(answ[1]):
-            continue # Again
-        else: 
-            return answ
+            ans = answ[1]
+            if prev and answer.is_prev(ans):
+                continue # Go back one question
+            if back and answer.is_back(ans):
+                return ans
+
 
 def lst_diy_cells(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst_cells = []
@@ -530,22 +559,45 @@ def lst_diy_cells(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, sp
 
     return lst_cells
 
+def lst_sel_all_type_cells(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
+    # Make a list with all the type options 
+    lst  = ['DIY (do it yourself) cells']
+    # Add the default options 
+    lst += [lst_def[0].capitalize() for lst_def in defaults.lst_menu]
 
-def lst_sel_cells(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
-    # Get titles
-    lst = ['DIY (do it yourself) cells'] + [lstb[0] for lstb in defaults.lst_menu]
- 
-    answ = type_options(t, lst, default, back, prev, exit, spacer)
+    while True:
+        tt =  cfg.e
+        if cfg.info:
+            tt += text.menu_info_td_all_type_cells.strip() + cfg.ln + cfg.ln
+        tt += t
 
-    if   answ == lst[0]: return lst_diy_cells(t, default, back, prev, exit, spacer)
-    elif answ == lst[1]: return defaults.winter
-    elif answ == lst[2]: return defaults.summer 
-    elif answ == lst[3]: return defaults.winter_summer
-    elif answ == lst[4]: return defaults.extremes
-    elif answ == lst[5]: return defaults.counts
-    elif answ == lst[6]: return defaults.default_1
-     
-    return answ 
+        answ = options_lst(tt, lst, default, back, prev, exit, spacer)
+
+        # Check default if input is empthy and there is no default
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
+            ttt += text.type_in + cfg.ln
+        elif ( back and answer.is_back(answ) ) or \
+             ( prev and answer.is_prev(answ) ):
+            return answ
+        
+        # DIY option
+        elif answ.lower() == lst[0].lower(): 
+            t = 'Give your DIY cells ?'
+            return lst_diy_cells(t, default, back, prev, exit, spacer)
+        
+        # Walkthrough all the options in the list
+        else:
+            ans = answ.lower()
+            for ndx, lst_opt in enumerate(lst):
+                print(answ)
+                input(lst_opt)
+                if ans == lst_opt.lower():
+                    return lst[ndx][1]
+            ttt = f'Answer {answ} not available. Try again...'
+
+        cnsl.log(ttt, True)
+
 
 def lst_entities( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst_result = [] # Result lst
