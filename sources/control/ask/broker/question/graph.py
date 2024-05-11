@@ -39,7 +39,7 @@ def graph_defaults(question, answ, dict_results, back, prev_act, exit, spacer):
 
         # Ask for the graph type
         elif question == text.ask_graph_entity_type:
-            dict_results[text.ask_graph_entity_type] = answ = ask_question.type_options(
+            dict_results[text.ask_graph_entity_type] = answ = ask_question.lst_options(
                 'What type of image ?', 
                 ['png', 'jpg', 'ps', 'pdf', 'svg'], 
                 cfg.plot_image_type, back, prev_act, exit, spacer )
