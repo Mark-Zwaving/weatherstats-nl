@@ -456,7 +456,6 @@ def table_heat_ndx(np_lst_days):
                     raw_tg  = np_day[data.column('tg')]
                     raw_heat_act = raw_tg - 180.0
                     raw_heat_sum, _ = heat.calculate_nl(np_lst_days[:cnt,:])
-                    print("raw sum", raw_heat_sum)
 
                 except Exception as e:
                     err  = f'Error in tbl_popup table_heat_ndx()\n{np_lst_days}\n{e}'

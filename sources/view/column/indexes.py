@@ -97,7 +97,6 @@ def body(np_lst_days, lst_cell, file_type):
     elif entity in text.lst_ijnsen:
         ijnsen_raw, np_lst_ijnsen, _, _, _ = ijnsen.calculate(np_lst_days)
         ijnsen_val = text.fix_for_entity(ijnsen_raw, entity)
-        # print(f"IJNSEN {ijnsen_val}")
 
         txt = text.padding(ijnsen_val, 'center', text.pad_ijns)[:text.pad_ijns]
 
@@ -112,7 +111,6 @@ def body(np_lst_days, lst_cell, file_type):
     elif entity in text.lst_frost_sum:
         fsum_raw, np_lst_frostsum, _, _, _, _ = frostsum.calculate_nl(np_lst_days)
         fsum_val = text.fix_for_entity(fsum_raw, entity)
-        # print(f"FROSTSUM {fsum_val}")
 
         txt += text.padding(fsum_val, 'center', text.pad_fsum)[:text.pad_default]
         

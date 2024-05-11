@@ -57,8 +57,6 @@ def body(np_lst_days, lst_cell, file_type):
     txt, htm, csv, raw_val = '', '', '', cfg.no_val 
     # clima is at pos 1 and typ is always at position 3
     typ = lst_cell[1] 
-    # print(lst_cell)
-    # input(typ)
     ent_val = 'X'
 
     # Select what todo 
