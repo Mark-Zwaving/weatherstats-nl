@@ -128,7 +128,7 @@ def lst_graph_entities_options(entity, question, answ, dict_results,
         # Ask for the type graph for the entity
         if question_loc == text.ask_graph_entity_type: 
             dict_results_entities[text.ask_graph_entity_type] = answ = \
-                    ask_question.type_options(
+                    ask_question.lst_options(
                         f'Which type graph do you want to use for {entity} ?', 
                         ['line', 'bar'], 
                         cfg.plot_graph_type, back, prev_act, exit, spacer )
