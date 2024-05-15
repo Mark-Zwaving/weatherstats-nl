@@ -415,7 +415,8 @@ def body_rows_columns(options):
 
         if options[text.ask_per_compare]: # More periods to calculate
             typ, val = options[text.ask_per_compare][0], options[text.ask_per_compare][1]
-            lst_yyyy = [str(yymmdd)[:4] for yymmdd in range(int(symd_1), int(eymd_1), 10000)]
+            
+            print(typ, val)
             
             # Add period-2 to list cell to show in table, if not there yet
             if utils.key_from_lst(options[text.ask_select_cells], 'inf_period-2') == -1:
@@ -430,6 +431,7 @@ def body_rows_columns(options):
                 if 'inf_period-1' in options[text.ask_select_cells]:
                     options[text.ask_select_cells].remove('inf_period-1')
 
+            lst_yyyy = [str(yymmdd)[:4] for yymmdd in range( int(symd1), int(eymd1), 10000 )]
             for yyyy in lst_yyyy[::-1]: # Reverse lst
                 if   typ in text.lst_year:
                     options[text.ask_period_2] = f'{yyyy}****'
@@ -446,21 +448,37 @@ def body_rows_columns(options):
                         options[text.ask_period_2] = f'{yyyy}0601-{yyyy}0831'
                     elif val == 'autumn': 
                         options[text.ask_period_2] = f'{yyyy}0901-{yyyy}1130'
-                elif typ in text.lst_period_1:
-                    mmdd1, mmdd2 = val.split('-')
+                else:
+                    # input("hallo")
+                    # typ in text.lst_period_2:
+                    lst = val.split('-')
+                    mmdd1 = lst[0].strip()
+                    mmdd2 = lst[1].strip()
                     if int(mmdd1) <= int(mmdd2): 
                         options[text.ask_period_2] = f'{yyyy}{mmdd1}-{yyyy}{mmdd2}'
                     else: 
-                        options[text.ask_period_2] = f'{int(yyyy)-1}{mmdd1}-{yyyy}{mmdd2}'
+                        sy = str(int(yyyy)-1)
+                        options[text.ask_period_2] = f'{sy}{mmdd1}-{yyyy}{mmdd2}'
+
+                # Get days period 2
+                period2 = options[text.ask_period_2]
+                ok, np_lst_period_2 = broker.process(np_lst_period_1, period2)
+                if np.size(np_lst_period_2) == 0: 
+                    htm = no_data_row_htm(station, options,  period2)
+                    csv = cfg.no_val
+                    txt = cfg.no_val
+                    body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv 
+                    continue
 
                 info_line('Calculate', options, station)
 
-                if period2: # no data
-                    continue # Skip whole day/row
+                # if period2: # no data
+                #     continue # Skip whole day/row
 
                 cnt += 1  # Count the days
                 htm, txt, csv = body_row(station, options, np_lst_period_1, np_lst_period_2, day=cfg.e, cnt=cnt ) # Get the cells with data
-                body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv # Add to body
+                body_htm, body_txt, body_csv = body_htm + htm, body_txt + txt, body_csv + csv #                 # if period2: # no data
+                #     continue # Skip whole day/rowAdd to body
 
             info_line('End', options, station)
             continue
