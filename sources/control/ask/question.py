@@ -423,15 +423,16 @@ def period_day_to_day( t, default, back=False, prev=False, exit=False, spacer=Fa
     while True:
         tt = cfg.e
         if cfg.info:
-            tt += 'Select a start day(<format:<mmdd>) and a end day (<format:<mmdd>). Separated with an -\n' 
-            tt += 'Input format: mmdd-mmdd\n'
+            tt += 'Select a start day(<format:<mmdd>) and a end day (<format:<mmdd>). Separated with an - ' + cfg.ln
+            tt += 'Input format: mmdd-mmdd' + cfg.ln
             tt += 'Example: 0501-0503' + cfg.ln + cfg.ln
         tt += t + cfg.ln
 
         answ = ask(tt, default, back, prev, exit, spacer)
 
         # Check default if input is empthy and there is no default
-        if answer.is_empty(answ) and default == cfg.e: 
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
             ttt = text.type_in + cfg.ln
         elif ( back and answer.is_back(answ) ) or \
              ( prev and answer.is_prev(answ) ):
@@ -489,7 +490,7 @@ def file_name(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False
 def period_compare(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):    
     lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
     while True:
-        option = options_lst(t, lst, default, back, prev, exit, spacer)
+        option = lst_options(t, lst, default, back, prev, exit, spacer)
 
         if ( back and answer.is_back(option) ) or \
            ( prev and answer.is_prev(option) ):
@@ -519,9 +520,10 @@ def period_compare(t, default=cfg.e, back=False, prev=False, exit=False, spacer=
             ans = answ[1]
             if prev and answer.is_prev(ans):
                 continue # Go back one question
-            if back and answer.is_back(ans):
-                return ans
-
+            elif back and answer.is_back(ans):
+                return answ
+            else:
+                return answ
 
 def lst_diy_cells(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst_cells = []
