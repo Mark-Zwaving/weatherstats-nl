@@ -271,9 +271,9 @@ def calculate( options ):
     # Give legend some space above (maximimum) entity 
     # !!!! optimize TODO TODO TODO
     spacer_def = 2 # Correction pffft
-    spacer_max_yas = len(options[text.ask_lst_stations]) * len(options[text.ask_lst_graph_entities]) + spacer_def
+    spacer_max_yas = len(options[text.ask_lst_stations]) * len(options[text.ask_lst_graph_entities]) * 1.5 
     # spacer_min_yas = 0.5 # Not needed
-    max_val_tick = int(round(math.ceil(max_all + spacer_max_yas))) # Maximum value
+    max_val_tick = int(round(math.ceil(max_all + spacer_max_yas))) + spacer_def # Maximum value
     min_val_tick = int(round(math.floor(min_all))) # Minimum value
     min_max_diff = max_val_tick - min_val_tick
     step_tick = 10 ** len(str(abs(min_max_diff))[:-2]) # TODO ? Calculating y steps in graph
