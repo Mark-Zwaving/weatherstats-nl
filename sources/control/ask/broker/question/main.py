@@ -24,53 +24,54 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
 
     # Ask for stations lst
     if question == text.ask_lst_stations:
-        dict_results[text.ask_lst_stations] = answ = ask_question.lst_places(
-            'Select one or more weatherstations ?', 
-            cfg.e, back, prev_act, exit, spacer )
+        t = 'Select one or more weatherstations ?'
+        dict_results[text.ask_lst_stations] = answ = ask_question.lst_places(t, cfg.e, back, 
+                                                                             prev_act, exit, spacer )
 
     # Ask for entities lst
     elif question == text.ask_lst_entities:
-        dict_results[text.ask_lst_entities] = answ = ask_question.lst_entities(
-            'Select one or more weather entities ?', 
-            cfg.e, back, prev_act, exit, spacer )
+        t = 'Select one or more weather entities ?'
+        dict_results[text.ask_lst_entities] = answ = ask_question.lst_entities(t, cfg.e, back, 
+                                                                               prev_act, exit, spacer )
         
     # Ask for a start datetime
     elif question == text.ask_start_datetime: 
         dt_plus = utils.datetime_plus_minutes_rounded( minute=10 )
-        dict_results[text.ask_start_datetime] = answ = ask_question.date_time( 
-            'a start', dt_plus, back, prev_act, exit, spacer )
+        dict_results[text.ask_start_datetime] = answ = ask_question.date_time('a start', dt_plus, back, 
+                                                                              prev_act, exit, spacer )
 
     # Ask for a end datetime
     elif question == text.ask_end_datetime: 
         dt_plus = utils.datetime_plus_minutes_rounded( minute=70 )
-        dict_results[text.ask_end_datetime] = answ = ask_question.date_time( 
-            'an end', dt_plus, back, prev_act, exit, spacer )
+        dict_results[text.ask_end_datetime] = answ = ask_question.date_time('an end', dt_plus, back, 
+                                                                            prev_act, exit, spacer )
 
     # Ask for the statistics cell 
     elif question == text.ask_select_cells: 
-        dict_results[text.ask_select_cells] = answ = ask_question.lst_diy_cells(
-            'What will be the statistics cells ?', 
-            '', back, prev_act, exit, spacer )
+        t = 'What will be the statistics cells ?'
+        dict_results[text.ask_select_cells] = answ = ask_question.lst_diy_cells(t, '', back, prev_act, 
+                                                                                exit, spacer )
 
     # Ask for the statistics cells. 
     # All options including default lists are given 
     elif question == text.ask_select_all_cells: 
+        t = 'What will be the statistics cells ?'
         # Use same end cells name: text.ask_select_cells
-        dict_results[text.ask_select_cells] = answ = ask_question.lst_sel_all_type_cells(
-            'What will be the statistics cells ?', 
-            '', back, prev_act, exit, spacer )      
+        dict_results[text.ask_select_cells] = answ = ask_question.lst_sel_all_type_cells(t, '', back, 
+                                                                                         prev_act, exit, 
+                                                                                         spacer )      
 
     # Ask for the first period
     elif question == text.ask_period_1: 
-        dict_results[text.ask_period_1] = answ = ask_question.period_1(
-            f'Give a period for {title} ?', 
-           '', back, prev_act, exit, spacer ) 
+        t = f'Give a period for {title} ?'
+        dict_results[text.ask_period_1] = answ = ask_question.period_1(t, '', back, prev_act, 
+                                                                       exit, spacer ) 
 
     # Ask for the second period
     elif question == text.ask_period_2:
-        dict_results[text.ask_period_2] = answ = ask_question.period_2(
-            'Select a second period ?', 
-            '', back, prev_act, exit, spacer )
+        t = 'Select a second period ?'
+        dict_results[text.ask_period_2] = answ = ask_question.period_2(t, '', back, prev_act, 
+                                                                       exit, spacer )
 
         # # Is there a second period in the DIY question lst. 
         # # If not add one Period 2 to the GLOBAL Question lst!
@@ -82,9 +83,10 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
 
     # Ask for a type file
     elif question == text.ask_file_type: # Ask for a file types
-        dict_results[text.ask_file_type] = answ = ask_question.file_type(
-            'Select type output file ?', 
-            cfg.default_output, back, prev_act, exit, spacer )
+        t = 'Select type output file ?'
+        default = cfg.default_output
+        dict_results[text.ask_file_type] = answ = ask_question.file_type(t,  default, back, 
+                                                                         prev_act, exit, spacer )
 
     # Ask for a filename
     elif question == text.ask_filename: 
@@ -111,9 +113,14 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
 
     # Ask for a period to compare with an other period     
     elif question == text.ask_per_compare:
-        dict_results[text.ask_per_compare] = answ = ask_question.period_compare(
-            'Give the period to compare ?', 
-            cfg.e, back, prev_act, exit, spacer )
+        # Question
+        t = 'Give the period to compare ?'
+        # Result is a tuple
+        tup = ask_question.period_compare(t, cfg.e, back, prev_act, exit, spacer)
+        dict_results[text.ask_per_compare] = tup
+
+        # Answer is second part of tup 
+        answ = tup[1] 
 
     # Rewrite or only make new non-existing files
     elif question == text.ask_write_dayval: 
