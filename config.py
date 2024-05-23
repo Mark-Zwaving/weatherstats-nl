@@ -13,7 +13,7 @@ import os, sys, time, numpy as np  # Python modules
 ################################################################################
 
 verbose = False  # Print more(all) to screen
-error   = False  # Print exceptions and errors to screen
+error   = True   # Print exceptions and errors to screen
 info    = True   # Show examples and help info in menu by default
 console = True   # Show always the calculated tables in the console 
 log     = False  # Log to file 
@@ -127,28 +127,45 @@ if webserver: # Oké, let's save the html files on the webserver
 
 ################################################################################
 # KNMI Weather
-knmi_ftp_pub               = 'ftp://ftp.knmi.nl/pub_weerberichten/'
-knmi_forecast_global_url   = f'{knmi_ftp_pub}basisverwachting.txt'
-knmi_forecast_model_url    = f'{knmi_ftp_pub}guidance_meerdaagse.txt'
-knmi_forecast_guidance_url = f'{knmi_ftp_pub}guidance_modelbeoordeling.txt'
 
-# JSON url 10 minute values
-knmi_json_data_10min       = 'ftp://ftp.knmi.nl/pub_weerberichten/tabel_10Min_data.json'
+# Get an temporary anonymous knmi Api Key -> https://developer.dataplatform.knmi.nl/open-data-api#token 
+knmi_api_key = 'eyJvcmciOiI1ZTU1NGUxOTI3NGE5NjAwMDEyYTNlYjEiLCJpZCI6ImE1OGI5NGZmMDY5NDRhZDNhZjFkMDBmNDBmNTQyNjBkIiwiaCI6Im11cm11cjEyOCJ9'
+# knmi_api_key = ''
 
-# Select places to show with current measurements. -1 for all
+# Select places to show with current measurements.
 # Possible options for knmi places
-# 'Lauwersoog', 'Nieuw Beerta', 'Terschelling', 'Vlieland', 'Leeuwarden', 'Stavoren',
-# 'Houtribdijk', 'Hoogeveen', 'Heino', 'Twente', 'Deelen', 'Hupsel', 'Herwijnen', 'Marknesse',
-# 'De Bilt', 'Cabauw', 'Den Helder', 'Texelhors', 'Berkhout', 'IJmuiden', 'Wijk aan Zee',
-# 'Voorschoten', 'Rotterdam', 'Hoek van Holland', 'Wilhelminadorp', 'Vlissingen', 'Westdorpe',
-# 'Woensdrecht', 'Volkel', 'Eindhoven', 'Ell', 'Arcen', 'Maastricht-Aachen Airport'
-knmi_json_places = [
-    'Den Helder', 'Vlissingen', 'De Bilt', 'Nieuw Beerta',
-    'Terschelling', 'Leeuwarden', 'Twente', 'Wilhelminadorp',
-    'Arcen', 'Eindhoven', 'Woensdrecht', 'Rotterdam',
-    'Voorschoten', 'Berkhout', 'Hoogeveen', 'Maastricht-Aachen Airport'
+# 06215=Voorschoten, 06235=De Kooy, 06240=Schiphol, 06249=Berkhout,
+# 06251=Hoorn Terschelling, 06257=Wijk aan Zee, 06260=De Bilt,
+# 06267=Stavoren, 06269=Lelystad, 06270=Leeuward, 06279=Hoogeveen, 
+# 06280=Eelde, 06283=Hupsel, 06286=Nieuw Beerta, 06290=Twenthe,
+# 06310=Vlissingen, 06319=Westdorpe, 06323=Wilhelminadorp,
+# 06330=Hoek van Holland, 06340=Woensdrecht, 06344=Rotterdam,
+# 06348=Cabauw Mast, 06350=Gilze-Rijen, 06356=Herwijnen, 06370=Eindhoven,
+# 06375=Volkel, 06377=Ell, 06380=Maastricht, 06391=Arcen, 06242=Vlieland
+
+# Select stations to show 
+lst_knmi_stations_show = [
+    '06235', '06280', '06260', '06310', '06380',
+    '06286', '06391', '06344', '06240', '06290',
+    '06251', '06370', '06323', '06277', '06249',
+    '06273', '06279', '06319', '06269', '06242'
 ]
-knmi_json_cols = 4  # Colums for the data
+# lst_knmi_stations_show = [
+#     # '06215', 
+#     '06235', '06240', '06249', '06251', 
+#     # '06257', 
+#     '06260', '06267', '06269', '06270', '06273', '06275', 
+#     '06277', '06278', '06279', '06280', '06283', '06286', 
+#     '06290', '06310', '06319', '06323', '06330', '06340', 
+#     '06344', '06348', '06350', '06356', '06370', '06375', 
+#     '06377', '06380', '06391', '06242' 
+# ]
+
+# Colums for the weather stations 
+knmi_station_cols = 4
+
+# Local name for knmi current stations
+knmi_stations_name_nc = 'knmi-stations'
 
 # Dayvalues knmi
 knmi_dayvalues_url          = 'https://cdn.knmi.nl/knmi/map/page/klimatologie/gegevens/daggegevens/etmgeg_{0}.zip'
