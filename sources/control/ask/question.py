@@ -363,6 +363,43 @@ def month( t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
 
         cnsl.log(ttt, True)
 
+def year(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
+    while True:
+        tt =  cfg.e
+        if cfg.info:
+            tt += 'Type in a Year <yyyy>' + cfg.ln + cfg.ln
+        tt += t + cfg.ln
+
+        answ = integer(tt, default, back, prev, exit, spacer)
+
+        # Check default if input is empthy and there is no default
+        ttt = cfg.e
+        if answer.is_empty(answ) and \
+           default == cfg.e: 
+            ttt += text.type_in + cfg.ln
+        elif ( back and answer.is_back(answ) ) or \
+             ( prev and answer.is_prev(answ) ):
+            return answ 
+        else:
+            # Check year somewhat
+            ok = True
+            if len(str(answ)) != 4:
+                ok = False 
+            else:
+                # Check range year
+                iay = int(answ)  # Chosen year
+                isy = 1901  # Minimum start year
+                iey = int(ymd.yyyy())  # Maximum end year 
+                if iay < isy or iay > iey:
+                    ok = False
+
+            if ok:
+                return answ
+
+            ttt += f'Error in year {answ}. Try again...'
+
+        cnsl.log(ttt, True)
+
 def period_2(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
 
     lst = ['day', 'month' , 'period']
@@ -475,7 +512,7 @@ def graph_type(t, default=cfg.e, back=False, prev=False, exit=False, spacer=Fals
     return options_lst(t, lst, default, back, prev, exit, spacer)
 
 def season_type(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
-    lst = ['winter', 'spring', 'summer', 'autumn']
+    lst = [text.lst_winter[0], text.lst_spring[0], text.lst_summer[0], text.lst_autumn[0]]
     return options_lst(t, lst, default, back, prev, exit, spacer)
 
 def file_name(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
@@ -488,7 +525,7 @@ def file_name(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False
     return answ
 
 def period_compare(t, default=cfg.e, back=False, prev=False, exit=False, spacer=False):    
-    lst = ['period <mmdd-mmdd>', 'years', 'season', 'month' , 'day']
+    lst = [text.lst_mmdd_compare[0], text.lst_season[0], text.lst_year[0], text.lst_month[0] , text.lst_day[0]]
     while True:
         option = lst_options(t, lst, default, back, prev, exit, spacer)
 
@@ -499,31 +536,34 @@ def period_compare(t, default=cfg.e, back=False, prev=False, exit=False, spacer=
             # Second question
             if option in text.lst_season:
                 tt = 'Select season to compare'
-                answ = ('season', season_type(tt, default, back, prev, exit, spacer))
+                tup = (text.lst_season[0], season_type(tt, default, back, prev, exit, spacer))
 
             elif option in text.lst_day:
                 tt = 'Which day do you want to compare ?'
-                answ = ('day', day( tt, default, back, prev, exit, spacer))
+                tup = (text.lst_day[0], day( tt, default, back, prev, exit, spacer))
 
             elif option in text.lst_month:
                 tt = 'Which month do you want to compare ?'
-                answ = ('month', month( tt, default, back, prev, exit, spacer))
+                tup = (text.lst_month[0], month( tt, default, back, prev, exit, spacer))
 
-            elif option == 'years':
+            elif option in text.lst_year:
                 tt = 'Which years do you want to compare ?'
-                answ = ('year', 'year')
+                tup = (text.lst_year[0], year( tt, default, back, prev, exit, spacer))
 
-            elif option == 'period <mmdd-mmdd>':
+            elif option in text.lst_mmdd_compare:
                 tt = 'Which period (from day to day) do you want to compare ?'
-                answ = ('period', period_day_to_day( tt, default, back, prev, exit, spacer))
+                tup = (text.lst_mmdd_compare[0], period_day_to_day( tt, default, back, prev, exit, spacer))
 
-            ans = answ[1]
-            if prev and answer.is_prev(ans):
-                continue # Go back one question
-            elif back and answer.is_back(ans):
-                return answ
+            answ = tup[1]
+            if prev and answer.is_prev(answ):
+                # Go back one question
+                return ('', answ)
+            elif back and answer.is_back(answ):
+                # Go back to main menu
+                return ('', answ)
             else:
-                return answ
+                return tup
+
 
 def lst_diy_cells(t=cfg.e, default=cfg.e, back=False, prev=False, exit=False, spacer=False):
     lst_cells = []
