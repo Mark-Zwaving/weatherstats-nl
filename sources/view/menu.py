@@ -4,10 +4,11 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 2 - GPLv2'
-__version__    = '0.0.8' 
+__version__    = '0.0.9' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
+import config as cfg
 import defaults
 import sources.control.menu as ctrl_menu 
 
@@ -32,7 +33,7 @@ lst_divers_statistics = [
     [  
         [ 'DIY statistics', ctrl_menu.table_stats_diy ],
         [ 'Two period statistics (more options) <BETA>', ctrl_menu.table_stats_period_in_period],
-        [ 'X TODO Compare periods',  ctrl_menu.table_stats_period_compare ],
+        [ 'Compare statistics <BETA>',  ctrl_menu.table_stats_period_compare ],
     ] 
 ]
 
@@ -64,7 +65,7 @@ lst_databases = [
     [ 
         [ 'TODO Create/(Re)new (sqlite) Database',      ctrl_menu.database_create_renew ],
         [ 'TODO Update (sqlite) Database',              ctrl_menu.database_create_renew ],
-        [ 'TODO Execute a (sqlite) Query',              ctrl_menu.database_query ],
+        [ 'TODO Execute a (sqlite) Query',              ctrl_menu.database_query        ],
         [ 'TODO Delete the (sqlite) Database',          ctrl_menu.database_create_renew ],
         [ 'TODO Create Database extern (mysql) Server', ctrl_menu.database_create_renew ],
         [ 'TODO Update Database extern (mysql) Server', ctrl_menu.database_create_renew ],
@@ -74,13 +75,12 @@ lst_databases = [
 lst_current_weather = [ 
     'WEATHER (dutch)', 
     [ 
-        [ 'Buienradar Forecast',  ctrl_menu.weather_buienradar_forecast ],
+        [ 'Buienradar Forecast',    ctrl_menu.weather_buienradar_forecast ],
         [ 'Buienradar Stations NL', ctrl_menu.weather_buienradar_stations ],
-
-    # Jammer, ftp pub knmi opgeheven
-    # [ 'KNMI Forecast weather',              menu_knmi_forecast          ],
-    # [ 'KNMI Forecast guidance short term',  menu_knmi_forecast_guidance ],
-    # [ 'KNMI Forecast model long term',      menu_knmi_forecast_model    ],
-    # [ 'KNMI Stations NL',                   menu_knmi_act_values        ],
     ] 
 ]
+
+# Is a knmi Api key activated than add knmi options
+if cfg.knmi_api_key:
+    lst_current_weather[1].append( ['KNMI Forecast weather', ctrl_menu.weather_knmi_forecast] )
+    lst_current_weather[1].append( ['KNMI Stations NL', ctrl_menu.weather_knmi_stations])
