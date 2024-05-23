@@ -58,16 +58,16 @@ def mk_path_with_dates(base_dir, fname):
 
     return path, dir, fname
 
-def name_with_act_date(base_name, ext='txt'):
-    H, M, S = ymd.hh_mm_ss_now()
-    return f'{base_name}-{H}-{M}-{S}.{ext}'
+def name_with_act_date(base_name, extension='txt'):
+    y, m, d, H, M, S = ymd.yyyy_mm_dd_HH_MM_SS_now()
+    return f'{base_name}-{y}{m}{d}-{H}{M}{S}.{extension}'
 
 def dir_with_act_date(base_dir):
     y, m, d = ymd.yyyy_mm_dd_now()
     return mk_path(base_dir, f'{y}/{m}/{d}')
 
-def path_with_act_date(base_dir, base_name):
-    return mk_path(dir_with_act_date(base_dir), name_with_act_date(base_name))
+def path_with_act_date(base_dir, base_name, extension='txt'):
+    return mk_path(dir_with_act_date(base_dir), name_with_act_date(base_name, extension))
 
 def check(path, verbose=cfg.verbose):
     '''Function checks a file for existence'''
@@ -95,11 +95,21 @@ def write(path='dummy.txt', content=cfg.e, encoding='utf-8', prefix='w', verbose
     with threading.Lock():
         try:
             map = os.path.dirname(path)
-            if map: mk_dir(map, verbose) # Make map(s)
-            with open(path, encoding=encoding, mode=prefix) as f:
-                f.write(content)
+
+            # Make the maps
+            if map: 
+                mk_dir(map, verbose)
+
+            # Write the content
+            if encoding:
+                with open(path, encoding=encoding, mode=prefix) as f:
+                    f.write(content)
+            else:
+                with open(path, mode=prefix) as f:
+                    f.write(content)
+
         except Exception as e:
-            cnsl.log(f'[{ymd.now()}] Error writing file\n{e}', cfg.error)
+            cnsl.log(f'[{ymd.now()}] Error writing file{cfg.ln}{e}', cfg.error)
         else:
             cnsl.log(f'[{ymd.now()}] Write file success', verbose)
             ok = True
