@@ -10,6 +10,7 @@ __status__     = 'Development'
 
 import config as cfg
 import sources.view.console as cnsl
+import sources.model.check as chk
 
 # Convert types
 lst_to_s = lambda lst, sep=', ': sep.join(lst)
@@ -101,6 +102,9 @@ def bytes_to_str( b, charset, errors ):
     return b
 
 def ms_to_bft( ms ):
+    if chk.is_nan(ms):
+        return cfg.no_val
+    
     i = int(ms)
     if   i <   3: return '0'
     elif i <  16: return '1'
@@ -117,6 +121,9 @@ def ms_to_bft( ms ):
     else: return '12'
 
 def octa_to_txt(octa):
+    if chk.is_nan(octa):
+        return cfg.no_val
+    
     i = int(octa)
     if   0 == i: return 'Onbewolkt'
     elif 1 == i: return 'Vrijwel onbewolkt'
@@ -131,6 +138,9 @@ def octa_to_txt(octa):
     else: return cfg.e
 
 def deg_to_txt(deg):
+    if chk.is_nan(deg):
+        return cfg.no_val
+    
     i = int(deg)
     if   i ==  0:  return 'quiet'
     elif i  < 22:  return 'north'
@@ -146,7 +156,30 @@ def deg_to_txt(deg):
     elif i == 990: return 'variable'
     else: return ''
 
+def wind_deg_to_txt_short(deg):
+    if chk.is_nan(deg):
+        return cfg.no_val
+    
+    i = int(deg)
+    if   i ==  0:  return '0'
+    elif i  < 22:  return 'N'
+    elif i  < 30:  return 'NNO'
+    elif i  < 67:  return 'NO'
+    elif i  < 112: return 'O'
+    elif i  < 157: return 'ZO'
+    elif i  < 202: return 'Z'
+    elif i  < 247: return 'ZW'
+    elif i  < 292: return 'W'
+    elif i  < 337: return 'NW'
+    elif i  < 360: return 'N'
+    elif i == 990: return 'V'
+    else: return ''
+
+
 def ms_to_txt( ms ): # TODO
+    if chk.is_nan(ms):
+        return cfg.no_val
+    
     i = int(ms)
     if   i <   3: return 'windstil'
     elif i <  16: return 'zwakke wind'
@@ -163,6 +196,9 @@ def ms_to_txt( ms ): # TODO
     else: return 'orkaan'
 
 def vvn_to_txt( vvn ):
+    if chk.is_nan(vvn):
+        return cfg.no_val
+    
     i = int(vvn)
     if   i <= 49: return f'{i*100} - {(i+1)*100} meter' # 1:100-200 m ... 49:4900-5000 m
     elif i == 50: return '5 - 6 km' # 50:5-6 km
@@ -172,11 +208,17 @@ def vvn_to_txt( vvn ):
     return vvn
 
 def timespan1hour(h):
+    if chk.is_nan(h):
+        return cfg.no_val
+    
     i = int(h)
     return f'{i-1} - {i} hour'
 
-def timespan6hour(u):
-    i = int(u)
+def timespan6hour(h):
+    if chk.is_nan(h):
+        return cfg.no_val
+    
+    i = int(h)
     if   i ==  6: s = '0 - 6'
     elif i == 12: s = '6 - 12'
     elif i == 18: s = '12 - 18'
