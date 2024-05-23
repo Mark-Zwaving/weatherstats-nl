@@ -359,25 +359,6 @@ def x( period ):
 
     return ok
 
-# OPTION: The current whole year
-# ****
-def xxxx( period ):
-    '''The current whole year
-       ****
-       * or x can not be omitted!
-       '''
-    ok = True
-    if period.find('-') != -1: # No '-' in period
-        ok = False
-    elif len(period) != 4: # Must be 4 wildcards
-        ok = False
-    elif not has_only_wildcards(period): # Must be wildcards only
-        ok = False
-    elif has_underscore(period): # No underscore allowed
-        ok = False
-    
-    return ok
-
 # The current month
 # **
 def xx( period ):
@@ -388,7 +369,7 @@ def xx( period ):
     ok = True
     if period.find('-') != -1: # No '-' in period
         ok = False
-    elif len(period) != 3: # Must be 4 wildcards
+    elif len(period) != 2: # Must be 2 wildcards
         ok = False
     elif not has_only_wildcards(period): # Must be wildcards only
         ok = False
@@ -407,7 +388,26 @@ def xxx( period ):
     ok = True
     if period.find('-') != -1: # No '-' in period
         ok = False
-    elif len(period) != 2: # Must be 4 wildcards
+    elif len(period) != 3: # Must be 3 wildcards
+        ok = False
+    elif not has_only_wildcards(period): # Must be wildcards only
+        ok = False
+    elif has_underscore(period): # No underscore allowed
+        ok = False
+    
+    return ok
+
+# OPTION: The current whole year
+# ****
+def xxxx( period ):
+    '''The current whole year
+       ****
+       * or x can not be omitted!
+       '''
+    ok = True
+    if period.find('-') != -1: # No '-' in period
+        ok = False
+    elif len(period) != 4: # Must be 4 wildcards
         ok = False
     elif not has_only_wildcards(period): # Must be wildcards only
         ok = False
