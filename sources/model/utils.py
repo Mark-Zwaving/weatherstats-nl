@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from dateutil import rrule
 from pytz import timezone
 from urllib.parse import urlparse
+import magic
 
 l0          = lambda s, n=1: str(s).zfill(n) # Add leading zeros
 add_l0      = lambda s, n=1: l0(s,n)
@@ -29,6 +30,16 @@ lst_to_s    = lambda lst, sep=', ': sep.join(lst)
 rnd_digit   = lambda min, max: random.randint(min, max)
 abspath     = lambda path: os.path.abspath(path)
 mk_path     = lambda dir, f: abspath(os.path.join(dir, f))
+
+def get_encoding_of_binary( bdata ):
+    # Create magic object
+    m = magic.open(magic.MAGIC_MIME_ENCODING)
+    # Load
+    m.load()
+    # Get encoding 
+    encoding = m.buffer(bdata) 
+
+    return encoding
 
 def add_lst(lst, el, key=0):
     '''Must return the list'''
