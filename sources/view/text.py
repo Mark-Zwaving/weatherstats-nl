@@ -474,7 +474,12 @@ lst_evaporation = ['evaporation', 'ev24']
 lst_day = ['day', 'mmdd']
 lst_month = ['month','mm', 'm', 'mmm', 'mmmm']
 lst_year = ['year', 'yyyy', 'yy']
+lst_mmdd_compare = ['days mmdd-mmdd', 'mmdd-mmdd']
 lst_season = ['season']
+lst_winter = ['winter']
+lst_summer = ['summer']
+lst_autumn = ['autumn', 'fall']
+lst_spring = ['spring']
 
 # Padding text values for text output
 pad_default = 10
@@ -1092,6 +1097,14 @@ def title(entity, sign, val):
 
 def title_mean(t=''):
     return f'title mean {t}'
+
+
+def info_line(txt, options, station):
+    t  = f'[{ymd.now()}] {txt} <{options[ask_title]}> '
+    t += f'for {station.wmo} {station.place} '
+    t += f'in period <{options[ask_period_1]}> '
+    t += f'with sub-period <{options[ask_period_2]}>' if options[ask_period_2] else cfg.e
+    return t
 
 
 lst_goodbye_txt = [
