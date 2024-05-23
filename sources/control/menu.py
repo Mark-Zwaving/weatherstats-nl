@@ -8,10 +8,10 @@ __version__    =  '0.3.7'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
-import time, pprint, os
+import time, os
 import config as cfg, defaults
 import sources.view.graphs as graphs
-import sources.model.weather as weather
+import sources.model.forecast.broker as weather
 import sources.model.animation as animation
 import sources.model.utils as utils
 import sources.model.database as database
@@ -26,7 +26,7 @@ import sources.view.console as cnsl
 import sources.view.text as text
 import sources.view.dayvalues as dayvalues
 import sources.view.select_days as select_days
-import sources.view.table as table
+import sources.view.table.broker as tbl_broker
 
 ##########################################################################################
 # KNMI download dayvalues OK
@@ -99,7 +99,7 @@ def table_stats(
 
         # Calculate the statistics
         st = time.time_ns() # Start the timer
-        ok, path = table.process(options) # Calculate with the given options
+        ok, path = tbl_broker.process(options) # Calculate with the given options
         et = time.time_ns() # End the timer
         t = utils.process_time_delta_ns('Total process time is ', et - st)
         cnsl.log(t, cfg.verbose)
@@ -241,7 +241,7 @@ def search_for_days_dayvalues():
         query_title =  options[text.ask_s4d_query].replace('\s+', ' ').strip()
         options[text.ask_title] = f'{title} ~ {query_title}' # Add query to the title
         options[text.ask_select_cells] = defaults.lst_search4day # Set the table colls
-        ok, path = table.process(options) # Calculate with the given options
+        ok, path = tbl_broker.process(options) # Calculate with the given options
         et = time.time_ns() # End the timer
         t = utils.process_time_delta_ns('Total process time is ', et - st)
         cnsl.log(t, cfg.verbose)
@@ -271,12 +271,12 @@ def search_for_days_dayvalues():
 def weather_buienradar_forecast():
     '''Function downloads and print a global weather forecast from the website from the knmi'''
     cnsl.log(text.head('START FORECAST BUIENRADAR'), True)
-    weather.process('buienradar-weather')
+    weather.process('buienradar-forecast')
     cnsl.log(text.foot('END FORECAST BUIENRADAR'), True)
     ask_question.ask(text.enter_back_main, default=cfg.e, 
                      back=False, prev=False, exit=True, spacer=True)
 
-# weather cities
+# Weather cities
 def weather_buienradar_stations():
     '''Function downloads and print a actual weather values to the screen'''
     cnsl.log(text.head('START WEATHERSTATIONS BUIENRADAR'), True)
@@ -287,12 +287,23 @@ def weather_buienradar_stations():
 
 ##########################################################################################
 # KNMI Weather
-# def weather_knmi_forecast():
-#     '''Function downloads and prints a global weather forecast from the website from the knmi'''
-#     cnsl.log(text.head('START FORECAST KNMI'), True)
-#     weather.process('knmi-weather')
-#     cnsl.log(text.foot('END FORECAST KNMI'), True)
-#     questions.ask(text.enter_back_main(), default=cfg.e, back=False, prev=False, exit=True, spacer=True)
+# Forecast
+def weather_knmi_forecast():
+    '''Function downloads and prints a global weather forecast from the website from the knmi'''
+    cnsl.log(text.head('START FORECAST KNMI'), True)
+    weather.process('knmi-forecast')
+    cnsl.log(text.foot('END FORECAST KNMI'), True)
+    ask_question.ask(text.enter_back_main, default=cfg.e, 
+                     back=False, prev=False, exit=True, spacer=True)
+
+# Weather cities
+def weather_knmi_stations():
+    '''Function downloads and prints a global weather forecast from the website from the knmi'''
+    cnsl.log(text.head('START WEATHERSTATIONS KNMI'), True)
+    weather.process('knmi-stations')
+    cnsl.log(text.foot('END WEATHERSTATIONS KNMI'), True)
+    ask_question.ask(text.enter_back_main, default=cfg.e, 
+                     back=False, prev=False, exit=True, spacer=True)
 
 # def weather_knmi_model():
 #     '''Function downloads and prints a global weather forecast from the website from the knmi'''
