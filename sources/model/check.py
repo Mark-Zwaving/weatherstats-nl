@@ -25,23 +25,23 @@ def is_nan( s ):
         elif math.isnan(s):
             ok = True
     except Exception as e:
-        cnsl.log(f'{s} not an NAN.\n{e}', cfg.error)
+        cnsl.log(f'{s} not an NAN.{cfg.ln}{e}', cfg.debug)
 
     return ok
 
 def is_int(s, verbose=False):
     try: 
         i = int(s)
-    except ValueError:
-        cnsl.log(f'{s} not an integer.', cfg.error)
+    except Exception as e:
+        cnsl.log(f'{s} not an integer.{cfg.ln}{e}', cfg.debug)
         return False  
     return True
 
 def is_float(s):
     try: 
         fl = float(s)
-    except ValueError:
-        cnsl.log(f'{s} not an float.', cfg.error)
+    except Exception as e:
+        cnsl.log(f'{s} not a float.{cfg.ln}{e}', cfg.debug)
         return False
     return True
 
@@ -59,7 +59,7 @@ def is_date( yyyymmdd ):
     try: 
         d = datetime.datetime.strptime(yyyymmdd, '%Y%m%d')
     except Exception as e:
-        cnsl.log(f'Date {yyyymmdd} incorrect\n{e}', cfg.error)
+        cnsl.log(f'Date {yyyymmdd} incorrect\n{e}', cfg.debug)
         return False
     return True
 
@@ -71,7 +71,6 @@ def is_image_corrupt(path, verbose=cfg.verbose):
         cnsl.log(f'Error in validate image_corrupt(). Path {path}\{e}', cfg.error)
         corrupt = True
     return corrupt
-
 
 def is_image(path, verbose=cfg.verbose):
     '''Function validates an image'''
@@ -88,7 +87,7 @@ def is_image(path, verbose=cfg.verbose):
         else:
             raise Exception(f'Image does not exist')
     except Exception as e:
-        cnsl.log(f'Error in validate image()\n{e}', verbose)
+        cnsl.log(f'Error in validate image()\n{e}', cfg.debug)
     else:
         cnsl.log('Image seems to be ok', verbose)
         ok = True
