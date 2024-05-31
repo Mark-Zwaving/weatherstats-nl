@@ -79,11 +79,15 @@ def columns(station, options, np_period1, np_period2, day=cfg.e, cnt=-1):
         # At least two id's must be available
         # E.g: max_tx (=minimum)
         if len(lst_cell_id) < 2:
+            col_txt += cfg.no_val 
+            col_htm += f'<td title="Error in cell id {cell}">{html.span(cfg.no_val,"val")}</td>' 
+            col_csv += cfg.no_val 
             continue
 
-        # Get first id of cell
-        # E.g: ave from ave_tg
-        opt = lst_cell_id[0]  
+        # If a second period is available and not empthy 
+        # The second period must be the period for the calculations.
+        if options[text.ask_period_2] != cfg.e:
+            np_period1 = np_period2 # Update period for the calculations
 
         # # Check for data
         if np.size(np_period1) == 0: 
@@ -91,16 +95,14 @@ def columns(station, options, np_period1, np_period2, day=cfg.e, cnt=-1):
             col_txt += cfg.no_val 
             col_htm += f'<td title="{t}">{html.span(cfg.no_val,"val")}</td>' 
             col_csv += cfg.no_val 
+            
             # Skip calculating values, 
             # because there are no values
             continue 
 
-        # If a second period is available and not empthy 
-        # The second period must be the period for the calculations.
-        # Update the period with the second period
-        if options[text.ask_period_2] != cfg.e:
-            if opt not in text.lst_info: # Not for info texts
-                np_period1 = np_period2 # Update period for the calculations
+        # Get first id of cell
+        # E.g: ave from ave_tg
+        opt = lst_cell_id[0]  
 
         # Info texts
         if opt in text.lst_info: 
