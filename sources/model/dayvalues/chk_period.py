@@ -437,7 +437,7 @@ def yyyyxxxx( period ):
     else:
         sy, smmdd = period[:4], period[4:]
         # sy must be a digit 
-        if sy.isdigit(): 
+        if not sy.isdigit(): 
             ok = False 
         # sx not only wildcards or not empthy
         elif not (has_only_wildcards(smmdd) or smmdd == ''):
