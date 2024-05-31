@@ -83,21 +83,23 @@ def process(question, answ, dict_results, back, prev_act, exit, spacer):
 
     # Ask for a type file
     elif question == text.ask_file_type: # Ask for a file types
-        t = 'Select type output file ?'
+        t = 'Select type output type ?'
         default = cfg.default_output
         dict_results[text.ask_file_type] = answ = ask_question.file_type(t,  default, back, 
                                                                          prev_act, exit, spacer )
 
     # Ask for a filename
     elif question == text.ask_filename: 
-        # Get a default name
-        default = f'wstats-{dict_results[text.ask_title]}-{utils.now_for_file()}' 
-        default = fio.sanitize_file_name(default)
 
-        # Ask filename
-        dict_results[text.ask_filename] = answ = ask_question.file_name(
-            'Give a name for the output file ?', 
-            default, back, prev_act, exit, spacer )
+        if dict_results[text.ask_file_type] not in text.lst_output_cnsl:
+            # Get a default name
+            default = f'wstats-{dict_results[text.ask_title]}-{utils.now_for_file()}' 
+            default = fio.sanitize_file_name(default)
+
+            # Ask filename
+            dict_results[text.ask_filename] = answ = ask_question.file_name(
+                'Give a name for the output file ?', 
+                default, back, prev_act, exit, spacer )
 
     # Save to a file?
     elif question == text.ask_save_txt_file: 
