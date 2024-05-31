@@ -60,13 +60,13 @@ extension_excel = '.xlsx'
 
 # Output options
 lst_output_options = [
-    # 'X TODO console only', 
+    'console (text)', 
     'html', 
     # 'X csv TODO', 
     # 'X excel TODO', 
     #'X all types TODO'
-    ]
-lst_output_cnsl = ['cmd', 'console', 'command', 'command line', 'console only']
+]
+lst_output_cnsl = ['cmd', 'console', 'command', 'command line', 'console only', 'console (text)']
 lst_output_htm = ['html', 'htm', 'html file', 'htm file']
 lst_output_txt = ['txt', 'text', 'text file', 'txt file']
 lst_output_csv = ['csv', 'csv file']
@@ -79,7 +79,7 @@ lst_output_img = lst_output_gif + lst_output_jpg + lst_output_png + lst_output_w
 lst_output_all = ['*', 'all', 'all file types']
 lst_output_txt_cnsl = lst_output_txt + lst_output_cnsl
 lst_output_csv_excel = lst_output_csv + lst_output_excel
-lst_output_files = lst_output_txt + lst_output_htm + lst_output_csv + lst_output_excel + lst_output_img
+lst_output_files = lst_output_htm + lst_output_csv + lst_output_excel + lst_output_img
 lst_output_all = lst_output_cnsl + lst_output_files
 
 # Ask options
@@ -450,8 +450,9 @@ lst_province = ['province']
 lst_country = ['country', 'land']
 lst_states = lst_province + lst_country 
 lst_geo_places = lst_states + lst_place
-lst_period_1 = ['period', 'periode', 'period1', 'period-1']
+lst_period_1 = ['period1', 'period-1', 'periode-1','period', 'periode']
 lst_period_2 = ['period2', 'period-2', 'periode-2']
+lst_period = lst_period_1 + lst_period_2
 lst_temp = ['temperature', 'temp', 'tx', 'tg', 'tn', 't10n']
 lst_heat_ndx = ['heatindex', 'heat-index', 'heat-ndx', 'heatndx', 'hndx', 'heat'] 
 lst_helmmann = ['hmann', 'hman', 'hellmann', 'hellman', 'helman']
@@ -482,7 +483,7 @@ lst_autumn = ['autumn', 'fall']
 lst_spring = ['spring']
 
 # Padding text values for text output
-pad_default = 10
+pad_default = 8
 pad_tx = 5
 pad_tg = 5
 pad_tn = 5
@@ -509,16 +510,17 @@ pad_ng = 3
 pad_ux = 5
 pad_un = 5
 pad_ev24 = 5
-pad_cnt = 10
+pad_cnt = 6
 pad_day = 10
-pad_max = 10 + 12
-pad_min = 10 + 12
-pad_extreme = 10 + 12
+pad_max = 15
+pad_min = 15
+pad_extreme = 18
 pad_home = 15
 pad_states = 15
 pad_place = 15
 pad_province = 15
 pad_country = 15
+pad_period = 19
 pad_period_1 = 19
 pad_period_2 = 19
 pad_month = 3
@@ -542,6 +544,11 @@ pad_num = 4
 pad_clima = 14 
 pad_view = 4 
 pad_evaporation = 4 
+
+
+
+
+
 
 # Copyright notification weatherstats 
 created_by_notification = 'Created by weatherstats-nl at %s' 
