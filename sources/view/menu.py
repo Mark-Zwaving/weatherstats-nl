@@ -4,7 +4,7 @@ __author__     = 'Mark Zwaving'
 __email__      = 'markzwaving@gmail.com'
 __copyright__  = 'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 2 - GPLv2'
-__version__    = '0.0.9' 
+__version__    = '0.1.0' 
 __maintainer__ = 'Mark Zwaving'
 __status__     = 'Development'
 
@@ -34,6 +34,7 @@ lst_divers_statistics = [
         [ 'DIY statistics', ctrl_menu.table_stats_diy ],
         [ 'Two period statistics (more options) <BETA>', ctrl_menu.table_stats_period_in_period],
         [ 'Compare statistics <BETA>',  ctrl_menu.table_stats_period_compare ],
+        # [ 'X TODO Search 4 days statistics <BETA>',  ctrl_menu.search_for_days ],
     ] 
 ]
 
@@ -44,11 +45,11 @@ lst_default_statistics = [
 ]
 
 lst_dayvalues = [ 
-    'DAYVALUES', 
+    'DAYS', 
     [ 
-        [ 'Make day(s) dayvalues', ctrl_menu.make_days_dayvalues ],
-        [ 'See day(s) dayvalues', ctrl_menu.see_days_dayvalues ],
-        # [ 'TODO Search for day(s)', ctrl_menu.search_for_days_dayvalues ],
+        [ 'Make day(s) dayvalues by date', ctrl_menu.make_days_dayvalues ],
+        [ 'See day(s) dayvalues by date', ctrl_menu.see_days_dayvalues ],
+        [ 'X TODO Search for day(s)', ctrl_menu.search_for_days ],
     ] 
 ]
 
@@ -56,6 +57,7 @@ lst_graphs = [
     'GRAPHS', 
     [ 
         [ 'Dayvalues and statistics', ctrl_menu.graph_period ],
+        [ 'x TODO Period sum/total graphs', ctrl_menu.graph_period_sum ],
     ] 
 ]
 
@@ -73,7 +75,7 @@ lst_databases = [
 ]
 
 lst_current_weather = [ 
-    'WEATHER (dutch)', 
+    'WEATHER (dutchnl)', 
     [ 
         [ 'Buienradar Forecast',    ctrl_menu.weather_buienradar_forecast ],
         [ 'Buienradar Stations NL', ctrl_menu.weather_buienradar_stations ],
