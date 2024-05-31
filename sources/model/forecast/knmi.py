@@ -303,42 +303,42 @@ def weather_stations():
 
         # Start at first key
         col_start, col_end = 0, cfg.knmi_station_cols
-        spc_cnt, spc_lft = 16, 18
+        spc_title, spc_val = 14, 20
 
         t = f'Waarnemingen NL' + cfg.ln + cfg.ln
         while col_end != len(cfg.lst_knmi_stations_show):
-            t += 'Weerstation '.rjust(spc_lft)[:spc_lft]
+            t += 'Weerstation '.rjust(spc_title)[:spc_title]
             for place in lst_places[col_start:col_end]: 
-                t += f'{place[:spc_cnt]:^{spc_cnt}}'
+                t += f'{place[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln
 
-            t += 'Bewolking '.rjust(spc_lft)[:spc_lft]
+            t += 'Bewolking '.rjust(spc_title)[:spc_title]
             for n in lst_n[col_start:col_end]: 
-                t += f'{n[:spc_cnt]:^{spc_cnt}}'
+                t += f'{n[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln
 
-            t += 'Temperatuur '.rjust(spc_lft)[:spc_lft]
+            t += 'Temperatuur '.rjust(spc_title)[:spc_title]
             for ta in lst_ta[col_start:col_end]: 
-                t += f'{ta[:spc_cnt]:^{spc_cnt}}'
+                t += f'{ta[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln
 
-            # t += 'Temperature 10cm '.rjust(spc_lft)[:spc_lft]
-            # for tb2 in lst_tb2[col_start:col_end]: t += f'{tb2[:spc_cnt]:^{spc_cnt}}'
+            # t += 'Temperature 10cm '.rjust(spc_title)[:spc_title]
+            # for tb2 in lst_tb2[col_start:col_end]: t += f'{tb2[:spc_val]:^{spc_val}}'
             # t = t.rstrip() + cfg.ln
 
-            t += 'Wind '.rjust(spc_lft)[:spc_lft]
+            t += 'Wind '.rjust(spc_title)[:spc_title]
             for dd in lst_dd[col_start:col_end]: 
-                t += f'{dd[:spc_cnt]:^{spc_cnt}}'
+                t += f'{dd[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln
 
-            t += 'Luchtdruk '.rjust(spc_lft)[:spc_lft]
+            t += 'Luchtdruk '.rjust(spc_title)[:spc_title]
             for ps in lst_ps[col_start:col_end]: 
-                t += f'{ps[:spc_cnt]:^{spc_cnt}}'
+                t += f'{ps[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln
 
-            t += 'Zicht '.rjust(spc_lft)[:spc_lft]
+            t += 'Zicht '.rjust(spc_title)[:spc_title]
             for vv in lst_vv[col_start:col_end]: 
-                t += f'{vv[:spc_cnt]:^{spc_cnt}}'
+                t += f'{vv[:spc_val]:^{spc_val}}'
             t = t.rstrip() + cfg.ln + cfg.ln
 
             # Move cols up
