@@ -11,7 +11,7 @@ __author__     =  'Mark Zwaving'
 __email__      =  'markzwaving@gmail.com'
 __copyright__  =  'Copyright (C) Mark Zwaving. All rights reserved.'
 __license__    =  'GNU General Public License version 2 - GPLv2'
-__version__    =  '0.0.5'
+__version__    =  '0.0.6'
 __maintainer__ =  'Mark Zwaving'
 __status__     =  'Development'
 
@@ -60,19 +60,16 @@ def header( lst_cell, file_type ):
             elif file_type in text.lst_output_csv_excel:
                 csv = f'country{cfg.csv_sep}'
 
-    elif entity in text.lst_period_1:
-        txt = text.padding('PERIOD1', 'center', text.pad_period_1)[:text.pad_period_1]
+    elif entity in text.lst_period:
+        period = 'PERIOD'
+        if   entity in text.lst_period_1: period = 'PERIOD1'
+        elif entity in text.lst_period_2: period = 'PERIOD2'
+
+        txt = text.padding(period, 'center', text.pad_period)[:text.pad_period]
         if file_type in text.lst_output_htm: 
-            htm = f'<th>{ico}period</th>'
+            htm = f'<th>{ico}{period}</th>'
         elif file_type in text.lst_output_csv_excel:
-            csv = f'period{cfg.csv_sep}'
-            
-    elif entity in text.lst_period_2:
-        txt = text.padding('PERIOD2', 'center', text.pad_period_2)[:text.pad_period_2]
-        if file_type in text.lst_output_htm: 
-            htm = f'<th>{ico}period2</th>'    
-        elif file_type in text.lst_output_csv_excel:
-            csv = f'period2{cfg.csv_sep}'
+            csv = f'{period}{cfg.csv_sep}'
 
     elif entity in text.lst_num:
         txt = text.padding('NUM', 'center', text.pad_num)[:text.pad_num]
@@ -101,12 +98,9 @@ def header( lst_cell, file_type ):
 def body(options, np_lst_days_1, np_lst_days_2, lst_cell, day, cnt, file_type):
     txt, htm, csv = '', '', ''
     title, entity  = lst_cell[0], lst_cell[1]
-    col_ymd, col_stn = data.column('yyyymmdd'), data.column('stn')
-
+    col_stn = data.column('stn')
     wmo = str(int(np_lst_days_1[0, col_stn]))
     station = stations.wmo_to_station(wmo) 
-    symd = str(int(np_lst_days_1[ 0, col_ymd]))
-    eymd = str(int(np_lst_days_1[-1, col_ymd]))
 
     if entity in text.lst_copyright:
         txt = text.padding('©', 'center', text.pad_copyright)[:text.pad_copyright]
@@ -137,33 +131,23 @@ def body(options, np_lst_days_1, np_lst_days_2, lst_cell, day, cnt, file_type):
             csv = f'{station.country}{cfg.csv_sep}'
 
     # yyyymmdd - yyyymmdd
-    elif entity in text.lst_period_1:
-        if symd == cfg.date_false:
-            period_ymd  = cfg.no_val
-            period_txt  = cfg.no_val
-        else:
-            period_ymd = f'{symd}-{eymd}'
-            period_txt = f'{ymd.yyyymmdd_to_text(symd)} - {ymd.yyyymmdd_to_text(eymd)}'
+    elif entity in text.lst_period:
+        col_ymd = data.column('yyyymmdd')
+        if entity in text.lst_period_1:
+            symd = str(int(np_lst_days_1[ 0, col_ymd]))
+            eymd = str(int(np_lst_days_1[-1, col_ymd]))
+        elif entity in text.lst_period_2:
+            symd = str(int(np_lst_days_2[ 0, col_ymd]))
+            eymd = str(int(np_lst_days_2[-1, col_ymd]))
 
-        txt = text.padding(period_ymd, 'center', text.pad_period_1)[:text.pad_period_1]
+        period_ymd = f'{symd}-{eymd}'
+        period_txt = f'{ymd.yyyymmdd_to_text(symd)} - {ymd.yyyymmdd_to_text(eymd)}'
+        txt = text.padding(period_ymd, 'center', text.pad_period)[:text.pad_period]
 
         if file_type in text.lst_output_htm:
             htm = f'<td title="{period_txt}">{html.span(period_ymd, "val")}</td>'
         elif file_type in text.lst_output_csv_excel:
             csv = f'{period_ymd}{cfg.csv_sep}'
-
-    # yyyymmdd or mmdd or yyyymmdd-yyyymmdd
-    elif entity in text.lst_period_2:
-        # Make new period
-        symd = str(int(np_lst_days_2[ 0, col_ymd]))
-        eymd = str(int(np_lst_days_2[-1, col_ymd]))
-        period2 = f'{symd}-{eymd}' # Later
-        period2 = options[text.ask_period_2]
-        txt = text.padding(period2, 'center', text.pad_period_2)[:text.pad_period_2]
-        if file_type in text.lst_output_htm:
-            htm = f'<td>{html.span(period2, "val")}</td>'
-        elif file_type in text.lst_output_csv_excel:
-            csv = f'{period2}{cfg.csv_sep}'
 
     # Counter for rows
     elif entity in text.lst_num:
