@@ -16,19 +16,19 @@ verbose = False  # Print more(all) to screen
 error   = True   # Print exceptions and errors to screen
 info    = True   # Show examples and help info in menu by default
 console = True   # Show always the calculated tables in the console 
-log     = False  # Log to file 
+log     = False  # Log to file # Debug. Set true to see it all
+
+# If true: verbose, error, info and console will all be set to true
+debug = False 
 
 # The <default> years/period for the calculations of climate averages
 climate_start_year = 1991
 climate_end_year   = 2020
-
-# Debug. Set true to see it all
-# If true: verbose, error, info and console will all be set to true
-debug = False 
+climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # TODO: To automatic save the console output in an text file 
 # to map: data/console/
-# save_text = False 
+save_console_output = True
 
 # To save the current weather and forecasts in the data/forecasts map,
 # set save_forecasts to true else False
@@ -83,7 +83,6 @@ dir_stats_excel    = os.path.join(dir_statistics, 'excel')
 # Paths templates
 html_template_dayvalues  = os.path.join(dir_templates_htm, 'dayvalues.html')
 html_template_statistics = os.path.join(dir_templates_htm, 'statistics.html')
-
 
 # How many dir up is the html root, in the data/statistics map ?
 # Define paths to css, img and js files in the created html-files.  
@@ -428,8 +427,6 @@ if debug:
 
 # Database
 connect_db = False
-
-climate_period = f'{climate_start_year}-{climate_end_year}'
 
 # Startup time for running this app (!more or less)
 app_start_time = time.time() 
