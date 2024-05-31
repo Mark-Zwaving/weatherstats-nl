@@ -43,16 +43,18 @@ def process(station, options, np_lst_period1, cnt):
         if 'inf_period-1' in options[text.ask_select_cells]:
             options[text.ask_select_cells].remove('inf_period-1')
 
-    # Walkthrough the years
-    lst_yyyy = [str(yymmdd)[:4] for yymmdd in range(int(symd1), int(eymd1), 10000)]
+    # Make a list of all the available years
+    isy, iey = int(str(symd1)[:4]), int(str(eymd1)[:4])
+    lst_yyyy = [ yyyy for yyyy in range(isy, iey + 1, 1) ]
 
-    # Reverse lst years and walkthrough the years
-    # for the calculation data for a specific period
-    for yyyy in lst_yyyy[::-1]: 
+    # Reverse lst years and walkthrough the years 
+    # for the calculation data for a specific period 
+    for yyyy in lst_yyyy: 
         print("id: ", id)
         print("period: " , period)
         # input()
 
+        # Make/Get the correct period 2
         if id in text.lst_year:
             options[text.ask_period_2] = f'{yyyy}****'
 
@@ -92,12 +94,11 @@ def process(station, options, np_lst_period1, cnt):
                 options[text.ask_period_2] = f'{sy}{mmdd1}-{yyyy}{mmdd2}'
 
         # Get days period 2
-        period2 = options[text.ask_period_2]
-        ok, np_lst_period2 = dayval_broker.process(np_lst_period1, period2)
+        ok, np_lst_period2 = dayval_broker.process(np_lst_period1, options[text.ask_period_2])
 
         # No data in period 2
-        if np.size(np_lst_period2) == 0: 
-            body_htm = body_htm + body.no_data_row_htm(station, options,  period2)
+        if not ok or np.size(np_lst_period2) == 0: 
+            body_htm = body_htm + body.no_data_row_htm(station, options, options[text.ask_period_2])
             body_txt = body_txt + cfg.no_val
             body_csv = body_csv + cfg.no_val
 
