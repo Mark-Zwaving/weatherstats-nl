@@ -90,8 +90,8 @@ def body_rows_columns(options):
             cnsl.log(err, cfg.error)
             continue 
 
-        # Init dummy value
-        np_lst_period_2 = np_dummy # Period 2 dummy
+        # Period 2 empthy
+        np_lst_period_2 = cfg.e
 
         # Get days period1
         ok, np_lst_period_1 = broker.process(np_lst_station, period1)
@@ -128,7 +128,7 @@ def body_rows_columns(options):
 
                     # Check for values in period 1
                     # If there is no data for a given period give the no_value
-                    elif np.size(np_lst_period_2) == 0: 
+                    if np.size(np_lst_period_2) == 0: 
                         body_htm = body_htm + body.no_data_row_htm(station, options,  period2)
                         body_txt = body_txt + cfg.no_val
                         body_csv = body_csv + cfg.no_val
@@ -169,8 +169,7 @@ def body_rows_columns(options):
 
         # Statistics table
         cnt += 1  # Count the days
-        htm, txt, csv = body.row(station, options, 
-                                 np_lst_period_1, np_lst_period_2, 
+        htm, txt, csv = body.row(station, options, np_lst_period_1, np_lst_period_2, 
                                  day=cfg.e, cnt=cnt) # Get the tr cells with data
         body_htm = body_htm + htm
         body_txt = body_txt + txt
@@ -185,8 +184,20 @@ def mk_output(htm, txt, csv, options):
     '''Make output to screen or file(s)'''
     ok, path, ftyp = True, cfg.e, options[text.ask_file_type] 
 
-    if ftyp in text.lst_output_cnsl or cfg.console:  # For console
-        cnsl.log(f'\n{txt}', True)  # Add 1 spacer/enter around console output
+    # Write output to console
+    if cfg.console:
+        cnsl.log(cfg.ln + text.head(f'{options[text.ask_title]} <console output>'), True)
+        cnsl.log(txt, True) 
+        cnsl.log(text.line('#') + cfg.ln, True)
+
+    # Write to file
+    if cfg.save_console_output and ftyp in text.lst_output_cnsl:
+        # File name (base)
+        fname_base = fio.sanitize_file_name(options[text.ask_title])
+        # Make path with dates and times
+        path = fio.path_with_act_date(cfg.dir_stats_cnsl, fname_base, extension='txt')
+        # Write to file
+        ok = fio.save(path, txt, verbose=cfg.debug)
 
     if ftyp in text.lst_output_files:
         # File name
@@ -225,9 +236,9 @@ def mk_output(htm, txt, csv, options):
                 cnsl.log( f'Save {ftyp} file failed!', cfg.error )
 
         # text, csv option
-        elif ftyp in text.lst_output_txt + text.lst_output_csv: 
+        elif text.lst_output_csv:
             # Schrijf naar bestand
-            ok = fio.save( path, data, verbose=True )  
+            ok = fio.save(path, data, verbose=True)
 
         # TODO Convert csv to excel 
         elif ftyp in text.lst_output_excel: 
