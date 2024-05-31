@@ -47,7 +47,7 @@ def body(np_lst_days, lst_cell, file_type):
     cnt, entity, sign, value = lst_cell
 
     # Get days based on a condition. For example: tx >= 25
-    ok, np_lst_condit, _ = conditional.calculate(np_lst_days, entity, sign, value )
+    ok, np_lst_condit, _ = conditional.calculate(np_lst_days, entity, sign, value)
 
     if ok: 
         # Count all the days 
