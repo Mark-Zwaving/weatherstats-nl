@@ -102,15 +102,20 @@ def table_stats(
         ok, path = tbl_broker.process(options) # Calculate with the given options
         et = time.time_ns() # End the timer
         t = utils.process_time_delta_ns('Total process time is ', et - st)
-        cnsl.log(t, cfg.verbose)
+        cnsl.log(t + cfg.ln, cfg.verbose)
 
+        # Open possible saved file?
         if ok:
-            typ = options[text.ask_file_type]
-            if typ in text.lst_output_files:
-                if answer.is_yes( ask_question.y_or_n(
-                        f'Do you want to open the <{typ}> file ?', default='y', 
-                        back=False, prev=False, exit=True, spacer=True
-                    ) ):
+            # File type 
+            ftyp = options[text.ask_file_type]
+            # If console output
+            console = ftyp in text.lst_output_cnsl and cfg.save_console_output
+    
+            # If an output file or console output with save output option set to true
+            if ftyp in text.lst_output_files or console:
+                t, default = 'Do you want to open the saved file ?', 'n' if console else 'y'
+                answ = ask_question.y_or_n(t, default, back=False, prev=False, exit=True, spacer=True) 
+                if answer.is_yes(answ):
                     utils.exec_with_app(path, verbose=False)
 
         # Ask to make another table
@@ -222,7 +227,7 @@ def see_days_dayvalues():
 
 ##########################################################################################
 # SEARCH FOR DAYS
-def search_for_days_dayvalues():
+def search_for_days():
     '''Function searches files for days with specific values. ie > 30 degrees'''
     while True:
         cnsl.log(text.head('START SEARCH 4 DAYS'), True)
@@ -230,15 +235,14 @@ def search_for_days_dayvalues():
         # Ask list with questions
         title = 'search 4 days'
         options = broker_questions.process(text.lst_ask_search_4_day, title, default=cfg.e, 
-                                           back=True, prev=True, exit=True, spacer=True
-        )
+                                           back=True, prev=True, exit=True, spacer=True)
 
         # If the options list has the go back to main menu option fiiled in
         if options[text.ask_other_menu]: 
-            break # Go back to mainmenu
+            break # Go back to mainmenu 
 
         st = time.time_ns() # Start the timer
-        query_title =  options[text.ask_s4d_query].replace('\s+', ' ').strip()
+        query_title = options[text.ask_s4d_query].replace('\s+', ' ').strip()
         options[text.ask_title] = f'{title} ~ {query_title}' # Add query to the title
         options[text.ask_select_cells] = defaults.lst_search4day # Set the table colls
         ok, path = tbl_broker.process(options) # Calculate with the given options
@@ -365,6 +369,11 @@ def graph_period():
         break 
 
     cnsl.log(text.foot('END MAKE GRAPH'), True)
+
+def graph_period_sum():
+    cnsl.log(text.head('START MAKE SUM PERIOD GRAPH'), True)
+    cnsl.log('TODO TODO TODO', True)
+    cnsl.log(text.foot('END MAKE SUM PERIOD GRAPH'), True)
 
 # def graph_period_quick_default():
 #     while True:
@@ -559,13 +568,6 @@ def download_animation():
         break # Stop animation
 
     cnsl.log(text.foot('END DOWNLOAD IMAGES AND MAKE AN ANIMATION'), True)
-
-#TODO       
-def animation_images_from_map():
-    # Read images from a given map or maps
-    # Sort images on date
-    # Make animation
-    pass
 
 ##########################################################################################
 # DATABASES
