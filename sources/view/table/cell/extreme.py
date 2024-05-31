@@ -78,7 +78,7 @@ def body(np_lst_days, lst_cell, file_type):
 
     # Output
     # Always make a text output
-    txt = text.padding(value, 'center', text.pad_min)[:text.pad_min]
+    txt = text.padding(value, 'center', text.pad_extreme)[:text.pad_extreme]
 
     if file_type in text.lst_output_csv_excel:
         csv = f'{value}{cfg.csv_sep}'
