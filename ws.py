@@ -100,18 +100,20 @@ def main():
         # Check internet and data and get menu lst
         lst, internet, data  = lst_menu() 
 
+        t  = text.head('<BETA> MAIN MENU - Welcome to WeatherStatsNL <BETA>') + cfg.ln
+        t += cfg.ln
+
         # Walkthrough menu options
-        num, content = 1, cfg.e
+        n = 1
         for el in lst:
             title, options = el[0], el[1]
-            content += f'\n{cfg.spacer}{title}' + cfg.ln
+            t += f'{cfg.spacer}{title}' + cfg.ln
             for option in options:
                 title = option[0]
-                content += f'{cfg.spacer*2}{num:>2}) {title}' + cfg.ln
-                num += 1
-        t  = text.head('BETA') + cfg.ln
-        t += text.head('MAIN MENU - Welcome to WeatherStatsNL') + cfg.ln
-        t += content  + cfg.ln
+                t += f'{cfg.spacer*2}{n:>2}) {title}' + cfg.ln
+                n += 1
+
+        t += cfg.ln
 
         if not data and not internet:
             t += text.menu_no_internet_no_data + cfg.ln
@@ -125,7 +127,7 @@ def main():
                 t += f'{cfg.spacer}No data found.\n'
                 t += f'{cfg.spacer}Download the weather data (option 1 & 2) for more menu options.' + cfg.ln
 
-            t += f'{cfg.spacer}Choose one of the following options: 1..{num-1}' + cfg.ln
+            t += f'{cfg.spacer}Choose one of the following options: 1..{n-1}' + cfg.ln
             t += f"{cfg.spacer}Press 'x' to quit program..." + cfg.ln + cfg.ln
             t += text.foot('Your choice ? ')
 
@@ -142,14 +144,14 @@ def main():
                 pass # Input is not a number
             else:
                 # Check availbale menu options 
-                if choice in range( 1, num ):
+                if choice in range( 1, n ):
                     # Menu choice is OK, goto menu broker 
                     menu_broker(lst, choice) 
                     continue
             
             # Input was not a number or out of range
             t  = f"Menu option '{answ}' is not available." + cfg.ln
-            t += f'Enter a number from 1..{num-1}.' + cfg.ln
+            t += f'Enter a number from 1..{n-1}.' + cfg.ln
             t += text.press_enter_continue + cfg.ln
             # cnsl.log(t, True)
             input(t)
